@@ -24,6 +24,7 @@ class GroupsMaker:
             else:
                 combs = tmp_combs[:]
         self.unique_combs = set([tuple(sorted(comb)) for comb in combs])
+        return [set(comb) for comb in self.unique_combs]
 
     def get_random_comb(self, name):
         combs_with_name = []
@@ -49,6 +50,6 @@ class GroupsMaker:
 if __name__ == '__main__':
     students = ['misha', 'kate', 'serega', 'yula', 'dasha', 'sasha']
     g = GroupsMaker(students, 2, group_amount=3)
-    g.combine()
-    print(g.get_remain_names(['misha'], g.get_random_comb('misha')))
+    print(g.combine())
+    # print(g.get_remain_names(['misha'], g.get_random_comb('misha')))
 
