@@ -32,7 +32,7 @@ class GroupsMaker:
                 combs_with_name.append(comb)
         return random.choice(combs_with_name)
 
-    def get_remain_names(self, names, comb):
+    def get_remain_names(self, names, all_names):
         comb = list(comb)
         for name in names:
             comb.remove(name)
@@ -43,6 +43,7 @@ class GroupsMaker:
             name, *other_names = random.shuffle(self.student_names)
             comb = self.get_random_comb(name)
             self.used_combs.append(comb)
+            self.get_remain_names(name)
 
 
 if __name__ == '__main__':
