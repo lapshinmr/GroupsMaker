@@ -13,6 +13,6 @@ class GroupsMaker:
 
 if __name__ == '__main__':
     students = ['misha', 'kate', 'yula']
-    g = GroupsMaker(students, 3)
+    g = GroupsMaker(students, 6)
     g.combine()
 
