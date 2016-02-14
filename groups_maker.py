@@ -23,33 +23,50 @@ class GroupsMaker:
                         tmp_combs.append(comb)
             else:
                 combs = tmp_combs[:]
-        self.unique_combs = set([tuple(sorted(comb)) for comb in combs])
-        return [set(comb) for comb in self.unique_combs]
+        self.unique_combs = list(set([tuple(sorted(comb)) for comb in combs]))
 
-    def get_random_comb(self, name):
+    @staticmethod
+    def get_combs_with_name(name, combs):
         combs_with_name = []
-        for comb in self.unique_combs:
+        for comb in combs:
             if name in comb:
                 combs_with_name.append(comb)
-        return random.choice(combs_with_name)
+        return combs_with_name
 
-    def get_remain_names(self, names, all_names):
+    @staticmethod
+    def substract_name(name, comb):
         comb = list(comb)
-        for name in names:
-            comb.remove(name)
+        comb.remove(name)
         return tuple(comb)
 
-    def get_calendar(self, unique_combs):
-        while True:
-            name, *other_names = random.shuffle(self.student_names)
-            comb = self.get_random_comb(name)
-            self.used_combs.append(comb)
-            self.get_remain_names(name)
+    def get_calendar(self):
+        all_combs = self.unique_combs[:]
+
+    def get_lesson_groups(self, combs):
+        names = self.student_names[:]
+        tmp_combs = combs[:]
+        lesson_groups = []
+        while names:
+            random.shuffle(names)
+            name = random.choice(names)
+            group = random.choice(self.get_combs_with_name(name, tmp_combs))
+            lesson_groups.append(group)
+            combs_to_del = []
+            for name in group:
+                for group in self.get_combs_with_name(name, tmp_combs):
+                    if group not in combs_to_del:
+                        combs_to_del.append(group)
+                names.remove(name)
+            tmp_combs = list(set(tmp_combs) - set(combs_to_del))
+        return lesson_groups
+
+
+
 
 
 if __name__ == '__main__':
     students = ['misha', 'kate', 'serega', 'yula', 'dasha', 'sasha']
-    g = GroupsMaker(students, 2, group_amount=3)
-    print(g.combine())
-    # print(g.get_remain_names(['misha'], g.get_random_comb('misha')))
+    g = GroupsMaker(students, 3, group_amount=3)
+    g.combine()
+    print(g.get_lesson_groups(g.unique_combs))
 
