@@ -51,6 +51,11 @@ class GroupsMaker:
 
     def get_calendar(self):
         all_combs = self.unique_combs[:]
+        for time in range(self.total_lessons):
+            print(all_combs)
+            groups = self.get_lesson_groups(all_combs)
+            print(groups)
+            all_combs = list(set(all_combs) - set(groups))
 
 
 
@@ -60,5 +65,5 @@ if __name__ == '__main__':
     students = ['misha', 'kate', 'serega', 'yula', 'dasha', 'sasha']
     g = GroupsMaker(students, 3, group_amount=2)
     g.combine()
-    print(g.get_lesson_groups(g.unique_combs))
+    print(g.get_calendar())
 
