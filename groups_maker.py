@@ -33,26 +33,24 @@ class GroupsMaker:
                 combs_with_name.append(comb)
         return combs_with_name
 
-    def get_calendar(self):
-        all_combs = self.unique_combs[:]
-
     def get_lesson_groups(self, combs):
         names = self.student_names[:]
         tmp_combs = combs[:]
         lesson_groups = []
         while names:
-            random.shuffle(names)
-            name = random.choice(names)
-            group = random.choice(self.get_combs_with_name(name, tmp_combs))
+            group = random.choice(tmp_combs)
             lesson_groups.append(group)
-            combs_to_del = []
+            combs_to_del = set()
             for name in group:
                 for group in self.get_combs_with_name(name, tmp_combs):
                     if group not in combs_to_del:
-                        combs_to_del.append(group)
+                        combs_to_del.add(group)
                 names.remove(name)
-            tmp_combs = list(set(tmp_combs) - set(combs_to_del))
+            tmp_combs = list(set(tmp_combs) - combs_to_del)
         return lesson_groups
+
+    def get_calendar(self):
+        all_combs = self.unique_combs[:]
 
 
 
@@ -60,7 +58,7 @@ class GroupsMaker:
 
 if __name__ == '__main__':
     students = ['misha', 'kate', 'serega', 'yula', 'dasha', 'sasha']
-    g = GroupsMaker(students, 3, group_amount=3)
+    g = GroupsMaker(students, 3, group_amount=2)
     g.combine()
     print(g.get_lesson_groups(g.unique_combs))
 
