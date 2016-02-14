@@ -33,12 +33,6 @@ class GroupsMaker:
                 combs_with_name.append(comb)
         return combs_with_name
 
-    @staticmethod
-    def substract_name(name, comb):
-        comb = list(comb)
-        comb.remove(name)
-        return tuple(comb)
-
     def get_calendar(self):
         all_combs = self.unique_combs[:]
 
