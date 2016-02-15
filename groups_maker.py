@@ -81,5 +81,6 @@ if __name__ == '__main__':
     for lesson in g.get_calendar():
         print(set(lesson))
         total_groups.update(set(lesson))
+
     print(len(total_groups))
 
