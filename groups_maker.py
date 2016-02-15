@@ -47,15 +47,20 @@ class GroupsMaker:
                         combs_to_del.add(group)
                 names.remove(name)
             tmp_combs = list(set(tmp_combs) - combs_to_del)
-            print(names)
-            print(tmp_combs)
         return lesson_groups
 
     def get_calendar(self):
         all_combs = self.unique_combs[:]
         for time in range(self.total_lessons):
-            groups = self.get_lesson_groups(all_combs)
+            while True:
+                try:
+                    groups = self.get_lesson_groups(all_combs)
+                    break
+                except IndexError:
+                    print('trying one more time')
+                    continue
             all_combs = list(set(all_combs) - set(groups))
+            print(groups)
 
 
 
@@ -63,8 +68,9 @@ class GroupsMaker:
 
 if __name__ == '__main__':
     students = ['misha', 'kate', 'serega', 'yula', 'dasha', 'sasha']
-    g = GroupsMaker(students, 3, group_amount=2)
+    students = ['1', '2', '3', '4', '5', '6']
+    g = GroupsMaker(students, 5, group_amount=2)
     g.combine()
     # print(g.get_lesson_groups(g.unique_combs))
-    print(g.get_calendar())
+    g.get_calendar()
 
