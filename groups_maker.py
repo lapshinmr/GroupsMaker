@@ -2,6 +2,7 @@
 You can find main logic here.
 """
 import random
+from gm_exceptions import *
 
 
 class GroupsMaker:
@@ -51,16 +52,21 @@ class GroupsMaker:
 
     def get_calendar(self):
         all_combs = self.unique_combs[:]
-        for time in range(self.total_lessons):
+        calendar = []
+        total_attempts = 0
+        while len(calendar) < self.total_lessons:
             while True:
                 try:
                     groups = self.get_lesson_groups(all_combs)
                     break
                 except IndexError:
-                    print('trying one more time')
+                    total_attempts += 1
+                    if total_attempts > 30:
+                        raise AttemptsExceeded(total_attempts)
                     continue
             all_combs = list(set(all_combs) - set(groups))
-            print(groups)
+            calendar.append(groups)
+        return calendar
 
 
 
@@ -68,9 +74,12 @@ class GroupsMaker:
 
 if __name__ == '__main__':
     students = ['misha', 'kate', 'serega', 'yula', 'dasha', 'sasha']
-    students = ['1', '2', '3', '4', '5', '6']
     g = GroupsMaker(students, 5, group_amount=2)
     g.combine()
     # print(g.get_lesson_groups(g.unique_combs))
-    g.get_calendar()
+    total_groups = set()
+    for lesson in g.get_calendar():
+        print(set(lesson))
+        total_groups.update(set(lesson))
+    print(len(total_groups))
 

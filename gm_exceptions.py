@@ -1,0 +1,4 @@
+
+
+class AttemptsExceeded(Exception):
+    pass
