@@ -51,6 +51,7 @@ class GroupsMaker:
         return lesson_groups
 
     def get_calendar(self):
+        self.combine()
         all_combs = self.unique_combs[:]
         calendar = []
         total_attempts = 0
@@ -69,18 +70,11 @@ class GroupsMaker:
         return calendar
 
 
-
-
-
 if __name__ == '__main__':
     students = ['misha', 'kate', 'serega', 'yula', 'dasha', 'sasha']
     g = GroupsMaker(students, 5, group_amount=2)
-    g.combine()
     # print(g.get_lesson_groups(g.unique_combs))
     total_groups = set()
     for lesson in g.get_calendar():
-        print(set(lesson))
         total_groups.update(set(lesson))
-
-    print(len(total_groups))
 
