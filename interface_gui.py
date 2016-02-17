@@ -18,15 +18,16 @@ class MainLogic:
         self.names_input.focus()
         Button(self.ent_frame, text='add', command=(lambda: self.add())).pack(side=LEFT)
         Button(self.ent_frame, text='combine', command=(lambda: self.get_calendar())).pack(side=RIGHT)
+        Button(self.ent_frame, text='show names', command=(lambda: self.show_names())).pack(side=RIGHT)
         self.tab_frame = Frame(self.root)
         self.tab_frame.pack(side=TOP, anchor=W)
-        self.all_names = []
+        self.all_students = []
 
     def start(self):
         self.root.mainloop()
 
     @staticmethod
-    def get_names_from_string(names_string):
+    def split_names(names_string):
         seps = '.,;'
         for sep in seps:
             names_string = names_string.replace(sep, ' ')
@@ -48,19 +49,41 @@ class MainLogic:
         """
 
     def add(self):
-        pass
-        """
-            new_names = get_names_from_string(names_input.get())
-            print(new_names)
-            all_names.extend(new_names)
-            print(all_names)
-            for num, name in enumerate(all_names):
-                lab = Label(tab, text=num + 1, relief=RIDGE, width=5)
-                ent = Entry(tab, width=20)
-                lab.grid(row=num % 15, column=((num // 15) * 2))
-                ent.grid(row=num % 15, column=((num // 15) * 2 + 1))
-                ent.insert(0, name)
-        """
+        new_names = self.split_names(self.names_input.get())
+        for name in new_names:
+            student = Student(name, self.tab_frame)
+            self.all_students.append(student)
+
+    def show_names(self):
+        for student in self.all_students:
+            print(student.name)
+
+
+class Student:
+    students_id = 0
+
+    @staticmethod
+    def rice_id():
+        Student.students_id += 1
+        return Student.students_id
+
+    def __init__(self, name, parent=None):
+        self.name = name
+        self.student_id = self.rice_id()
+        self.row = (self.student_id - 1) % 15
+        self.col_lab = ((self.student_id - 1)// 15) * 2
+        self.col_ent = ((self.student_id - 1)// 15) * 2 + 1
+        self.lab = Label(parent, text=self.students_id, relief=RIDGE, width=5)
+        self.ent = Entry(parent, width=20)
+        self.lab.grid(row=self.row, column=self.col_lab)
+        self.ent.grid(row=self.row, column=self.col_ent)
+        self.ent.insert(0, self.name)
+        self.ent.bind('<Return>', self.change_name)
+
+    def change_name(self, event):
+        self.name = self.ent.get()
+        print(self.name)
+
 
 m = MainLogic()
 m.start()
