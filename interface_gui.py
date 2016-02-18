@@ -5,11 +5,15 @@ from groups_maker import GroupsMaker
 #root.geometry('600x400')
 
 
-class MainLogic:
-    def __init__(self):
-        self.root = Tk()
-        self.root.title('GroupsMaker')
-        self.ent_frame = Frame(self.root)
+class MainLogic(Frame):
+    def __init__(self, parent=None):
+        Frame.__init__(self, parent)
+        self.pack()
+        self.all_students = []
+        self.add_widgets()
+
+    def add_widgets(self):
+        self.ent_frame = Frame(self)
         self.ent_frame.pack(side=TOP, fill=X)
         Label(self.ent_frame, text='Entry students names').pack(side=TOP, fill=X)
         self.names_input = Entry(self.ent_frame)
@@ -19,12 +23,8 @@ class MainLogic:
         Button(self.ent_frame, text='add', command=(lambda: self.add())).pack(side=LEFT)
         Button(self.ent_frame, text='combine', command=(lambda: self.get_calendar())).pack(side=RIGHT)
         Button(self.ent_frame, text='show names', command=(lambda: self.show_names())).pack(side=RIGHT)
-        self.tab_frame = Frame(self.root)
+        self.tab_frame = Frame(self)
         self.tab_frame.pack(side=TOP, anchor=W)
-        self.all_students = []
-
-    def start(self):
-        self.root.mainloop()
 
     @staticmethod
     def split_names(names_string):
@@ -36,16 +36,16 @@ class MainLogic:
     def get_calendar(self):
         pass
         """
-            g = GroupsMaker(names, 3)
-            calendar = g.get_calendar()
-            with open('calendar', 'w') as f:
-                idx = 0
-                for day in calendar:
-                    idx += 1
-                    f.write('%s: ' % idx)
-                    for pare in day:
-                        f.write('%20s ' % str(pare))
-                    f.write('\n')
+        g = GroupsMaker(names, 3)
+        calendar = g.get_calendar()
+        with open('calendar', 'w') as f:
+            idx = 0
+            for day in calendar:
+                idx += 1
+                f.write('%s: ' % idx)
+                for pare in day:
+                    f.write('%20s ' % str(pare))
+                f.write('\n')
         """
 
     def add(self):
@@ -55,35 +55,57 @@ class MainLogic:
             self.all_students.append(student)
 
     def show_names(self):
+        student_to_remove = []
+        for student in self.all_students:
+            if not student.name:
+                student_to_remove.append(student)
+        for student in student_to_remove:
+            self.all_students.remove(student)
         for student in self.all_students:
             print(student.name)
 
 
 class Student:
-    students_id = 0
-
-    @staticmethod
-    def rice_id():
-        Student.students_id += 1
-        return Student.students_id
-
-    def __init__(self, name, parent=None):
+    def __init__(self, name, student_id, parent=None):
         self.name = name
-        self.student_id = self.rice_id()
-        self.row = (self.student_id - 1) % 15
-        self.col_lab = ((self.student_id - 1)// 15) * 2
-        self.col_ent = ((self.student_id - 1)// 15) * 2 + 1
-        self.lab = Label(parent, text=self.students_id, relief=RIDGE, width=5)
-        self.ent = Entry(parent, width=20)
+        self.parent = parent
+        self.student_id = student_id
+        self.get_coordinates()
+        self.make_widget()
+
+    def make_widget(self):
+        self.lab = Label(self.parent, text=self.student_id, relief=RIDGE, width=5)
+        self.ent = Entry(self.parent, width=20)
         self.lab.grid(row=self.row, column=self.col_lab)
         self.ent.grid(row=self.row, column=self.col_ent)
         self.ent.insert(0, self.name)
         self.ent.bind('<Return>', self.change_name)
+        self.ent.bind('<Delete>', self.delete_name)
+
+    def get_coordinates(self):
+        self.row = (self.student_id - 1) % 15
+        self.col_lab = ((self.student_id - 1)// 15) * 2
+        self.col_ent = ((self.student_id - 1)// 15) * 2 + 1
+
+    def update_id(self, student_id):
+        self.student_id = student_id
 
     def change_name(self, event):
-        self.name = self.ent.get()
-        print(self.name)
+        old_name = self.name
+        new_name = self.ent.get()
+        self.name = new_name
+        print('Name %s successufully change to %s' % (old_name, new_name))
+        if not self.name:
+            self.lab.grid_remove()
+            self.ent.grid_remove()
+
+    def delete_name(self, event):
+        self.lab.grid_remove()
+        self.ent.grid_remove()
+        self.name = ''
 
 
-m = MainLogic()
-m.start()
+root = Tk()
+root.title('GroupsMaker')
+MainLogic(root)
+root.mainloop()
