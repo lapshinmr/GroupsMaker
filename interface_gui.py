@@ -17,12 +17,13 @@ class MainLogic(Frame):
         self.ent_frame.pack(side=TOP, fill=X)
         Label(self.ent_frame, text='Entry students names').pack(side=TOP, fill=X)
         self.names_input = Entry(self.ent_frame)
-        self.names_input.insert(0, 'misha, kate, yula, serega, dasha, sasha')
+        self.names_input.insert(0, ', '.join([str(item) for item in range(30)]))
         self.names_input.pack(side=TOP, fill=X)
         self.names_input.focus()
         Button(self.ent_frame, text='add', command=(lambda: self.add())).pack(side=LEFT)
         Button(self.ent_frame, text='combine', command=(lambda: self.get_calendar())).pack(side=RIGHT)
-        Button(self.ent_frame, text='show names', command=(lambda: self.show_names())).pack(side=RIGHT)
+        Button(self.ent_frame, text='refresh', command=(lambda: self.refresh())).pack(side=RIGHT)
+        Button(self.ent_frame, text='delete all', command=(lambda: self.delete_all())).pack(side=RIGHT)
         self.tab_frame = Frame(self)
         self.tab_frame.pack(side=TOP, anchor=W)
 
@@ -51,7 +52,7 @@ class MainLogic(Frame):
         student.student_id = idx
         student.coords = self.get_coordinates(idx)
 
-    def show_names(self):
+    def refresh(self):
         student_to_remove = []
         for student in self.all_students:
             if not student.name:
@@ -62,6 +63,13 @@ class MainLogic(Frame):
             self.update_students(student, idx)
             student.update_widgets()
             print(student.name, student.coords)
+
+    def delete_all(self):
+        for student in self.all_students:
+            student.remove()
+        self.refresh()
+
+
 
     def get_calendar(self):
         pass
@@ -111,6 +119,11 @@ class Student:
             self.ent.grid_remove()
 
     def delete_name(self, event):
+        self.lab.grid_remove()
+        self.ent.grid_remove()
+        self.name = ''
+
+    def remove(self):
         self.lab.grid_remove()
         self.ent.grid_remove()
         self.name = ''
