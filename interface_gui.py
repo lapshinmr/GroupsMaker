@@ -33,6 +33,36 @@ class MainLogic(Frame):
             names_string = names_string.replace(sep, ' ')
         return names_string.split()
 
+    def get_coordinates(self, student_idx):
+        row = (student_idx - 1) % 15
+        col_lab = ((student_idx - 1)// 15) * 2
+        col_ent = ((student_idx - 1)// 15) * 2 + 1
+        return row, col_lab, col_ent
+
+    def add(self):
+        new_names = self.split_names(self.names_input.get())
+        start_idx = len(self.all_students) + 1
+        end_idx = start_idx + len(new_names)
+        for name, idx in zip(new_names, range(start_idx, end_idx)):
+            student = Student(name, idx, self.get_coordinates(idx), self.tab_frame)
+            self.all_students.append(student)
+
+    def update_students(self, student, idx):
+        student.student_id = idx
+        student.coords = self.get_coordinates(idx)
+
+    def show_names(self):
+        student_to_remove = []
+        for student in self.all_students:
+            if not student.name:
+                student_to_remove.append(student)
+        for student in student_to_remove:
+            self.all_students.remove(student)
+        for student, idx in zip(self.all_students, range(1, len(self.all_students) + 1)):
+            self.update_students(student, idx)
+            student.update_widgets()
+            print(student.name, student.coords)
+
     def get_calendar(self):
         pass
         """
@@ -48,47 +78,28 @@ class MainLogic(Frame):
                 f.write('\n')
         """
 
-    def add(self):
-        new_names = self.split_names(self.names_input.get())
-        for name in new_names:
-            student = Student(name, self.tab_frame)
-            self.all_students.append(student)
-
-    def show_names(self):
-        student_to_remove = []
-        for student in self.all_students:
-            if not student.name:
-                student_to_remove.append(student)
-        for student in student_to_remove:
-            self.all_students.remove(student)
-        for student in self.all_students:
-            print(student.name)
-
 
 class Student:
-    def __init__(self, name, student_id, parent=None):
+    def __init__(self, name, student_id, coords, parent=None):
         self.name = name
-        self.parent = parent
         self.student_id = student_id
-        self.get_coordinates()
-        self.make_widget()
+        self.coords = coords
+        self.parent = parent
+        self.make_widgets()
 
-    def make_widget(self):
+    def make_widgets(self):
         self.lab = Label(self.parent, text=self.student_id, relief=RIDGE, width=5)
         self.ent = Entry(self.parent, width=20)
-        self.lab.grid(row=self.row, column=self.col_lab)
-        self.ent.grid(row=self.row, column=self.col_ent)
+        self.lab.grid(row=self.coords[0], column=self.coords[1])
+        self.ent.grid(row=self.coords[0], column=self.coords[2])
         self.ent.insert(0, self.name)
         self.ent.bind('<Return>', self.change_name)
         self.ent.bind('<Delete>', self.delete_name)
 
-    def get_coordinates(self):
-        self.row = (self.student_id - 1) % 15
-        self.col_lab = ((self.student_id - 1)// 15) * 2
-        self.col_ent = ((self.student_id - 1)// 15) * 2 + 1
-
-    def update_id(self, student_id):
-        self.student_id = student_id
+    def update_widgets(self):
+        self.lab.grid_remove()
+        self.ent.grid_remove()
+        self.make_widgets()
 
     def change_name(self, event):
         old_name = self.name
@@ -106,6 +117,7 @@ class Student:
 
 
 root = Tk()
+#root.wm_geometry("")
 root.title('GroupsMaker')
 MainLogic(root)
 root.mainloop()
