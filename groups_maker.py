@@ -76,5 +76,5 @@ if __name__ == '__main__':
     # print(g.get_lesson_groups(g.unique_combs))
     total_groups = set()
     for lesson in g.get_calendar():
-        total_groups.update(set(lesson))
+        print(lesson)
 

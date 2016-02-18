@@ -2,7 +2,6 @@ from tkinter import *
 from groups_maker import GroupsMaker
 
 #root.resizable(width=FALSE, height=FALSE)
-#root.geometry('600x400')
 
 
 class MainLogic(Frame):
@@ -13,17 +12,18 @@ class MainLogic(Frame):
         self.add_widgets()
 
     def add_widgets(self):
-        self.ent_frame = Frame(self)
-        self.ent_frame.pack(side=TOP, fill=X)
-        Label(self.ent_frame, text='Entry students names').pack(side=TOP, fill=X)
-        self.names_input = Entry(self.ent_frame)
-        self.names_input.insert(0, ', '.join([str(item) for item in range(30)]))
-        self.names_input.pack(side=TOP, fill=X)
+        ent_frame = Frame(self)
+        ent_frame.pack(side=TOP, expand=YES, fill=X)
+        Label(ent_frame, text='Entry students names').pack(side=TOP, fill=X)
+        self.names_input = Entry(ent_frame)
+        self.names_input.insert(0, 'misha, kate, dasha, sasha, serega, yula')
+        self.names_input.pack(side=TOP, expand=YES, fill=X)
         self.names_input.focus()
-        Button(self.ent_frame, text='add', command=(lambda: self.add())).pack(side=LEFT)
-        Button(self.ent_frame, text='combine', command=(lambda: self.get_calendar())).pack(side=RIGHT)
-        Button(self.ent_frame, text='refresh', command=(lambda: self.refresh())).pack(side=RIGHT)
-        Button(self.ent_frame, text='delete all', command=(lambda: self.delete_all())).pack(side=RIGHT)
+        Button(ent_frame, text='add',        command=(lambda: self.add())).pack(side=LEFT)
+        Button(ent_frame, text='combine',    command=(lambda: self.get_calendar())).pack(side=RIGHT)
+        Button(ent_frame, text='refresh',    command=(lambda: self.refresh())).pack(side=RIGHT)
+        Button(ent_frame, text='delete all', command=(lambda: self.delete_all())).pack(side=RIGHT)
+        Button(ent_frame, text='check duplicates', command=(lambda: self.check_duplicates())).pack(side=RIGHT)
         self.tab_frame = Frame(self)
         self.tab_frame.pack(side=TOP, anchor=W)
 
@@ -52,6 +52,21 @@ class MainLogic(Frame):
         student.student_id = idx
         student.coords = self.get_coordinates(idx)
 
+    def check_duplicates(self):
+        self.refresh()
+        all_names = self.get_names()
+        count = {}
+        for name in all_names:
+            if name in count:
+                count[name] += 1
+            else:
+                count[name] = 1
+        for name, value in count.items():
+            if value > 1:
+                for student in self.all_students:
+                    if student.name == name:
+                        student.set_bg_color('red')
+
     def refresh(self):
         student_to_remove = []
         for student in self.all_students:
@@ -62,29 +77,19 @@ class MainLogic(Frame):
         for student, idx in zip(self.all_students, range(1, len(self.all_students) + 1)):
             self.update_students(student, idx)
             student.update_widgets()
-            print(student.name, student.coords)
 
     def delete_all(self):
         for student in self.all_students:
             student.remove()
         self.refresh()
 
-
+    def get_names(self):
+        return [student.name for student in self.all_students]
 
     def get_calendar(self):
-        pass
-        """
-        g = GroupsMaker(names, 3)
+        g = GroupsMaker(self.get_names(), 2)
         calendar = g.get_calendar()
-        with open('calendar', 'w') as f:
-            idx = 0
-            for day in calendar:
-                idx += 1
-                f.write('%s: ' % idx)
-                for pare in day:
-                    f.write('%20s ' % str(pare))
-                f.write('\n')
-        """
+        print(calendar)
 
 
 class Student:
@@ -103,6 +108,9 @@ class Student:
         self.ent.insert(0, self.name)
         self.ent.bind('<Return>', self.change_name)
         self.ent.bind('<Delete>', self.delete_name)
+
+    def set_bg_color(self, color):
+        self.ent.config(bg=color)
 
     def update_widgets(self):
         self.lab.grid_remove()
@@ -132,5 +140,6 @@ class Student:
 root = Tk()
 #root.wm_geometry("")
 root.title('GroupsMaker')
-MainLogic(root)
+root.geometry('600x400')
+MainLogic(root).pack(side=TOP, fill=X)
 root.mainloop()
