@@ -23,7 +23,6 @@ class MainLogic(Frame):
         Button(ent_frame, text='combine',    command=(lambda: self.get_calendar())).pack(side=RIGHT)
         Button(ent_frame, text='refresh',    command=(lambda: self.refresh())).pack(side=RIGHT)
         Button(ent_frame, text='delete all', command=(lambda: self.delete_all())).pack(side=RIGHT)
-        Button(ent_frame, text='check duplicates', command=(lambda: self.check_duplicates())).pack(side=RIGHT)
         self.tab_frame = Frame(self)
         self.tab_frame.pack(side=TOP, anchor=W)
 
@@ -54,6 +53,7 @@ class MainLogic(Frame):
 
     def check_duplicates(self):
         self.refresh()
+        duplicates = False
         all_names = self.get_names()
         count = {}
         for name in all_names:
@@ -63,9 +63,11 @@ class MainLogic(Frame):
                 count[name] = 1
         for name, value in count.items():
             if value > 1:
+                duplicates = True
                 for student in self.all_students:
                     if student.name == name:
                         student.set_bg_color('red')
+        return duplicates
 
     def refresh(self):
         student_to_remove = []
@@ -87,9 +89,11 @@ class MainLogic(Frame):
         return [student.name for student in self.all_students]
 
     def get_calendar(self):
-        g = GroupsMaker(self.get_names(), 2)
-        calendar = g.get_calendar()
-        print(calendar)
+        duplicates = self.check_duplicates()
+        if not duplicates:
+            g = GroupsMaker(self.get_names(), 2)
+            calendar = g.get_calendar()
+            print(calendar)
 
 
 class Student:
