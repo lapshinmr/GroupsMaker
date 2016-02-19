@@ -108,7 +108,7 @@ class MainLogic(Frame):
         duplicates = self.check_duplicates()
         if not duplicates:
             g = GroupsMaker(self.get_names(), 2)
-            calendar = g.get_calendar()
+            calendar = g.get_lessons()
             print(calendar)
 
 
