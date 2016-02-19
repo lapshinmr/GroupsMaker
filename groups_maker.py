@@ -1,19 +1,26 @@
 """
-You can find main logic here.
+In this module you can find math logic for program.
 """
 import random
 from gm_exceptions import *
 
 
 class GroupsMaker:
-    def __init__(self, student_names, total_lessons, group_amount=2, unwanted_combs=[]):
+    """
+    Class work with set of names
+    """
+    def __init__(self, student_names, total_lessons, group_amount=2, unwanted_combs=None):
         self.student_names = student_names
         self.total_lessons = total_lessons
         self.group_amount = group_amount
         self.unique_combs = []
         self.used_combs = []
+        self.unwanted_combs = unwanted_combs
 
-    def combine(self):
+    def make_unique_combs(self):
+        """
+        Make unique combinations with names
+        """
         combs = [(name, ) for name in self.student_names]
         while len(combs[0]) < self.group_amount:
             tmp_combs = []
@@ -28,11 +35,13 @@ class GroupsMaker:
 
     @staticmethod
     def get_combs_with_name(name, combs):
-        combs_with_name = []
-        for comb in combs:
-            if name in comb:
-                combs_with_name.append(comb)
-        return combs_with_name
+        """
+        This method gets all combinations with input name from input set of combinations
+        :param name: string with name
+        :param combs: list, tuple or set of combs
+        :return:
+        """
+        return [comb for comb in combs if name in comb]
 
     def get_lesson_groups(self, combs):
         names = self.student_names[:]
@@ -51,7 +60,10 @@ class GroupsMaker:
         return lesson_groups
 
     def get_calendar(self):
-        self.combine()
+        """
+        Makes from N students class groups with n students during m lessons/days
+        """
+        self.make_unique_combs()
         all_combs = self.unique_combs[:]
         calendar = []
         total_attempts = 0
