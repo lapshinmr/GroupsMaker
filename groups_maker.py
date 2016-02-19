@@ -44,13 +44,13 @@ class GroupsMaker:
         """
         return [comb for comb in combs if name in comb]
 
-    def get_lesson_combs(self):
+    def get_lesson_combs(self, combs):
         """
         Method choose combs for one lesson/day so combs has no repetitions of names.
         Quantity of names may be add or even.
         """
         names = self.student_names[:]
-        unique_combs = self.unique_combs[:]
+        unique_combs = combs[:]
         lesson_combs = []
         while len(names) > 1:
             random_comb = random.choice(unique_combs)
@@ -82,7 +82,7 @@ class GroupsMaker:
                 while len(calendar) < self.total_lessons:
                     while True:
                         try:
-                            groups = self.get_lesson_combs()
+                            groups = self.get_lesson_combs(all_combs)
                             break
                         except IndexError:
                             total_attempts += 1
@@ -97,11 +97,11 @@ class GroupsMaker:
 
 
 if __name__ == '__main__':
-    students = ['misha', 'kate', 'serega', 'yula', 'dasha', 'sasha', 'kolya']
-    g = GroupsMaker(students, 10, group_amount=2)
+    students = ['misha', 'kate', 'serega', 'yula']
+    g = GroupsMaker(students, 4, group_amount=2)
     print(len(g.unique_combs))
     count = {}
-    for day in g.get_calendar():
+    for day in g.get_lessons():
         for comb in day:
             if comb in count:
                 count[comb] += 1
