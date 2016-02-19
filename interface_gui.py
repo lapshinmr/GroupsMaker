@@ -1,8 +1,10 @@
 from tkinter import *
 from groups_maker import GroupsMaker
+from tkinter.filedialog import askopenfilename, asksaveasfilename
+import random
+
 
 #root.resizable(width=FALSE, height=FALSE)
-
 
 class MainLogic(Frame):
     def __init__(self, parent=None):
@@ -23,8 +25,21 @@ class MainLogic(Frame):
         Button(ent_frame, text='combine',    command=(lambda: self.get_calendar())).pack(side=RIGHT)
         Button(ent_frame, text='refresh',    command=(lambda: self.refresh())).pack(side=RIGHT)
         Button(ent_frame, text='delete all', command=(lambda: self.delete_all())).pack(side=RIGHT)
+        Button(ent_frame, text='open file', command=lambda: self.open_filenames()).pack(side=RIGHT)
+        Button(ent_frame, text='open file', command=lambda: self.save_filenames()).pack(side=RIGHT)
         self.tab_frame = Frame(self)
         self.tab_frame.pack(side=TOP, anchor=W)
+        self.colors = ['red', 'blue', 'green', 'yellow']
+
+    def open_filenames(self):
+        filename = askopenfilename()
+        self.names_input.delete(0, END)
+        self.names_input.insert(0, open(filename).read())
+
+    def save_filenames(self):
+        filename = askopenfilename()
+        self.names_input.delete(0, END)
+        self.names_input.insert(0, open(filename).read())
 
     @staticmethod
     def split_names(names_string):
@@ -64,9 +79,10 @@ class MainLogic(Frame):
         for name, value in count.items():
             if value > 1:
                 duplicates = True
+                color = random.choice(self.colors)
                 for student in self.all_students:
                     if student.name == name:
-                        student.set_bg_color('red')
+                        student.set_bg_color(color)
         return duplicates
 
     def refresh(self):
@@ -144,6 +160,7 @@ class Student:
 root = Tk()
 #root.wm_geometry("")
 root.title('GroupsMaker')
-root.geometry('600x400')
+width, height = root.maxsize()
+root.geometry('%sx%s' % (round(0.5 * width), round(0.5 * height)))
 MainLogic(root).pack(side=TOP, fill=X)
 root.mainloop()
