@@ -16,6 +16,7 @@ class GroupsMaker:
         self.unique_combs = []
         self.used_combs = []
         self.unwanted_combs = unwanted_combs
+        self.make_unique_combs()
 
     def make_unique_combs(self):
         """
@@ -69,33 +70,43 @@ class GroupsMaker:
                 lesson_combs[random_idx] += tuple(names)
         return lesson_combs
 
-    def get_calendar(self):
+    def get_lessons(self):
         """
         Makes from N students class groups with n students during m lessons/days
         """
-        self.make_unique_combs()
-        all_combs = self.unique_combs[:]
-        calendar = []
-        total_attempts = 0
-        while len(calendar) < self.total_lessons:
-            while True:
-                try:
-                    groups = self.get_lesson_combs(all_combs)
-                    break
-                except IndexError:
-                    total_attempts += 1
-                    if total_attempts > 30:
-                        raise AttemptsExceeded(total_attempts)
-                    continue
-            all_combs = list(set(all_combs) - set(groups))
-            calendar.append(groups)
-        return calendar
+        while True:
+            try:
+                all_combs = self.unique_combs[:]
+                calendar = []
+                total_attempts = 0
+                while len(calendar) < self.total_lessons:
+                    while True:
+                        try:
+                            groups = self.get_lesson_combs()
+                            break
+                        except IndexError:
+                            total_attempts += 1
+                            if total_attempts > 30:
+                                raise AttemptsExceeded(total_attempts)
+                            continue
+                    all_combs = list(set(all_combs) - set(groups))
+                    calendar.append(groups)
+                return calendar
+            except AttemptsExceeded:
+                print('one more time')
 
 
 if __name__ == '__main__':
     students = ['misha', 'kate', 'serega', 'yula', 'dasha', 'sasha', 'kolya']
-    g = GroupsMaker(students, 5, group_amount=3)
-    # print(g.get_lesson_groups(g.unique_combs))
-    g.make_unique_combs()
-    print(g.get_lesson_combs(g.unique_combs))
+    g = GroupsMaker(students, 10, group_amount=2)
+    print(len(g.unique_combs))
+    count = {}
+    for day in g.get_calendar():
+        for comb in day:
+            if comb in count:
+                count[comb] += 1
+            else:
+                count[comb] = 1
+    for key in count:
+        print(key, count[key])
 
