@@ -25,8 +25,8 @@ class MainLogic(Frame):
         Button(ent_frame, text='combine',    command=(lambda: self.get_calendar())).pack(side=RIGHT)
         Button(ent_frame, text='refresh',    command=(lambda: self.refresh())).pack(side=RIGHT)
         Button(ent_frame, text='delete all', command=(lambda: self.delete_all())).pack(side=RIGHT)
-        Button(ent_frame, text='open file', command=lambda: self.open_filenames()).pack(side=RIGHT)
-        Button(ent_frame, text='open file', command=lambda: self.save_filenames()).pack(side=RIGHT)
+        Button(ent_frame, text='load', command=lambda: self.open_filenames()).pack(side=RIGHT)
+        Button(ent_frame, text='save', command=lambda: self.save_filenames()).pack(side=RIGHT)
         self.tab_frame = Frame(self)
         self.tab_frame.pack(side=TOP, anchor=W)
         self.colors = ['red', 'blue', 'green', 'yellow']
@@ -37,9 +37,9 @@ class MainLogic(Frame):
         self.names_input.insert(0, open(filename).read())
 
     def save_filenames(self):
-        filename = askopenfilename()
-        self.names_input.delete(0, END)
-        self.names_input.insert(0, open(filename).read())
+        filename = asksaveasfilename()
+        names = self.get_names()
+        open(filename, 'w').write(', '.join(names))
 
     @staticmethod
     def split_names(names_string):
