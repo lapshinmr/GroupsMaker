@@ -47,11 +47,16 @@ class GroupsMaker:
     def get_module(self):
         return self.students_total - (self.students_total // self.size_group) * self.size_group
 
+    def lesson_possibility(self):
+        if not self.students_total // self.size_group >= 2:
+            raise NotEnoughCombinations
+
     def get_lesson_combs(self, combs):
         """
         Method choose combs for one lesson/day so combs has no repetitions of names.
         Quantity of names may be add or even.
         """
+        self.lesson_possibility()
         names = self.student_names[:]
         unique_combs = combs[:]
         lesson_combs = []
@@ -76,55 +81,52 @@ class GroupsMaker:
                     lesson_combs[idx] += (name,)
         return lesson_combs
 
-    def lesson_possibility(self):
-        if self.students_total // self.size_group >= 2:
-            return True
-        else:
-            return False
+    def get_unique_lessons(self, number):
+        while True:
+            try:
+                all_combs = self.unique_combs[:]
+                calendar = []
+                total_attempts = 0
+                while len(calendar) < number:
+                    while True:
+                        try:
+                            groups = self.get_lesson_combs(all_combs)
+                            break
+                        except IndexError:
+                            total_attempts += 1
+                            if total_attempts > 30:
+                                raise AttemptsExceeded(total_attempts)
+                            continue
+                    all_combs = list(set(all_combs) - set(groups))
+                    calendar.append(groups)
+                return calendar
+            except AttemptsExceeded:
+                print('one more time')
 
-    def compare_combs_duration(self):
-        available_lessons = self.unique_combs_total / (self.students_total // self.size_group)
-        if available_lessons >= self.lessons_total:
-            return True
-        else:
-            return False
-
-    def make_attempt(self):
-        all_combs = self.unique_combs[:]
-        calendar = []
-        total_attempts = 0
-        while len(calendar) < self.lessons_total:
-            while True:
-                try:
-                    groups = self.get_lesson_combs(all_combs)
-                    break
-                except IndexError:
-                    total_attempts += 1
-                    if total_attempts > 30:
-                        raise AttemptsExceeded(total_attempts)
-                    continue
-            all_combs = list(set(all_combs) - set(groups))
-            calendar.append(groups)
-        return calendar
-
-    def get_lessons(self):
+    def get_timetable(self):
         """
         Makes from N students class groups with n students during m lessons/days
         """
-        while True:
+        available_lessons = self.unique_combs_total // (self.students_total // self.size_group)
+        lessons_pack = []
+        for dummy in range(self.lessons_total // available_lessons):
+            lessons_pack.extend(self.get_unique_lessons(available_lessons))
+        else:
             try:
-                self.make_attempt()
-            except AttemptsExceeded:
-                print('one more time')
+                lessons_pack.extend(self.get_unique_lessons(self.lessons_total % available_lessons))
+            except NotEnoughCombinations as error:
+                print(error.__class__.__name__)
+        return lessons_pack
 
 
 if __name__ == '__main__':
     # students = ['misha', 'kate', 'serega', 'yula', 'dasha', 'sasha', 'dima', 'stas', 'masha', 'kolya']
     # students = [str(item) for item in list(range(10))]
-    students = list(range(10))
-    g = GroupsMaker(students, 1, size_group=3)
-    # g.get_lessons()
-    print(g.get_lesson_combs(g.unique_combs))
+    students = list(range(6))
+    g = GroupsMaker(students, 30, size_group=3)
+    print(g.unique_combs_total)
+    for lesson in g.get_timetable():
+        print(lesson)
     # print(len(g.unique_combs))
     # print(g.compare_combs_duration())
     # count = {}
