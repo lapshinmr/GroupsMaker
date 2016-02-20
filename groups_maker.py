@@ -66,13 +66,12 @@ class GroupsMaker:
                         combs_to_del.add(comb)
                 names.remove(name)
             unique_combs = list(set(unique_combs) - combs_to_del)
-        # add odd name to the random combs
+        # add remaining names to the random combs
         else:
-            if any(names):
+            if len(names) > 0:
                 idxs = list(range(len(lesson_combs)))
                 random.shuffle(idxs)
                 random_idxs = idxs[:len(names)]
-                print(random_idxs)
                 for name, idx in zip(names, random_idxs):
                     lesson_combs[idx] += (name,)
         return lesson_combs
@@ -120,11 +119,11 @@ class GroupsMaker:
 
 
 if __name__ == '__main__':
-    # students = ['misha', 'kate', 'serega', 'yula', 'dasha', 'sasha', 'dima', 'stas', 'masha', 'kolya', 'artem']
+    # students = ['misha', 'kate', 'serega', 'yula', 'dasha', 'sasha', 'dima', 'stas', 'masha', 'kolya']
+    # students = [str(item) for item in list(range(10))]
     students = list(range(10))
     g = GroupsMaker(students, 1, size_group=3)
     # g.get_lessons()
-    print(g.get_module())
     print(g.get_lesson_combs(g.unique_combs))
     # print(len(g.unique_combs))
     # print(g.compare_combs_duration())
