@@ -30,6 +30,9 @@ class MainLogic(Frame):
         self.size_group = Entry(ent_frame)
         self.size_group.insert(0, '2')
         self.size_group.pack(side=RIGHT)
+        self.duration = Entry(ent_frame)
+        self.duration.insert(0, '5')
+        self.duration.pack(side=RIGHT)
         self.tab_frame = Frame(self)
         self.tab_frame.pack(side=TOP, anchor=W)
         self.colors = ['red', 'blue', 'green', 'yellow']
@@ -110,9 +113,10 @@ class MainLogic(Frame):
     def get_calendar(self):
         duplicates = self.check_duplicates()
         if not duplicates:
-            g = GroupsMaker(self.get_names(), 10, size_group=int(self.size_group.get()))
+            g = GroupsMaker(self.get_names(), int(self.duration.get()), size_group=int(self.size_group.get()))
             calendar = g.get_timetable()
-            time_table = Toplevel(self)
+            time_table = Frame(self)
+            time_table.pack(side=LEFT)
             lesson_count = 1
             for lesson in calendar:
                 lesson_frame = Frame(time_table)
@@ -120,10 +124,10 @@ class MainLogic(Frame):
                 Label(lesson_frame, text=str(lesson_count)).pack(side=TOP)
                 lesson_count += 1
                 for combs in lesson:
-                    comb_frame = Frame(lesson_frame, bd=6, relief=RIDGE)
+                    comb_frame = Frame(lesson_frame, bd=3, relief=RAISED)
                     comb_frame.pack(side=TOP)
                     for name in combs:
-                        Label(comb_frame, text=name).pack(side=TOP)
+                        Label(comb_frame, width=10, text=name).pack(side=TOP)
 
 
 class Student:
