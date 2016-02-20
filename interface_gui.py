@@ -27,6 +27,9 @@ class MainLogic(Frame):
         Button(ent_frame, text='delete all', command=(lambda: self.delete_all())).pack(side=RIGHT)
         Button(ent_frame, text='load', command=lambda: self.open_filenames()).pack(side=RIGHT)
         Button(ent_frame, text='save', command=lambda: self.save_filenames()).pack(side=RIGHT)
+        self.size_group = Entry(ent_frame)
+        self.size_group.insert(0, '2')
+        self.size_group.pack(side=RIGHT)
         self.tab_frame = Frame(self)
         self.tab_frame.pack(side=TOP, anchor=W)
         self.colors = ['red', 'blue', 'green', 'yellow']
@@ -107,9 +110,20 @@ class MainLogic(Frame):
     def get_calendar(self):
         duplicates = self.check_duplicates()
         if not duplicates:
-            g = GroupsMaker(self.get_names(), 2)
-            calendar = g.get_lessons()
-            print(calendar)
+            g = GroupsMaker(self.get_names(), 10, size_group=int(self.size_group.get()))
+            calendar = g.get_timetable()
+            time_table = Toplevel(self)
+            lesson_count = 1
+            for lesson in calendar:
+                lesson_frame = Frame(time_table)
+                lesson_frame.pack(side=LEFT, fill=Y)
+                Label(lesson_frame, text=str(lesson_count)).pack(side=TOP)
+                lesson_count += 1
+                for combs in lesson:
+                    comb_frame = Frame(lesson_frame, bd=6, relief=RIDGE)
+                    comb_frame.pack(side=TOP)
+                    for name in combs:
+                        Label(comb_frame, text=name).pack(side=TOP)
 
 
 class Student:
