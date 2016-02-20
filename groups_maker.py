@@ -16,7 +16,7 @@ class GroupsMaker:
         self.unwanted_combs = unwanted_combs
         self.unique_combs = self.make_unique_combs()
         self.unique_combs_total = len(self.unique_combs)
-        self.student_names_total = len(self.student_names)
+        self.students_total = len(self.student_names)
 
     def make_unique_combs(self):
         """
@@ -44,6 +44,9 @@ class GroupsMaker:
         """
         return [comb for comb in combs if name in comb]
 
+    def get_module(self):
+        return self.students_total - (self.students_total // self.size_group) * self.size_group
+
     def get_lesson_combs(self, combs):
         """
         Method choose combs for one lesson/day so combs has no repetitions of names.
@@ -52,7 +55,7 @@ class GroupsMaker:
         names = self.student_names[:]
         unique_combs = combs[:]
         lesson_combs = []
-        while len(names) > 1:
+        while len(names) > self.get_module():
             random_comb = random.choice(unique_combs)
             lesson_combs.append(random_comb)
             combs_to_del = set()
@@ -66,12 +69,22 @@ class GroupsMaker:
         # add odd name to the random combs
         else:
             if any(names):
-                random_idx = random.randrange(len(lesson_combs))
-                lesson_combs[random_idx] += tuple(names)
+                idxs = list(range(len(lesson_combs)))
+                random.shuffle(idxs)
+                random_idxs = idxs[:len(names)]
+                print(random_idxs)
+                for name, idx in zip(names, random_idxs):
+                    lesson_combs[idx] += (name,)
         return lesson_combs
 
+    def lesson_possibility(self):
+        if self.students_total // self.size_group >= 2:
+            return True
+        else:
+            return False
+
     def compare_combs_duration(self):
-        available_lessons = self.unique_combs_total / (self.student_names_total // self.size_group)
+        available_lessons = self.unique_combs_total / (self.students_total // self.size_group)
         if available_lessons >= self.lessons_total:
             return True
         else:
@@ -108,9 +121,11 @@ class GroupsMaker:
 
 if __name__ == '__main__':
     # students = ['misha', 'kate', 'serega', 'yula', 'dasha', 'sasha', 'dima', 'stas', 'masha', 'kolya', 'artem']
-    students = list(range(6))
-    g = GroupsMaker(students, 1, size_group=4)
-    g.get_lessons()
+    students = list(range(10))
+    g = GroupsMaker(students, 1, size_group=3)
+    # g.get_lessons()
+    print(g.get_module())
+    print(g.get_lesson_combs(g.unique_combs))
     # print(len(g.unique_combs))
     # print(g.compare_combs_duration())
     # count = {}
