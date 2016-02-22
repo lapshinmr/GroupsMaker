@@ -14,6 +14,7 @@ class MainLogic(Frame):
         self.add_widgets()
 
     def add_widgets(self):
+        # Input names frame
         ent_frame = Frame(self)
         ent_frame.pack(side=TOP, expand=YES, fill=X)
         Label(ent_frame, text='Entry students names').pack(side=TOP, fill=X)
@@ -21,21 +22,28 @@ class MainLogic(Frame):
         self.names_input.insert(0, 'misha, kate, dasha, sasha, serega, yula')
         self.names_input.pack(side=TOP, expand=YES, fill=X)
         self.names_input.focus()
-        Button(ent_frame, text='add',        command=(lambda: self.add())).pack(side=LEFT)
-        Button(ent_frame, text='combine',    command=(lambda: self.get_calendar())).pack(side=RIGHT)
-        Button(ent_frame, text='refresh',    command=(lambda: self.refresh())).pack(side=RIGHT)
-        Button(ent_frame, text='delete all', command=(lambda: self.delete_all())).pack(side=RIGHT)
-        Button(ent_frame, text='load', command=lambda: self.open_filenames()).pack(side=RIGHT)
-        Button(ent_frame, text='save', command=lambda: self.save_filenames()).pack(side=RIGHT)
+
+        # Table frame
+        self.tab_frame = Frame(self)
+        Label(self.tab_frame, text='Your table will be here').pack(side=LEFT)
+        self.tab_frame.pack(side=LEFT, anchor=W)
+        self.colors = ['red', 'blue', 'green', 'yellow']
+
+        # Button Frame
+        but_frame = Frame(self)
+        but_frame.pack(side=RIGHT, expand=YES, fill=Y)
+        Button(but_frame, text='add',     command=lambda: self.add()).pack(side=TOP)
+        Button(but_frame, text='combine', command=lambda: self.get_calendar()).pack(side=TOP)
+        Button(but_frame, text='refresh', command=lambda: self.refresh()).pack(side=TOP)
+        Button(but_frame, text='clean',   command=lambda: self.delete_all()).pack(side=TOP)
+        Button(but_frame, text='load',    command=lambda: self.open_filenames()).pack(side=TOP)
+        Button(but_frame, text='save',    command=lambda: self.save_filenames()).pack(side=TOP)
         self.size_group = Entry(ent_frame)
         self.size_group.insert(0, '2')
-        self.size_group.pack(side=RIGHT)
+        self.size_group.pack(side=TOP)
         self.duration = Entry(ent_frame)
         self.duration.insert(0, '5')
-        self.duration.pack(side=RIGHT)
-        self.tab_frame = Frame(self)
-        self.tab_frame.pack(side=TOP, anchor=W)
-        self.colors = ['red', 'blue', 'green', 'yellow']
+        self.duration.pack(side=TOP)
 
     def open_filenames(self):
         filename = askopenfilename()
@@ -49,10 +57,8 @@ class MainLogic(Frame):
 
     @staticmethod
     def split_names(names_string):
-        seps = '.,;'
-        for sep in seps:
-            names_string = names_string.replace(sep, ' ')
-        return names_string.split()
+        names = names_string.split(',')
+        return [name.strip() for name in names]
 
     def get_coordinates(self, student_idx):
         row = (student_idx - 1) % 15
@@ -115,8 +121,7 @@ class MainLogic(Frame):
         if not duplicates:
             g = GroupsMaker(self.get_names(), int(self.duration.get()), size_group=int(self.size_group.get()))
             calendar = g.get_timetable()
-            time_table = Frame(self)
-            time_table.pack(side=LEFT)
+            time_table = Toplevel(self)
             lesson_count = 1
             for lesson in calendar:
                 lesson_frame = Frame(time_table)
@@ -134,7 +139,6 @@ class Student:
     def __init__(self, name, student_id, coords, parent=None):
         self.name = name
         self.student_id = student_id
-        self.coords = coords
         self.parent = parent
         self.make_widgets()
 
@@ -178,7 +182,7 @@ class Student:
 root = Tk()
 #root.wm_geometry("")
 root.title('GroupsMaker')
-width, height = root.maxsize()
-root.geometry('%sx%s' % (round(0.5 * width), round(0.5 * height)))
+# width, height = root.maxsize()
+# root.geometry('%sx%s' % (round(0.5 * width), round(0.5 * height)))
 MainLogic(root).pack(side=TOP, fill=X)
 root.mainloop()
