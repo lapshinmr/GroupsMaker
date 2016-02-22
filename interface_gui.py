@@ -25,25 +25,26 @@ class MainLogic(Frame):
 
         # Table frame
         self.tab_frame = Frame(self)
-        Label(self.tab_frame, text='Your table will be here').pack(side=LEFT)
+        self.tab_lab = Label(self.tab_frame, text='Your table will be here')
+        self.tab_lab.pack(expand=YES)
         self.tab_frame.pack(side=LEFT, anchor=W)
         self.colors = ['red', 'blue', 'green', 'yellow']
 
-        # Button Frame
+        # Action frame
         but_frame = Frame(self)
         but_frame.pack(side=RIGHT, expand=YES, fill=Y)
-        Button(but_frame, text='add',     command=lambda: self.add()).pack(side=TOP)
-        Button(but_frame, text='combine', command=lambda: self.get_calendar()).pack(side=TOP)
-        Button(but_frame, text='refresh', command=lambda: self.refresh()).pack(side=TOP)
-        Button(but_frame, text='clean',   command=lambda: self.delete_all()).pack(side=TOP)
-        Button(but_frame, text='load',    command=lambda: self.open_filenames()).pack(side=TOP)
-        Button(but_frame, text='save',    command=lambda: self.save_filenames()).pack(side=TOP)
-        self.size_group = Entry(ent_frame)
+        Button(but_frame, text='add',     command=lambda: self.add()).pack(side=TOP, fill=X)
+        Button(but_frame, text='clean',   command=lambda: self.delete_all()).pack(side=TOP, fill=X)
+        self.size_group = Entry(but_frame)
         self.size_group.insert(0, '2')
         self.size_group.pack(side=TOP)
-        self.duration = Entry(ent_frame)
+        self.duration = Entry(but_frame)
         self.duration.insert(0, '5')
         self.duration.pack(side=TOP)
+        Button(but_frame, text='load',    command=lambda: self.open_filenames()).pack(side=TOP, fill=X)
+        Button(but_frame, text='save',    command=lambda: self.save_filenames()).pack(side=TOP, fill=X)
+        Button(but_frame, text='combine', command=lambda: self.get_calendar()).pack(side=BOTTOM, fill=X)
+
 
     def open_filenames(self):
         filename = askopenfilename()
@@ -60,23 +61,14 @@ class MainLogic(Frame):
         names = names_string.split(',')
         return [name.strip() for name in names]
 
-    def get_coordinates(self, student_idx):
-        row = (student_idx - 1) % 15
-        col_lab = ((student_idx - 1)// 15) * 2
-        col_ent = ((student_idx - 1)// 15) * 2 + 1
-        return row, col_lab, col_ent
-
     def add(self):
+        self.tab_lab.destroy()
         new_names = self.split_names(self.names_input.get())
         start_idx = len(self.all_students) + 1
         end_idx = start_idx + len(new_names)
         for name, idx in zip(new_names, range(start_idx, end_idx)):
-            student = Student(name, idx, self.get_coordinates(idx), self.tab_frame)
+            student = Student(name, idx, self.tab_frame)
             self.all_students.append(student)
-
-    def update_students(self, student, idx):
-        student.student_id = idx
-        student.coords = self.get_coordinates(idx)
 
     def check_duplicates(self):
         self.refresh()
@@ -105,7 +97,6 @@ class MainLogic(Frame):
         for student in student_to_remove:
             self.all_students.remove(student)
         for student, idx in zip(self.all_students, range(1, len(self.all_students) + 1)):
-            self.update_students(student, idx)
             student.update_widgets()
 
     def delete_all(self):
@@ -136,27 +127,29 @@ class MainLogic(Frame):
 
 
 class Student:
-    def __init__(self, name, student_id, coords, parent=None):
+    def __init__(self, name, student_id, parent=None):
         self.name = name
         self.student_id = student_id
         self.parent = parent
         self.make_widgets()
 
     def make_widgets(self):
-        self.lab = Label(self.parent, text=self.student_id, relief=RIDGE, width=5)
-        self.ent = Entry(self.parent, width=20)
-        self.lab.grid(row=self.coords[0], column=self.coords[1])
-        self.ent.grid(row=self.coords[0], column=self.coords[2])
+        self.student_fr = Frame(self.parent)
+        self.student_fr.pack(side=TOP)
+        self.lab = Label(self.student_fr, text=self.student_id, relief=RIDGE, width=5)
+        self.ent = Entry(self.student_fr, width=20)
+        self.but = Button(self.student_fr, text='x', command=lambda: self.delete_student())
+        self.lab.pack(side=LEFT)
+        self.ent.pack(side=RIGHT)
         self.ent.insert(0, self.name)
         self.ent.bind('<Return>', self.change_name)
-        self.ent.bind('<Delete>', self.delete_name)
 
     def set_bg_color(self, color):
         self.ent.config(bg=color)
 
     def update_widgets(self):
-        self.lab.grid_remove()
-        self.ent.grid_remove()
+        self.lab.destroy()
+        self.ent.destroy()
         self.make_widgets()
 
     def change_name(self, event):
@@ -168,9 +161,8 @@ class Student:
             self.lab.grid_remove()
             self.ent.grid_remove()
 
-    def delete_name(self, event):
-        self.lab.grid_remove()
-        self.ent.grid_remove()
+    def delete_student(self):
+        self.student_fr.destroy()
         self.name = ''
 
     def remove(self):
