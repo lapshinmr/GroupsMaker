@@ -45,7 +45,6 @@ class MainLogic(Frame):
         Button(but_frame, text='save',    command=lambda: self.save_filenames()).pack(side=TOP, fill=X)
         Button(but_frame, text='combine', command=lambda: self.get_calendar()).pack(side=BOTTOM, fill=X)
 
-
     def open_filenames(self):
         filename = askopenfilename()
         self.names_input.delete(0, END)
