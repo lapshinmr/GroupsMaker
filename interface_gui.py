@@ -123,7 +123,7 @@ class Univercity(Frame):
                     Label(comb_frame, width=10, text=name).pack(side=TOP)
 
     def save_calendar_as_plain_text(self):
-        filename = asksaveasfilename() + '.txt'
+        filename = asksaveasfilename()
         text = ''
         lesson_count = 1
         for lesson in self.calendar:
@@ -132,7 +132,41 @@ class Univercity(Frame):
             for combs in lesson:
                 text += ('(' + ', '.join(list(combs)) + ') ')
             text += '\n'
-        open(filename, 'w').write(text)
+        open(filename + '.txt', 'w').write(text)
+        open(filename + '.tex', 'w').write(self.save_calendar_as_tex_text())
+
+    def save_calendar_as_tex_text(self):
+        start = (r'\documentclass[a4paper]{article}' + '\n'
+                 r'\usepackage[landscape]{geometry}' + '\n'
+                 r'\usepackage[utf8]{inputenc}' + '\n'
+                 r'\usepackage[russian]{babel}' + '\n'
+                 r'\begin{document}' + '\n'
+                 r'\thispagestyle{empty}' + '\n'
+                 r'\mbox{}' + '\n'
+                 r'\vfill' + '\n'
+                 r'\begin{center}' + '\n'
+                 )
+
+        finish = (r'\end{center}' + '\n'
+                  r'\vfill' + '\n'
+                  r'\end{document}' + '\n')
+
+        main_table = r'\begin{tabular}'
+        main_table += '{' + '|'.join('c' * len(self.calendar)) + r'}\hline'
+        lesson_count = 1
+        for lesson in self.calendar:
+            main_table += str(lesson_count) + '&'
+            lesson_count += 1
+            for comb in lesson:
+                main_table += r'\begin{tabular}{c}'
+                main_table += r'\\'.join(list(comb))
+                main_table += r'\end{tabular}' + '&'
+            main_table += r'\\\hline' + '\n'
+        main_table += r'\end{tabular}' + '\n'
+        return start + main_table + finish
+
+
+
 
 
 class Dean:
