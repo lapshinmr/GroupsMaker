@@ -4,14 +4,13 @@ from tkinter.filedialog import askopenfilename, asksaveasfilename
 import random
 
 
-#root.resizable(width=FALSE, height=FALSE)
-
 class Univercity(Frame):
     def __init__(self, parent=None):
         Frame.__init__(self, parent)
         self.pack()
         self.dean = Dean()
         self.add_widgets()
+        self.calendar = []
 
     def add_widgets(self):
         # Input names frame
@@ -34,8 +33,8 @@ class Univercity(Frame):
         # Action frame
         but_frame = Frame(self)
         but_frame.pack(side=RIGHT, expand=YES, fill=Y)
-        Button(but_frame, text='add',     command=lambda: self.add()).pack(side=TOP, fill=X)
-        Button(but_frame, text='clean',   command=lambda: self.delete_all()).pack(side=TOP, fill=X)
+        Button(but_frame, text='add', command=lambda: self.add()).pack(side=TOP, fill=X)
+        Button(but_frame, text='clean', command=lambda: self.delete_all()).pack(side=TOP, fill=X)
 
         size_frame = Frame(but_frame)
         size_frame.pack(side=TOP)
@@ -51,9 +50,9 @@ class Univercity(Frame):
         self.duration.insert(0, '5')
         self.duration.pack(side=RIGHT)
 
-        Button(but_frame, text='load names',    command=lambda: self.open_filenames()).pack(side=TOP, fill=X)
-        Button(but_frame, text='save names',    command=lambda: self.save_filenames()).pack(side=TOP, fill=X)
-        Button(but_frame, text='combine', command=lambda: self.get_calendar()).pack(side=BOTTOM, fill=X)
+        Button(but_frame, text='load names', command=lambda: self.open_filenames()).pack(side=TOP, fill=X)
+        Button(but_frame, text='save names', command=lambda: self.save_filenames()).pack(side=TOP, fill=X)
+        Button(but_frame, text='combine', command=lambda: self.show_calendar()).pack(side=BOTTOM, fill=X)
 
     def open_filenames(self):
         filename = askopenfilename()
@@ -104,19 +103,55 @@ class Univercity(Frame):
         duplicates = self.check_duplicates()
         if not duplicates:
             g = GroupsMaker(self.dean.get_students_names(), int(self.duration.get()), size_group=int(self.size_group.get()))
-            calendar = g.get_timetable()
-            time_table = Toplevel(self)
+            self.calendar = g.get_timetable()
+
+    def show_calendar(self):
+        self.get_calendar()
+        time_table = Toplevel(self)
+        Button(time_table, text='save calendar', command=lambda: self.write_calendar()).pack(side=BOTTOM, fill=X)
+        lesson_count = 1
+        for lesson in self.calendar:
+            lesson_frame = Frame(time_table)
+            lesson_frame.pack(side=LEFT, fill=Y)
+            Label(lesson_frame, text=str(lesson_count)).pack(side=TOP)
+            lesson_count += 1
+            for combs in lesson:
+                comb_frame = Frame(lesson_frame, bd=2, relief=RAISED)
+                comb_frame.pack(side=TOP)
+                for name in combs:
+                    Label(comb_frame, width=10, text=name).pack(side=TOP)
+
+    def write_calendar(self):
+        with open('calendar.txt', 'a') as f:
             lesson_count = 1
-            for lesson in calendar:
-                lesson_frame = Frame(time_table)
-                lesson_frame.pack(side=LEFT, fill=Y)
-                Label(lesson_frame, text=str(lesson_count)).pack(side=TOP)
+            for lesson in self.calendar:
+                f.write('%s: ' % lesson_count)
                 lesson_count += 1
                 for combs in lesson:
-                    comb_frame = Frame(lesson_frame, bd=3, relief=RAISED)
-                    comb_frame.pack(side=TOP)
-                    for name in combs:
-                        Label(comb_frame, width=10, text=name).pack(side=TOP)
+                    f.write('| ')
+                    f.write(', '.join(list(combs)))
+                    f.write(' |')
+                f.write('\n')
+
+
+class Dean:
+    def __init__(self):
+        self.students = []
+
+    def enroll_student(self, student):
+        self.students.append(student)
+
+    def update_student_idx(self):
+        for student, idx in zip(self.students, range(1, len(self.students) + 1)):
+            student.idx = idx
+            student.update_label(idx)
+
+    def expel_student(self, student):
+        self.students.remove(student)
+        self.update_student_idx()
+
+    def get_students_names(self):
+        return [student.name for student in self.students]
 
 
 class Student:
@@ -150,7 +185,6 @@ class Student:
             old_name = self.name
             new_name = self.ent.get()
             self.name = new_name
-            print('Name %s successufully change to %s' % (old_name, new_name))
             return
         self.ent.event_generate('<Return>', when='tail')
 
@@ -159,27 +193,8 @@ class Student:
         self.dean.expel_student(self)
 
 
-class Dean:
-    def __init__(self):
-        self.students = []
-
-    def enroll_student(self, student):
-        self.students.append(student)
-
-    def update_student_idx(self):
-        for student, idx in zip(self.students, range(1, len(self.students) + 1)):
-            student.idx = idx
-            student.update_label(idx)
-
-    def expel_student(self, student):
-        self.students.remove(student)
-        self.update_student_idx()
-
-    def get_students_names(self):
-        return [student.name for student in self.students]
-
-
 root = Tk()
+#root.resizable(width=FALSE, height=FALSE)
 #root.wm_geometry("")
 root.title('GroupsMaker')
 # width, height = root.maxsize()
