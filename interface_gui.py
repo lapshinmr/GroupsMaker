@@ -24,10 +24,11 @@ class Univercity(Frame):
         self.names_input.focus()
 
         # Table frame
-        self.tab_frame = Frame(self)
+        self.tab_frame = Frame(self)# , width=300, height=400)
+        self.tab_frame.pack(side=LEFT, anchor=W)
+        # self.tab_frame.pack_propagate(False)
         self.tab_lab = Label(self.tab_frame, text='Your table will be here')
         self.tab_lab.pack(expand=YES)
-        self.tab_frame.pack(side=LEFT, anchor=W)
         self.colors = ['red', 'blue', 'green', 'yellow']
 
         # Action frame
@@ -35,14 +36,23 @@ class Univercity(Frame):
         but_frame.pack(side=RIGHT, expand=YES, fill=Y)
         Button(but_frame, text='add',     command=lambda: self.add()).pack(side=TOP, fill=X)
         Button(but_frame, text='clean',   command=lambda: self.delete_all()).pack(side=TOP, fill=X)
-        self.size_group = Entry(but_frame)
+
+        size_frame = Frame(but_frame)
+        size_frame.pack(side=TOP)
+        Label(size_frame, text='group size', width=10).pack(side=LEFT)
+        self.size_group = Entry(size_frame, width=10, justify=CENTER)
         self.size_group.insert(0, '2')
-        self.size_group.pack(side=TOP)
-        self.duration = Entry(but_frame)
+        self.size_group.pack(side=RIGHT)
+
+        duration_frame = Frame(but_frame)
+        duration_frame.pack(side=TOP)
+        Label(duration_frame, text='duration', width=10).pack(side=LEFT)
+        self.duration = Entry(duration_frame, width=10, justify=CENTER)
         self.duration.insert(0, '5')
-        self.duration.pack(side=TOP)
-        Button(but_frame, text='load',    command=lambda: self.open_filenames()).pack(side=TOP, fill=X)
-        Button(but_frame, text='save',    command=lambda: self.save_filenames()).pack(side=TOP, fill=X)
+        self.duration.pack(side=RIGHT)
+
+        Button(but_frame, text='load names',    command=lambda: self.open_filenames()).pack(side=TOP, fill=X)
+        Button(but_frame, text='save names',    command=lambda: self.save_filenames()).pack(side=TOP, fill=X)
         Button(but_frame, text='combine', command=lambda: self.get_calendar()).pack(side=BOTTOM, fill=X)
 
     def open_filenames(self):
@@ -66,11 +76,11 @@ class Univercity(Frame):
         for student_name in new_students_names:
             student = Student(student_name, self.dean, self.tab_frame)
             self.dean.enroll_student(student)
+        self.names_input.delete(0, END)
 
     def check_duplicates(self):
-        self.refresh()
         duplicates = False
-        all_names = self.get_names()
+        all_names = self.dean.get_students_names()
         count = {}
         for name in all_names:
             if name in count:
@@ -81,33 +91,19 @@ class Univercity(Frame):
             if value > 1:
                 duplicates = True
                 color = random.choice(self.colors)
-                for student in self.all_students:
+                for student in self.dean.students:
                     if student.name == name:
                         student.set_bg_color(color)
         return duplicates
 
-    def refresh(self):
-        student_to_remove = []
-        for student in self.all_students:
-            if not student.name:
-                student_to_remove.append(student)
-        for student in student_to_remove:
-            self.all_students.remove(student)
-        for student, idx in zip(self.all_students, range(1, len(self.all_students) + 1)):
-            student.update_widgets()
-
     def delete_all(self):
-        for student in self.all_students:
-            student.remove()
-        self.refresh()
-
-    def get_names(self):
-        return [student.name for student in self.all_students]
+        while self.dean.students:
+            self.dean.students[-1].delete_student()
 
     def get_calendar(self):
         duplicates = self.check_duplicates()
         if not duplicates:
-            g = GroupsMaker(self.get_names(), int(self.duration.get()), size_group=int(self.size_group.get()))
+            g = GroupsMaker(self.dean.get_students_names(), int(self.duration.get()), size_group=int(self.size_group.get()))
             calendar = g.get_timetable()
             time_table = Toplevel(self)
             lesson_count = 1
@@ -131,36 +127,29 @@ class Student:
         self.parent = parent
         self.make_student_frame()
 
-    def ask_idx(self):
-        return self.dean.give_student_idx(self)
-
     def make_student_frame(self):
         self.student_fr = Frame(self.parent)
         self.student_fr.pack(side=TOP)
         self.lab = Label(self.student_fr, text=self.idx, relief=RIDGE, width=5)
         self.ent = Entry(self.student_fr, width=20)
-        self.but = Button(self.student_fr, text='x', command=lambda: self.delete_student())
+        self.but = Button(self.student_fr, width=1, text='x', command=lambda: self.delete_student())
         self.lab.pack(side=LEFT)
         self.ent.pack(side=LEFT)
         self.but.pack(side=RIGHT)
         self.ent.insert(0, self.name)
-        self.ent.bind('<Return>', self.change_name)
+        self.ent.bind('<KeyPress>', self.change_name)
 
     def set_bg_color(self, color):
         self.ent.config(bg=color)
 
-    def update_widgets(self):
-        self.student_fr.destroy()
-        self.make_student_frame()
+    def update_label(self, text):
+        self.lab.config(text=text)
 
     def change_name(self, event):
         old_name = self.name
         new_name = self.ent.get()
         self.name = new_name
         print('Name %s successufully change to %s' % (old_name, new_name))
-        if not self.name:
-            self.lab.grid_remove()
-            self.ent.grid_remove()
 
     def delete_student(self):
         self.student_fr.destroy()
@@ -177,11 +166,15 @@ class Dean:
     def update_student_idx(self):
         for student, idx in zip(self.students, range(1, len(self.students) + 1)):
             student.idx = idx
-            student.update_widgets()
+            student.update_label(idx)
 
     def expel_student(self, student):
         self.students.remove(student)
         self.update_student_idx()
+
+    def get_students_names(self):
+        return [student.name for student in self.students]
+
 
 
 
