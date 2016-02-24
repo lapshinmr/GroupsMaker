@@ -6,11 +6,11 @@ import random
 
 #root.resizable(width=FALSE, height=FALSE)
 
-class MainLogic(Frame):
+class Univercity(Frame):
     def __init__(self, parent=None):
         Frame.__init__(self, parent)
         self.pack()
-        self.all_students = []
+        self.dean = Dean()
         self.add_widgets()
 
     def add_widgets(self):
@@ -62,12 +62,10 @@ class MainLogic(Frame):
 
     def add(self):
         self.tab_lab.destroy()
-        new_names = self.split_names(self.names_input.get())
-        start_idx = len(self.all_students) + 1
-        end_idx = start_idx + len(new_names)
-        for name, idx in zip(new_names, range(start_idx, end_idx)):
-            student = Student(name, idx, self.tab_frame)
-            self.all_students.append(student)
+        new_students_names = self.split_names(self.names_input.get())
+        for student_name in new_students_names:
+            student = Student(student_name, self.dean, self.tab_frame)
+            self.dean.enroll_student(student)
 
     def check_duplicates(self):
         self.refresh()
@@ -126,20 +124,25 @@ class MainLogic(Frame):
 
 
 class Student:
-    def __init__(self, name, student_id, parent=None):
+    def __init__(self, name, dean, parent=None):
         self.name = name
-        self.student_id = student_id
+        self.dean = dean
+        self.idx = len(self.dean.students) + 1
         self.parent = parent
-        self.make_widgets()
+        self.make_student_frame()
 
-    def make_widgets(self):
+    def ask_idx(self):
+        return self.dean.give_student_idx(self)
+
+    def make_student_frame(self):
         self.student_fr = Frame(self.parent)
         self.student_fr.pack(side=TOP)
-        self.lab = Label(self.student_fr, text=self.student_id, relief=RIDGE, width=5)
+        self.lab = Label(self.student_fr, text=self.idx, relief=RIDGE, width=5)
         self.ent = Entry(self.student_fr, width=20)
         self.but = Button(self.student_fr, text='x', command=lambda: self.delete_student())
         self.lab.pack(side=LEFT)
-        self.ent.pack(side=RIGHT)
+        self.ent.pack(side=LEFT)
+        self.but.pack(side=RIGHT)
         self.ent.insert(0, self.name)
         self.ent.bind('<Return>', self.change_name)
 
@@ -147,9 +150,8 @@ class Student:
         self.ent.config(bg=color)
 
     def update_widgets(self):
-        self.lab.destroy()
-        self.ent.destroy()
-        self.make_widgets()
+        self.student_fr.destroy()
+        self.make_student_frame()
 
     def change_name(self, event):
         old_name = self.name
@@ -162,12 +164,26 @@ class Student:
 
     def delete_student(self):
         self.student_fr.destroy()
-        self.name = ''
+        self.dean.expel_student(self)
 
-    def remove(self):
-        self.lab.grid_remove()
-        self.ent.grid_remove()
-        self.name = ''
+
+class Dean:
+    def __init__(self):
+        self.students = []
+
+    def enroll_student(self, student):
+        self.students.append(student)
+
+    def update_student_idx(self):
+        for student, idx in zip(self.students, range(1, len(self.students) + 1)):
+            student.idx = idx
+            student.update_widgets()
+
+    def expel_student(self, student):
+        self.students.remove(student)
+        self.update_student_idx()
+
+
 
 
 root = Tk()
@@ -175,5 +191,5 @@ root = Tk()
 root.title('GroupsMaker')
 # width, height = root.maxsize()
 # root.geometry('%sx%s' % (round(0.5 * width), round(0.5 * height)))
-MainLogic(root).pack(side=TOP, fill=X)
+Univercity(root).pack(side=TOP, fill=X)
 root.mainloop()
