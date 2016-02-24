@@ -18,9 +18,10 @@ class Univercity(Frame):
         ent_frame.pack(side=TOP, expand=YES, fill=X)
         Label(ent_frame, text='Entry students names').pack(side=TOP, fill=X)
         self.names_input = Entry(ent_frame)
-        self.names_input.insert(0, 'misha, kate, dasha, sasha, serega, yula')
+        self.names_input.insert(0, 'Миша, Катя, Даша, Саша, Серега, Юля')
         self.names_input.pack(side=TOP, expand=YES, fill=X)
         self.names_input.focus()
+        self.names_input.bind('<Return>', lambda event: self.add())
 
         # Table frame
         self.tab_frame = Frame(self)# , width=300, height=400)
@@ -50,18 +51,18 @@ class Univercity(Frame):
         self.duration.insert(0, '5')
         self.duration.pack(side=RIGHT)
 
-        Button(but_frame, text='load names', command=lambda: self.open_filenames()).pack(side=TOP, fill=X)
-        Button(but_frame, text='save names', command=lambda: self.save_filenames()).pack(side=TOP, fill=X)
+        Button(but_frame, text='load names', command=lambda: self.open_names_from_file()).pack(side=TOP, fill=X)
+        Button(but_frame, text='save names', command=lambda: self.save_names_as_text()).pack(side=TOP, fill=X)
         Button(but_frame, text='combine', command=lambda: self.show_calendar()).pack(side=BOTTOM, fill=X)
 
-    def open_filenames(self):
+    def open_names_from_file(self):
         filename = askopenfilename()
         self.names_input.delete(0, END)
         self.names_input.insert(0, open(filename).read())
 
-    def save_filenames(self):
+    def save_names_as_text(self):
         filename = asksaveasfilename()
-        names = self.get_names()
+        names = self.dean.get_students_names()
         open(filename, 'w').write(', '.join(names))
 
     @staticmethod
@@ -108,7 +109,7 @@ class Univercity(Frame):
     def show_calendar(self):
         self.get_calendar()
         time_table = Toplevel(self)
-        Button(time_table, text='save calendar', command=lambda: self.write_calendar()).pack(side=BOTTOM, fill=X)
+        Button(time_table, text='save calendar', command=lambda: self.save_calendar_as_plain_text()).pack(side=BOTTOM, fill=X)
         lesson_count = 1
         for lesson in self.calendar:
             lesson_frame = Frame(time_table)
@@ -121,17 +122,17 @@ class Univercity(Frame):
                 for name in combs:
                     Label(comb_frame, width=10, text=name).pack(side=TOP)
 
-    def write_calendar(self):
-        with open('calendar.txt', 'a') as f:
-            lesson_count = 1
-            for lesson in self.calendar:
-                f.write('%s: ' % lesson_count)
-                lesson_count += 1
-                for combs in lesson:
-                    f.write('| ')
-                    f.write(', '.join(list(combs)))
-                    f.write(' |')
-                f.write('\n')
+    def save_calendar_as_plain_text(self):
+        filename = asksaveasfilename() + '.txt'
+        text = ''
+        lesson_count = 1
+        for lesson in self.calendar:
+            text += '%s неделя: ' % lesson_count
+            lesson_count += 1
+            for combs in lesson:
+                text += ('(' + ', '.join(list(combs)) + ') ')
+            text += '\n'
+        open(filename, 'w').write(text)
 
 
 class Dean:
