@@ -146,10 +146,13 @@ class Student:
         self.lab.config(text=text)
 
     def change_name(self, event):
-        old_name = self.name
-        new_name = self.ent.get()
-        self.name = new_name
-        print('Name %s successufully change to %s' % (old_name, new_name))
+        if event.keysym == 'Return':
+            old_name = self.name
+            new_name = self.ent.get()
+            self.name = new_name
+            print('Name %s successufully change to %s' % (old_name, new_name))
+            return
+        self.ent.event_generate('<Return>', when='tail')
 
     def delete_student(self):
         self.student_fr.destroy()
@@ -174,9 +177,6 @@ class Dean:
 
     def get_students_names(self):
         return [student.name for student in self.students]
-
-
-
 
 
 root = Tk()
