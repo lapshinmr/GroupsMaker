@@ -18,7 +18,7 @@ class Univercity(Frame):
         # Input names frame
         ent_frame = Frame(self)
         ent_frame.pack(side=TOP, expand=YES, fill=X)
-        Label(ent_frame, text='Entry students names').pack(side=TOP, fill=X)
+        Label(ent_frame, text='Please, entry names of your students').pack(side=TOP, fill=X)
         self.names_input = Text(ent_frame, width=10, height=3)
         # self.names_input.insert(0, 'Миша, Катя, Даша, Саша, Серега, Юля')
         self.names_input.pack(side=TOP, expand=YES, fill=X)
@@ -29,7 +29,7 @@ class Univercity(Frame):
         self.tab_frame = Frame(self)# , width=300, height=400)
         self.tab_frame.pack(side=LEFT, anchor=W)
         # self.tab_frame.pack_propagate(False)
-        self.tab_lab = Label(self.tab_frame, width=33, text='Your table will be here')
+        self.tab_lab = Label(self.tab_frame, width=33, text='Please, put the button "add"')
         self.tab_lab.pack(expand=YES)
 
         # Action frame
@@ -44,7 +44,7 @@ class Univercity(Frame):
 
         duration_frame = Frame(but_frame)
         duration_frame.pack(side=TOP)
-        Label(duration_frame, text='duration', width=10).pack(side=LEFT)
+        Label(duration_frame, text='lessons', width=10).pack(side=LEFT)
         self.duration = Entry(duration_frame, width=10, justify=CENTER)
         self.duration.insert(0, '5')
         self.duration.pack(side=RIGHT)
@@ -59,13 +59,14 @@ class Univercity(Frame):
         filename = askopenfilename()
         if filename:
             self.names_input.delete(1.0, END)
-            self.names_input.insert(1.0, open(filename).read())
+            self.names_input.insert(1.0, open(filename, encoding='utf-8-sig').read())
 
     def save_names_as_text(self):
         filename = asksaveasfilename(filetypes=[('txt', '.txt')])
         if filename:
+            filename = os.path.splitext(filename)[0]
             names = self.dean.get_students_names()
-            open(filename, 'w').write(', '.join(names))
+            open(filename + '.txt', 'w', encoding='utf-8').write(', '.join(names))
 
     @staticmethod
     def split_names(names_string):
@@ -107,12 +108,13 @@ class Univercity(Frame):
             try:
                 self.calendar = g.get_timetable()
                 time_table = Toplevel(self)
+                time_table.title('Timetable')
                 Button(time_table, text='save timetable', command=lambda: self.save_calendar_as_plain_text()).pack(side=BOTTOM, fill=X)
                 lesson_count = 1
                 for lesson in self.calendar:
                     lesson_frame = Frame(time_table)
                     lesson_frame.pack(side=LEFT, fill=Y)
-                    Label(lesson_frame, text=str(lesson_count)).pack(side=TOP)
+                    Label(lesson_frame, text='%s %s' % (lesson_count, 'lesson')).pack(side=TOP)
                     lesson_count += 1
                     for combs in lesson:
                         comb_frame = Frame(lesson_frame, bd=2, relief=RAISED)
@@ -120,16 +122,16 @@ class Univercity(Frame):
                         for name in combs:
                             Label(comb_frame, width=10, text=name).pack(side=TOP)
             except NotEnoughCombinations:
-                showwarning('Warning', 'Not enough students to form groups with current size equals %s' % self.size_group.get())
+                showwarning('Warning', 'The number of students is not enough to form the groups' % self.size_group.get())
         else:
-            showwarning('Warning', 'The timetable is not created. Please change duplicated names.')
+            showwarning('Warning', 'The timetable is not created. Please change duplicated the names.')
 
     def save_calendar_as_plain_text(self):
         filename = asksaveasfilename(filetypes=[('txt', '.txt')])
         if filename:
             filename = os.path.splitext(filename)[0]
-            open(filename + '.txt', 'w').write(self.generate_txt())
-            open(filename + '.tex', 'w').write(self.generate_tex())
+            open(filename + '.txt', 'w', encoding='utf-8').write(self.generate_txt())
+            open(filename + '.tex', 'w', encoding='utf-8').write(self.generate_tex())
 
     def generate_txt(self):
         text = ''
