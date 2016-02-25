@@ -1,3 +1,4 @@
+import os
 from tkinter import *
 from groups_maker import GroupsMaker
 from tkinter.filedialog import askopenfilename, asksaveasfilename
@@ -18,8 +19,8 @@ class Univercity(Frame):
         ent_frame = Frame(self)
         ent_frame.pack(side=TOP, expand=YES, fill=X)
         Label(ent_frame, text='Entry students names').pack(side=TOP, fill=X)
-        self.names_input = Entry(ent_frame)
-        self.names_input.insert(0, 'Миша, Катя, Даша, Саша, Серега, Юля')
+        self.names_input = Text(ent_frame, width=10, height=3)
+        # self.names_input.insert(0, 'Миша, Катя, Даша, Саша, Серега, Юля')
         self.names_input.pack(side=TOP, expand=YES, fill=X)
         self.names_input.focus()
         self.names_input.bind('<Return>', lambda event: self.add())
@@ -28,7 +29,7 @@ class Univercity(Frame):
         self.tab_frame = Frame(self)# , width=300, height=400)
         self.tab_frame.pack(side=LEFT, anchor=W)
         # self.tab_frame.pack_propagate(False)
-        self.tab_lab = Label(self.tab_frame, text='Your table will be here')
+        self.tab_lab = Label(self.tab_frame, width=33, text='Your table will be here')
         self.tab_lab.pack(expand=YES)
 
         # Action frame
@@ -56,13 +57,15 @@ class Univercity(Frame):
 
     def open_names_from_file(self):
         filename = askopenfilename()
-        self.names_input.delete(0, END)
-        self.names_input.insert(0, open(filename).read())
+        if filename:
+            self.names_input.delete(1.0, END)
+            self.names_input.insert(1.0, open(filename).read())
 
     def save_names_as_text(self):
-        filename = asksaveasfilename()
-        names = self.dean.get_students_names()
-        open(filename, 'w').write(', '.join(names))
+        filename = asksaveasfilename(filetypes=[('txt', '.txt')])
+        if filename:
+            names = self.dean.get_students_names()
+            open(filename, 'w').write(', '.join(names))
 
     @staticmethod
     def split_names(names_string):
@@ -71,11 +74,11 @@ class Univercity(Frame):
 
     def add(self):
         self.tab_lab.destroy()
-        new_students_names = self.split_names(self.names_input.get())
+        new_students_names = self.split_names(self.names_input.get(1.0, END))
         for student_name in new_students_names:
             student = Student(student_name, self.dean, self.tab_frame)
             self.dean.enroll_student(student)
-        self.names_input.delete(0, END)
+        self.names_input.delete(1.0, END)
 
     def check_duplicates(self):
         duplicates = False
@@ -122,9 +125,11 @@ class Univercity(Frame):
             showwarning('Warning', 'The timetable is not created. Please change duplicated names.')
 
     def save_calendar_as_plain_text(self):
-        filename = asksaveasfilename()
-        open(filename + '.txt', 'w').write(self.generate_txt())
-        open(filename + '.tex', 'w').write(self.generate_tex())
+        filename = asksaveasfilename(filetypes=[('txt', '.txt')])
+        if filename:
+            filename = os.path.splitext(filename)[0]
+            open(filename + '.txt', 'w').write(self.generate_txt())
+            open(filename + '.tex', 'w').write(self.generate_tex())
 
     def generate_txt(self):
         text = ''
