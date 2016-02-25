@@ -1,10 +1,10 @@
 
 
-class GroupMakerException(Exception):
+class GroupsMakerException(Exception):
     pass
 
-class AttemptsExceeded(GroupMakerException):
+class AttemptsExceeded(GroupsMakerException):
     pass
 
-class NotEnoughCombinations(GroupMakerException):
+class NotEnoughCombinations(GroupsMakerException):
     pass

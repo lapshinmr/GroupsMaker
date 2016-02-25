@@ -1,7 +1,8 @@
 from tkinter import *
 from groups_maker import GroupsMaker
 from tkinter.filedialog import askopenfilename, asksaveasfilename
-import random
+from tkinter.messagebox import *
+from gm_exceptions import *
 
 
 class Univercity(Frame):
@@ -29,14 +30,10 @@ class Univercity(Frame):
         # self.tab_frame.pack_propagate(False)
         self.tab_lab = Label(self.tab_frame, text='Your table will be here')
         self.tab_lab.pack(expand=YES)
-        self.colors = ['red', 'blue', 'green', 'yellow']
 
         # Action frame
         but_frame = Frame(self)
         but_frame.pack(side=RIGHT, expand=YES, fill=Y)
-        Button(but_frame, text='add', command=lambda: self.add()).pack(side=TOP, fill=X)
-        Button(but_frame, text='clean', command=lambda: self.delete_all()).pack(side=TOP, fill=X)
-
         size_frame = Frame(but_frame)
         size_frame.pack(side=TOP)
         Label(size_frame, text='group size', width=10).pack(side=LEFT)
@@ -51,9 +48,11 @@ class Univercity(Frame):
         self.duration.insert(0, '5')
         self.duration.pack(side=RIGHT)
 
+        Button(but_frame, text='add', command=lambda: self.add()).pack(side=TOP, fill=X)
+        Button(but_frame, text='clean', command=lambda: self.delete_all()).pack(side=TOP, fill=X)
         Button(but_frame, text='load names', command=lambda: self.open_names_from_file()).pack(side=TOP, fill=X)
         Button(but_frame, text='save names', command=lambda: self.save_names_as_text()).pack(side=TOP, fill=X)
-        Button(but_frame, text='combine', command=lambda: self.show_calendar()).pack(side=BOTTOM, fill=X)
+        Button(but_frame, text='show timetable', command=lambda: self.show_calendar()).pack(side=TOP, fill=X)
 
     def open_names_from_file(self):
         filename = askopenfilename()
@@ -80,47 +79,47 @@ class Univercity(Frame):
 
     def check_duplicates(self):
         duplicates = False
-        all_names = self.dean.get_students_names()
         count = {}
-        for name in all_names:
+        for name in self.dean.get_students_names():
             if name in count:
                 count[name] += 1
             else:
                 count[name] = 1
-        for name, value in count.items():
-            if value > 1:
+        for student in self.dean.students:
+            if count[student.name] > 1:
+                student.set_font_color('red')
                 duplicates = True
-                color = random.choice(self.colors)
-                for student in self.dean.students:
-                    if student.name == name:
-                        student.set_bg_color(color)
+            else:
+                student.set_font_color('black')
         return duplicates
 
     def delete_all(self):
         while self.dean.students:
             self.dean.students[-1].delete_student()
 
-    def get_calendar(self):
+    def show_calendar(self):
         duplicates = self.check_duplicates()
         if not duplicates:
             g = GroupsMaker(self.dean.get_students_names(), int(self.duration.get()), size_group=int(self.size_group.get()))
-            self.calendar = g.get_timetable()
-
-    def show_calendar(self):
-        self.get_calendar()
-        time_table = Toplevel(self)
-        Button(time_table, text='save calendar', command=lambda: self.save_calendar_as_plain_text()).pack(side=BOTTOM, fill=X)
-        lesson_count = 1
-        for lesson in self.calendar:
-            lesson_frame = Frame(time_table)
-            lesson_frame.pack(side=LEFT, fill=Y)
-            Label(lesson_frame, text=str(lesson_count)).pack(side=TOP)
-            lesson_count += 1
-            for combs in lesson:
-                comb_frame = Frame(lesson_frame, bd=2, relief=RAISED)
-                comb_frame.pack(side=TOP)
-                for name in combs:
-                    Label(comb_frame, width=10, text=name).pack(side=TOP)
+            try:
+                self.calendar = g.get_timetable()
+                time_table = Toplevel(self)
+                Button(time_table, text='save timetable', command=lambda: self.save_calendar_as_plain_text()).pack(side=BOTTOM, fill=X)
+                lesson_count = 1
+                for lesson in self.calendar:
+                    lesson_frame = Frame(time_table)
+                    lesson_frame.pack(side=LEFT, fill=Y)
+                    Label(lesson_frame, text=str(lesson_count)).pack(side=TOP)
+                    lesson_count += 1
+                    for combs in lesson:
+                        comb_frame = Frame(lesson_frame, bd=2, relief=RAISED)
+                        comb_frame.pack(side=TOP)
+                        for name in combs:
+                            Label(comb_frame, width=10, text=name).pack(side=TOP)
+            except NotEnoughCombinations:
+                showwarning('Warning', 'Not enough students to form groups with current size equals %s' % self.size_group.get())
+        else:
+            showwarning('Warning', 'The timetable is not created. Please change duplicated names.')
 
     def save_calendar_as_plain_text(self):
         filename = asksaveasfilename()
@@ -168,9 +167,6 @@ class Univercity(Frame):
         return start + main_table + end
 
 
-
-
-
 class Dean:
     def __init__(self):
         self.students = []
@@ -202,24 +198,23 @@ class Student:
     def make_student_frame(self):
         self.student_fr = Frame(self.parent)
         self.student_fr.pack(side=TOP)
-        self.lab = Label(self.student_fr, text=self.idx, relief=RIDGE, width=5)
-        self.ent = Entry(self.student_fr, width=20)
-        self.but = Button(self.student_fr, width=1, text='x', command=lambda: self.delete_student())
-        self.lab.pack(side=LEFT)
+        self.lab = Label(self.student_fr, text=self.idx, width=3)
+        self.ent = Entry(self.student_fr, width=20, font=1)
+        self.but = Button(self.student_fr, text='x', command=lambda: self.delete_student())
+        self.lab.pack(side=LEFT, anchor=W)
         self.ent.pack(side=LEFT)
-        self.but.pack(side=RIGHT)
+        self.but.pack(side=RIGHT, anchor=E)
         self.ent.insert(0, self.name)
         self.ent.bind('<KeyPress>', self.change_name)
 
-    def set_bg_color(self, color):
-        self.ent.config(bg=color)
+    def set_font_color(self, color):
+        self.ent.config(fg=color)
 
     def update_label(self, text):
         self.lab.config(text=text)
 
     def change_name(self, event):
         if event.keysym == 'Return':
-            old_name = self.name
             new_name = self.ent.get()
             self.name = new_name
             return

@@ -112,10 +112,7 @@ class GroupsMaker:
         for dummy in range(self.lessons_total // available_lessons):
             lessons_pack.extend(self.get_unique_lessons(available_lessons))
         else:
-            try:
-                lessons_pack.extend(self.get_unique_lessons(self.lessons_total % available_lessons))
-            except NotEnoughCombinations as error:
-                print(error.__class__.__name__)
+            lessons_pack.extend(self.get_unique_lessons(self.lessons_total % available_lessons))
         return lessons_pack
 
 
