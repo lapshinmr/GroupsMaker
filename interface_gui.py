@@ -49,11 +49,11 @@ class Univercity(Frame):
         self.duration.insert(0, '5')
         self.duration.pack(side=RIGHT)
 
-        Button(but_frame, text='add', command=lambda: self.add()).pack(side=TOP, fill=X)
-        Button(but_frame, text='clean', command=lambda: self.delete_all()).pack(side=TOP, fill=X)
-        Button(but_frame, text='load names', command=lambda: self.open_names_from_file()).pack(side=TOP, fill=X)
-        Button(but_frame, text='save names', command=lambda: self.save_names_as_text()).pack(side=TOP, fill=X)
-        Button(but_frame, text='show timetable', command=lambda: self.show_calendar()).pack(side=TOP, fill=X)
+        Button(but_frame, text='add', command=self.add).pack(side=TOP, fill=X)
+        Button(but_frame, text='clean', command=self.delete_all).pack(side=TOP, fill=X)
+        Button(but_frame, text='load names', command=self.open_names_from_file).pack(side=TOP, fill=X)
+        Button(but_frame, text='save names', command=self.save_names_as_text).pack(side=TOP, fill=X)
+        Button(but_frame, text='show timetable', command=self.show_calendar).pack(side=TOP, fill=X)
 
     def open_names_from_file(self):
         filename = askopenfilename()
@@ -109,7 +109,7 @@ class Univercity(Frame):
                 self.calendar = g.get_timetable()
                 time_table = Toplevel(self)
                 time_table.title('Timetable')
-                Button(time_table, text='save timetable', command=lambda: self.save_calendar_as_plain_text()).pack(side=BOTTOM, fill=X)
+                Button(time_table, text='save timetable', command=self.save_calendar_as_plain_text).pack(side=BOTTOM, fill=X)
                 lesson_count = 1
                 for lesson in self.calendar:
                     lesson_frame = Frame(time_table)
@@ -122,7 +122,7 @@ class Univercity(Frame):
                         for name in combs:
                             Label(comb_frame, width=10, text=name).pack(side=TOP)
             except NotEnoughCombinations:
-                showwarning('Warning', 'The number of students is not enough to form the groups' % self.size_group.get())
+                showwarning('Warning', 'The number of students is not enough to form the groups')
         else:
             showwarning('Warning', 'The timetable is not created. Please change duplicated the names.')
 
@@ -207,7 +207,7 @@ class Student:
         self.student_fr.pack(side=TOP)
         self.lab = Label(self.student_fr, text=self.idx, width=3)
         self.ent = Entry(self.student_fr, width=20, font=1)
-        self.but = Button(self.student_fr, text='x', command=lambda: self.delete_student())
+        self.but = Button(self.student_fr, text='x', command=self.delete_student)
         self.lab.pack(side=LEFT, anchor=W)
         self.ent.pack(side=LEFT)
         self.but.pack(side=RIGHT, anchor=E)
