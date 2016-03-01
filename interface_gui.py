@@ -181,14 +181,13 @@ class Dean:
     def enroll_student(self, student):
         self.students.append(student)
 
-    def update_student_idx(self):
+    def update_students_idx(self):
         for student, idx in zip(self.students, range(1, len(self.students) + 1)):
-            student.idx = idx
-            student.update_label(idx)
+            student.idx.set(idx)
 
     def expel_student(self, student):
         self.students.remove(student)
-        self.update_student_idx()
+        self.update_students_idx()
 
     def get_students_names(self):
         return [student.name for student in self.students]
@@ -198,14 +197,15 @@ class Student:
     def __init__(self, name, dean, parent=None):
         self.name = name
         self.dean = dean
-        self.idx = len(self.dean.students) + 1
+        self.idx = IntVar()
+        self.idx.set(len(self.dean.students) + 1)
         self.parent = parent
         self.make_student_frame()
 
     def make_student_frame(self):
         self.student_fr = Frame(self.parent)
         self.student_fr.pack(side=TOP)
-        self.lab = Label(self.student_fr, text=self.idx, width=3)
+        self.lab = Label(self.student_fr, textvariable=self.idx, width=3)
         self.ent = Entry(self.student_fr, width=20, font=1)
         self.but = Button(self.student_fr, text='x', command=self.delete_student)
         self.lab.pack(side=LEFT, anchor=W)
@@ -216,9 +216,6 @@ class Student:
 
     def set_font_color(self, color):
         self.ent.config(fg=color)
-
-    def update_label(self, text):
-        self.lab.config(text=text)
 
     def change_name(self, event):
         if event.keysym == 'Return':
