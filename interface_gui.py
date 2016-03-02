@@ -9,12 +9,21 @@ from gm_exceptions import *
 class Univercity(Frame):
     def __init__(self, parent=None):
         Frame.__init__(self, parent)
+        self.parent = parent
         self.pack()
         self.dean = Dean()
         self.add_widgets()
         self.calendar = []
 
     def add_widgets(self):
+        # MENU
+        top = Menu(self.parent)
+        self.parent.config(menu=top)
+        file = Menu(top, tearoff=False)
+        file.add_command(label='load', command=self.open_names_from_file,  underline=0)
+        file.add_command(label='save', command=self.save_names_as_text,  underline=0)
+        top.add_cascade(label='File', menu=file, underline=0)
+
         # Input names frame
         ent_frame = Frame(self)
         ent_frame.pack(side=TOP, expand=YES, fill=X)
