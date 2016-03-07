@@ -16,33 +16,42 @@ class Univercity(Frame):
         self.calendar = []
 
     def add_widgets(self):
-        # MENU
+        self.add_menu()
+        self.add_input_field()
+        self.add_table()
+        self.add_toolbar()
+
+    def add_menu(self):
         top = Menu(self.parent)
         self.parent.config(menu=top)
         file = Menu(top, tearoff=False)
-        file.add_command(label='load', command=self.open_names_from_file,  underline=0)
-        file.add_command(label='save', command=self.save_names_as_text,  underline=0)
+        file.add_command(label='load names', command=self.open_names_from_file,  underline=0)
+        file.add_command(label='save names', command=self.save_names_as_text,  underline=0)
         top.add_cascade(label='File', menu=file, underline=0)
 
-        # Input names frame
+    def add_input_field(self):
         ent_frame = Frame(self)
         ent_frame.config(height=50)
         ent_frame.pack(side=TOP, expand=YES, fill=X)
         ent_frame.pack_propagate(False)
-        self.names_input = Text(ent_frame)
-        self.names_input.insert(1.0, 'Please, entry names of your students here.')
-        self.names_input.pack(side=TOP, expand=YES, fill=X)
-        self.names_input.focus()
-        self.names_input.bind('<Return>', lambda event: self.add())
+        text = Text(ent_frame)
+        scroll_bar = Scrollbar(ent_frame)
+        scroll_bar.config(command=text.yview)
+        text.config(yscrollcommand=scroll_bar.set)
+        scroll_bar.pack(side=RIGHT, fill=Y)
+        text.insert(1.0, 'Please, entry names of your students here.')
+        text.pack(side=LEFT, expand=YES, fill=BOTH)
+        text.focus()
+        self.input_names = text
+        # self.input_names.bind('<Return>', lambda event: self.add())
 
-        # Table frame
+    def add_table(self):
         self.tab_frame = Frame(self)# , width=300, height=400)
         self.tab_frame.pack(side=LEFT, anchor=W)
-        # self.tab_frame.pack_propagate(False)
         self.tab_lab = Label(self.tab_frame, width=33, text='Please, put the button "add"')
         self.tab_lab.pack(expand=YES)
 
-        # Action frame
+    def add_toolbar(self):
         but_frame = Frame(self)
         but_frame.pack(side=RIGHT, expand=YES, fill=Y)
         size_frame = Frame(but_frame)
@@ -61,15 +70,13 @@ class Univercity(Frame):
 
         Button(but_frame, text='add', command=self.add).pack(side=TOP, fill=X)
         Button(but_frame, text='clean', command=self.delete_all).pack(side=TOP, fill=X)
-        Button(but_frame, text='load names', command=self.open_names_from_file).pack(side=TOP, fill=X)
-        Button(but_frame, text='save names', command=self.save_names_as_text).pack(side=TOP, fill=X)
         Button(but_frame, text='show timetable', command=self.show_calendar).pack(side=TOP, fill=X)
 
     def open_names_from_file(self):
         filename = askopenfilename()
         if filename:
-            self.names_input.delete(1.0, END)
-            self.names_input.insert(1.0, open(filename, encoding='utf-8-sig').read())
+            self.input_names.delete(1.0, END)
+            self.input_names.insert(1.0, open(filename, encoding='utf-8-sig').read())
 
     def save_names_as_text(self):
         filename = asksaveasfilename(filetypes=[('txt', '.txt')])
@@ -85,11 +92,11 @@ class Univercity(Frame):
 
     def add(self):
         self.tab_lab.destroy()
-        new_students_names = self.split_names(self.names_input.get(1.0, END))
+        new_students_names = self.split_names(self.input_names.get(1.0, END))
         for student_name in new_students_names:
             student = Student(student_name, self.dean, self.tab_frame)
             self.dean.enroll_student(student)
-        self.names_input.delete(1.0, END)
+        self.input_names.delete(1.0, END)
 
     def check_duplicates(self):
         duplicates = False
