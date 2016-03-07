@@ -17,9 +17,9 @@ class Univercity(Frame):
 
     def add_widgets(self):
         self.add_menu()
+        self.add_toolbar()
         self.add_input_field()
         self.add_table()
-        self.add_toolbar()
 
     def add_menu(self):
         top = Menu(self.parent)
@@ -28,6 +28,23 @@ class Univercity(Frame):
         file.add_command(label='load names', command=self.open_names_from_file,  underline=0)
         file.add_command(label='save names', command=self.save_names_as_text,  underline=0)
         top.add_cascade(label='File', menu=file, underline=0)
+
+    def add_toolbar(self):
+        but_frame = Frame(self)
+        but_frame.pack(side=TOP, expand=YES, fill=X)
+        Button(but_frame, text='add', command=self.add).pack(side=LEFT)
+        Button(but_frame, text='clean', command=self.delete_all).pack(side=LEFT)
+        Button(but_frame, text='show timetable', command=self.show_calendar).pack(side=LEFT)
+
+        Label(but_frame, text='group size', width=10).pack(side=LEFT)
+        self.size_group = Entry(but_frame, width=10, justify=CENTER)
+        self.size_group.insert(0, '2')
+        self.size_group.pack(side=LEFT)
+
+        Label(but_frame, text='lessons', width=10).pack(side=LEFT)
+        self.duration = Entry(but_frame, width=10, justify=CENTER)
+        self.duration.insert(0, '5')
+        self.duration.pack(side=LEFT)
 
     def add_input_field(self):
         ent_frame = Frame(self)
@@ -50,27 +67,6 @@ class Univercity(Frame):
         self.tab_frame.pack(side=LEFT, anchor=W)
         self.tab_lab = Label(self.tab_frame, width=33, text='Please, put the button "add"')
         self.tab_lab.pack(expand=YES)
-
-    def add_toolbar(self):
-        but_frame = Frame(self)
-        but_frame.pack(side=RIGHT, expand=YES, fill=Y)
-        size_frame = Frame(but_frame)
-        size_frame.pack(side=TOP)
-        Label(size_frame, text='group size', width=10).pack(side=LEFT)
-        self.size_group = Entry(size_frame, width=10, justify=CENTER)
-        self.size_group.insert(0, '2')
-        self.size_group.pack(side=RIGHT)
-
-        duration_frame = Frame(but_frame)
-        duration_frame.pack(side=TOP)
-        Label(duration_frame, text='lessons', width=10).pack(side=LEFT)
-        self.duration = Entry(duration_frame, width=10, justify=CENTER)
-        self.duration.insert(0, '5')
-        self.duration.pack(side=RIGHT)
-
-        Button(but_frame, text='add', command=self.add).pack(side=TOP, fill=X)
-        Button(but_frame, text='clean', command=self.delete_all).pack(side=TOP, fill=X)
-        Button(but_frame, text='show timetable', command=self.show_calendar).pack(side=TOP, fill=X)
 
     def open_names_from_file(self):
         filename = askopenfilename()
