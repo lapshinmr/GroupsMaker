@@ -20,7 +20,7 @@ class Univercity(Frame):
         self.add_menu()
         self.add_toolbar()
         self.add_input_field()
-        self.add_table()
+        self.add_canvas()
 
     def add_menu(self):
         top = Menu(self.parent)
@@ -63,12 +63,12 @@ class Univercity(Frame):
         self.input_names = text
         # self.input_names.bind('<Return>', lambda event: self.add())
 
-    def add_table(self):
+    def add_canvas(self):
         canv_frame = Frame(self)
         canv_frame.pack(side=TOP, expand=YES, fill=BOTH)
         canv = Canvas(canv_frame, highlightthickness=0)
-        canv.config(width=300, height=600)
-        canv.config(scrollregion=(0, 0, 300, 1000))
+        canv.config(width=200, height=200)
+        canv.config(scrollregion=(0, 0, 200, 200))
         sbar = Scrollbar(canv_frame)
         sbar.config(command=canv.yview)
         canv.config(yscrollcommand=sbar.set)
@@ -215,6 +215,10 @@ class Dean:
 
 
 class Student:
+    lab_width = 3  # in letter
+    ent_width = 20  # in letter
+    win_width = 250  # in px
+    win_height = 20  # in px
     def __init__(self, name, dean, parent=None):
         self.name = name
         self.dean = dean
@@ -226,13 +230,14 @@ class Student:
     def make_student_frame(self):
         student_fr = Frame(self.parent)
         student_fr.pack(side=TOP)
-        Label(student_fr, textvariable=self.idx, width=3).pack(side=LEFT, anchor=W)
+        Label(student_fr, textvariable=self.idx, width=self.lab_width).pack(side=LEFT, anchor=W)
         Button(student_fr, text='x', command=self.delete_student).pack(side=RIGHT, anchor=E)
-        ent = Entry(student_fr, width=20, font=1)
+        ent = Entry(student_fr, width=self.ent_width, font=1)
         ent.pack(side=LEFT)
         ent.insert(0, self.name)
         ent.bind('<KeyPress>', self.change_name)
-        self.parent.create_window(0, self.idx.get() * 20, anchor=NW, window=student_fr, width=200, height=20)
+        self.parent.create_window(0, (self.idx.get() - 1) * 20, anchor=NW, window=student_fr,
+                                  width=self.win_width, height=self.win_height)
         self.ent = ent
         self.student_fr = student_fr
 
