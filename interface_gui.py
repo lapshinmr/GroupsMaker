@@ -63,10 +63,10 @@ class Univercity(Frame):
         # self.input_names.bind('<Return>', lambda event: self.add())
 
     def add_table(self):
-        self.tab_frame = Frame(self)# , width=300, height=400)
-        self.tab_frame.pack(side=LEFT, anchor=W)
-        self.tab_lab = Label(self.tab_frame, width=33, text='Please, put the button "add"')
-        self.tab_lab.pack(expand=YES)
+        canvas = Canvas(self, borderwidth=0)# , width=300, height=400)
+        canvas.pack(side=LEFT, anchor=W)
+        canvas.config(height=300, width=300)
+        self.canvas = canvas
 
     def open_names_from_file(self):
         filename = askopenfilename()
@@ -87,10 +87,10 @@ class Univercity(Frame):
         return [name.strip() for name in names]
 
     def add(self):
-        self.tab_lab.destroy()
+        # self.canvas.destroy()
         new_students_names = self.split_names(self.input_names.get(1.0, END))
         for student_name in new_students_names:
-            student = Student(student_name, self.dean, self.tab_frame)
+            student = Student(student_name, self.dean, self.canvas)
             self.dean.enroll_student(student)
         self.input_names.delete(1.0, END)
 
@@ -216,16 +216,17 @@ class Student:
         self.make_student_frame()
 
     def make_student_frame(self):
-        self.student_fr = Frame(self.parent)
-        self.student_fr.pack(side=TOP)
-        self.lab = Label(self.student_fr, textvariable=self.idx, width=3)
-        self.ent = Entry(self.student_fr, width=20, font=1)
-        self.but = Button(self.student_fr, text='x', command=self.delete_student)
-        self.lab.pack(side=LEFT, anchor=W)
-        self.ent.pack(side=LEFT)
-        self.but.pack(side=RIGHT, anchor=E)
-        self.ent.insert(0, self.name)
-        self.ent.bind('<KeyPress>', self.change_name)
+        #student_fr = Frame()
+        #student_fr.pack(side=TOP)
+        #Label(student_fr, textvariable=self.idx, width=3).pack(side=LEFT, anchor=W)
+        # but = Button(student_fr, text='x', command=self.delete_student).pack(side=RIGHT, anchor=E)
+        ent = Entry(self.parent, width=20, font=1)
+        ent.pack(side=LEFT)
+        # ent.insert(0, self.name)
+        # ent.bind('<KeyPress>', self.change_name)
+        self.parent.create_window(0, self.idx.get() * 20, window=ent, width=100, height=20)
+        self.ent = ent
+        # self.student_fr = student_fr
 
     def set_font_color(self, color):
         self.ent.config(fg=color)
