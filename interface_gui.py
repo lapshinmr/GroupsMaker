@@ -10,10 +10,11 @@ class Univercity(Frame):
     def __init__(self, parent=None):
         Frame.__init__(self, parent)
         self.parent = parent
-        self.pack()
+        self.pack(side=TOP, expand=YES, fill=BOTH)
         self.dean = Dean()
         self.add_widgets()
         self.calendar = []
+        self.canvY = IntVar()
 
     def add_widgets(self):
         self.add_menu()
@@ -31,7 +32,7 @@ class Univercity(Frame):
 
     def add_toolbar(self):
         but_frame = Frame(self)
-        but_frame.pack(side=TOP, expand=YES, fill=X)
+        but_frame.pack(side=TOP, fill=X)
         Button(but_frame, text='add', command=self.add).pack(side=LEFT)
         Button(but_frame, text='clean', command=self.delete_all).pack(side=LEFT)
         Button(but_frame, text='show timetable', command=self.show_calendar).pack(side=LEFT)
@@ -49,7 +50,7 @@ class Univercity(Frame):
     def add_input_field(self):
         ent_frame = Frame(self)
         ent_frame.config(height=50)
-        ent_frame.pack(side=TOP, expand=YES, fill=X)
+        ent_frame.pack(side=TOP, fill=X)
         ent_frame.pack_propagate(False)
         text = Text(ent_frame)
         scroll_bar = Scrollbar(ent_frame)
@@ -63,10 +64,17 @@ class Univercity(Frame):
         # self.input_names.bind('<Return>', lambda event: self.add())
 
     def add_table(self):
-        canvas = Canvas(self, borderwidth=0)# , width=300, height=400)
-        canvas.pack(side=LEFT, anchor=W)
-        canvas.config(height=300, width=300)
-        self.canvas = canvas
+        canv_frame = Frame(self)
+        canv_frame.pack(side=TOP, expand=YES, fill=BOTH)
+        canv = Canvas(canv_frame, highlightthickness=0)
+        canv.config(width=300, height=600)
+        canv.config(scrollregion=(0, 0, 300, 1000))
+        sbar = Scrollbar(canv_frame)
+        sbar.config(command=canv.yview)
+        canv.config(yscrollcommand=sbar.set)
+        sbar.pack(side=RIGHT, fill=Y)
+        canv.pack(side=LEFT, expand=YES, fill=BOTH)
+        self.canvas = canv
 
     def open_names_from_file(self):
         filename = askopenfilename()
@@ -216,17 +224,17 @@ class Student:
         self.make_student_frame()
 
     def make_student_frame(self):
-        #student_fr = Frame()
-        #student_fr.pack(side=TOP)
-        #Label(student_fr, textvariable=self.idx, width=3).pack(side=LEFT, anchor=W)
-        # but = Button(student_fr, text='x', command=self.delete_student).pack(side=RIGHT, anchor=E)
-        ent = Entry(self.parent, width=20, font=1)
+        student_fr = Frame(self.parent)
+        student_fr.pack(side=TOP)
+        Label(student_fr, textvariable=self.idx, width=3).pack(side=LEFT, anchor=W)
+        Button(student_fr, text='x', command=self.delete_student).pack(side=RIGHT, anchor=E)
+        ent = Entry(student_fr, width=20, font=1)
         ent.pack(side=LEFT)
-        # ent.insert(0, self.name)
-        # ent.bind('<KeyPress>', self.change_name)
-        self.parent.create_window(0, self.idx.get() * 20, window=ent, width=100, height=20)
+        ent.insert(0, self.name)
+        ent.bind('<KeyPress>', self.change_name)
+        self.parent.create_window(0, self.idx.get() * 20, anchor=NW, window=student_fr, width=200, height=20)
         self.ent = ent
-        # self.student_fr = student_fr
+        self.student_fr = student_fr
 
     def set_font_color(self, color):
         self.ent.config(fg=color)
@@ -249,5 +257,5 @@ root = Tk()
 root.title('GroupsMaker')
 width, height = root.maxsize()
 root.geometry('%sx%s' % (round(0.25 * width), round(0.25 * height)))
-Univercity(root).pack(side=TOP, fill=X)
+Univercity(root).pack()
 root.mainloop()
