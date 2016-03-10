@@ -5,6 +5,7 @@ from tkinter.filedialog import askopenfilename, asksaveasfilename
 from tkinter.messagebox import *
 from gm_exceptions import *
 from tkinter import ttk
+import math
 
 
 class Univercity(Frame):
@@ -106,6 +107,7 @@ class Univercity(Frame):
         for student_name in new_students_names:
             student = Student(student_name, self.dean, self.canvas)
             self.dean.enroll_student(student)
+        self.dean.seat_students((self.canvas.winfo_height(), self.canvas.winfo_width()))
         self.input_names.delete(1.0, END)
 
     def check_duplicates(self):
@@ -205,13 +207,26 @@ class Dean:
     def __init__(self):
         self.students = []
 
+    def get_students_count(self):
+        return len(self.students)
+
     def enroll_student(self, student):
-        self.students.append(student)
         student.set_idx(len(self.students) + 1)
+        self.students.append(student)
+
+    def seat_students(self, class_size):
+        height, width = class_size
+        col_count = math.ceil(width / 250)
+        row_count = math.ceil(self.get_students_count() / col_count)
+        grid = []
+        for col in [[(row, col) for row in range(row_count)] for col in range(col_count)]:
+            grid.extend(col)
+        for (stud, coord) in zip(self.students, grid):
+            stud.sit_down(coord)
 
     def update_students_idx(self):
         for student, idx in zip(self.students, range(1, len(self.students) + 1)):
-            student.idx.set(idx)
+            student.set_idx(idx)
 
     def expel_student(self, student):
         self.students.remove(student)
@@ -238,7 +253,10 @@ class Student:
     def set_idx(self, idx):
         self.idx.set(idx)
 
-    def make_student_frame(self, ):
+    def get_idx(self):
+        return self.idx.get()
+
+    def sit_down(self, coord):
         student_fr = Frame(self.parent)
         student_fr.pack(side=TOP)
         Label(student_fr, textvariable=self.idx, width=self.lab_width).pack(side=LEFT, anchor=W)
@@ -247,7 +265,7 @@ class Student:
         ent.pack(side=LEFT)
         ent.insert(0, self.name)
         ent.bind('<KeyPress>', self.change_name)
-        self.parent.create_window(0, (self.idx.get() - 1) * 20, anchor=NW, window=student_fr,
+        self.parent.create_window(coord[1] * self.win_width, coord[0] * self.win_height, anchor=NW, window=student_fr,
                                   width=self.win_width, height=self.win_height)
         self.ent = ent
         self.student_fr = student_fr
@@ -267,11 +285,14 @@ class Student:
         self.dean.expel_student(self)
 
 
-root = Tk()
-#root.resizable(width=FALSE, height=FALSE)
-#root.wm_geometry("")
-root.title('GroupsMaker')
-width, height = root.maxsize()
-root.geometry('%sx%s' % (round(0.25 * width), round(0.25 * height)))
-Univercity(root).pack()
-root.mainloop()
+if __name__ == '__main__':
+
+    root = Tk()
+    #root.resizable(width=FALSE, height=FALSE)
+    #root.wm_geometry("")
+    root.title('GroupsMaker')
+    width, height = root.maxsize()
+    root.geometry('%sx%s' % (round(0.25 * width), round(0.25 * height)))
+    Univercity(root).pack()
+    root.mainloop()
+
