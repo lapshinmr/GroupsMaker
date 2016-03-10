@@ -36,7 +36,7 @@ class Univercity(Frame):
         but_frame = Frame(self)
         but_frame.pack(side=TOP, fill=X)
         Button(but_frame, text='add', command=self.add).pack(side=LEFT)
-        Button(but_frame, text='clean', command=self.delete_all).pack(side=LEFT)
+        Button(but_frame, text='clean', command=self.expel_class).pack(side=LEFT)
         Button(but_frame, text='show timetable', command=self.show_calendar).pack(side=LEFT)
 
         Label(but_frame, text='group size', width=10).pack(side=LEFT)
@@ -107,6 +107,7 @@ class Univercity(Frame):
         for student_name in new_students_names:
             student = Student(student_name, self.dean, self.canvas)
             self.dean.enroll_student(student)
+        self.dean.rm_students_frames()
         self.dean.seat_students((self.canvas.winfo_height(), self.canvas.winfo_width()))
         self.input_names.delete(1.0, END)
 
@@ -126,9 +127,9 @@ class Univercity(Frame):
                 student.set_font_color('black')
         return duplicates
 
-    def delete_all(self):
+    def expel_class(self):
         while self.dean.students:
-            self.dean.students[-1].delete_student()
+            self.dean.expel_student(self.dean.students[-1])
 
     def show_calendar(self):
         duplicates = self.check_duplicates()
@@ -216,7 +217,7 @@ class Dean:
 
     def seat_students(self, class_size):
         height, width = class_size
-        col_count = math.ceil(width / 250)
+        col_count = round(width / 250)
         row_count = math.ceil(self.get_students_count() / col_count)
         grid = []
         for col in [[(row, col) for row in range(row_count)] for col in range(col_count)]:
@@ -229,8 +230,14 @@ class Dean:
             student.set_idx(idx)
 
     def expel_student(self, student):
+        student.rm_student_frame()
         self.students.remove(student)
         self.update_students_idx()
+
+    def rm_students_frames(self):
+        for stud in self.students:
+            if stud.student_fr:
+                stud.rm_student_frame()
 
     def get_students_names(self):
         return [student.name for student in self.students]
@@ -260,7 +267,7 @@ class Student:
         student_fr = Frame(self.parent)
         student_fr.pack(side=TOP)
         Label(student_fr, textvariable=self.idx, width=self.lab_width).pack(side=LEFT, anchor=W)
-        Button(student_fr, text='x', command=self.delete_student).pack(side=RIGHT, anchor=E)
+        Button(student_fr, text='x', command=self.rm_student_frame).pack(side=RIGHT, anchor=E)
         ent = Entry(student_fr, width=self.ent_width, font=1)
         ent.pack(side=LEFT)
         ent.insert(0, self.name)
@@ -280,9 +287,9 @@ class Student:
             return
         self.ent.event_generate('<Return>', when='tail')
 
-    def delete_student(self):
+    def rm_student_frame(self):
         self.student_fr.destroy()
-        self.dean.expel_student(self)
+        self.student_fr = None
 
 
 if __name__ == '__main__':
