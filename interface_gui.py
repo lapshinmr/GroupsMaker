@@ -13,10 +13,10 @@ class Univercity(Frame):
         Frame.__init__(self, parent)
         self.parent = parent
         self.pack(side=TOP, expand=YES, fill=BOTH)
-        self.dean = Dean()
         self.add_widgets()
+        self.canvas_size = list(self.get_canvas_size())
+        self.dean = Dean(self.canvas_size)
         self.calendar = []
-        self.canv_size = []
 
     def add_widgets(self):
         self.add_menu()
@@ -70,7 +70,6 @@ class Univercity(Frame):
         canv_frame.pack(side=TOP, expand=YES, fill=BOTH)
         canv = Canvas(canv_frame, highlightthickness=0)
         canv.bind('<Configure>', self.resize_canvas)
-        canv.config(width=200, height=200)
         canv.config(scrollregion=(0, 0, 200, 200))
         sbar = ttk.Scrollbar(canv_frame)
         sbar.config(command=canv.yview)
@@ -79,9 +78,18 @@ class Univercity(Frame):
         canv.pack(side=LEFT, expand=YES, fill=BOTH)
         self.canvas = canv
 
+    def get_canvas_size(self):
+        return self.canvas.winfo_height(), self.canvas.winfo_width()
+
+    def set_canvas_size(self, canvas_width, canvas_height):
+        self.canvas.config(width=canvas_width, height=canvas_height)
+        self.canvas_size[0] = canvas_width
+        self.canvas_size[1] = canvas_height
+
     def resize_canvas(self, event):
-        self.canvas.config(width=event.width, height=event.height)
-        print(self.canvas.winfo_width(), self.canvas.winfo_height())
+        self.set_canvas_size(event.width, event.height)
+        self.dean.rm_students_frames()
+        self.dean.seat_students()
 
     def open_names_from_file(self):
         filename = askopenfilename()
@@ -108,7 +116,7 @@ class Univercity(Frame):
             student = Student(student_name, self.dean, self.canvas)
             self.dean.enroll_student(student)
         self.dean.rm_students_frames()
-        self.dean.seat_students((self.canvas.winfo_height(), self.canvas.winfo_width()))
+        self.dean.seat_students()
         self.input_names.delete(1.0, END)
 
     def check_duplicates(self):
@@ -205,8 +213,9 @@ class Univercity(Frame):
 
 
 class Dean:
-    def __init__(self):
+    def __init__(self, canvas_size):
         self.students = []
+        self.canvas_size = canvas_size
 
     def get_students_count(self):
         return len(self.students)
@@ -215,10 +224,12 @@ class Dean:
         student.set_idx(len(self.students) + 1)
         self.students.append(student)
 
-    def seat_students(self, class_size):
-        height, width = class_size
+    def seat_students(self):
+        height, width = self.canvas_size
         col_count = round(width / 250)
         row_count = math.ceil(self.get_students_count() / col_count)
+        print(col_count, row_count)
+        print(height, width)
         grid = []
         for col in [[(row, col) for row in range(row_count)] for col in range(col_count)]:
             grid.extend(col)
@@ -229,14 +240,17 @@ class Dean:
         for student, idx in zip(self.students, range(1, len(self.students) + 1)):
             student.set_idx(idx)
 
-    def expel_student(self, student):
-        student.rm_student_frame()
-        self.students.remove(student)
+    def expel_student(self, stud):
+        if stud.stud_fr:
+            stud.rm_student_frame()
+        self.students.remove(stud)
         self.update_students_idx()
+        self.rm_students_frames()
+        self.seat_students()
 
     def rm_students_frames(self):
         for stud in self.students:
-            if stud.student_fr:
+            if stud.stud_fr:
                 stud.rm_student_frame()
 
     def get_students_names(self):
@@ -255,7 +269,7 @@ class Student:
         self.idx = IntVar()
         self.parent = parent
         self.ent = None
-        self.student_fr = None
+        self.stud_fr = None
 
     def set_idx(self, idx):
         self.idx.set(idx)
@@ -264,18 +278,18 @@ class Student:
         return self.idx.get()
 
     def sit_down(self, coord):
-        student_fr = Frame(self.parent)
-        student_fr.pack(side=TOP)
-        Label(student_fr, textvariable=self.idx, width=self.lab_width).pack(side=LEFT, anchor=W)
-        Button(student_fr, text='x', command=self.rm_student_frame).pack(side=RIGHT, anchor=E)
-        ent = Entry(student_fr, width=self.ent_width, font=1)
+        stud_fr = Frame(self.parent)
+        stud_fr.pack(side=TOP)
+        Label(stud_fr, textvariable=self.idx, width=self.lab_width).pack(side=LEFT, anchor=W)
+        Button(stud_fr, text='x', command=self.rm_student_frame).pack(side=RIGHT, anchor=E)
+        ent = Entry(stud_fr, width=self.ent_width, font=1)
         ent.pack(side=LEFT)
         ent.insert(0, self.name)
         ent.bind('<KeyPress>', self.change_name)
-        self.parent.create_window(coord[1] * self.win_width, coord[0] * self.win_height, anchor=NW, window=student_fr,
+        self.parent.create_window(coord[1] * self.win_width, coord[0] * self.win_height, anchor=NW, window=stud_fr,
                                   width=self.win_width, height=self.win_height)
         self.ent = ent
-        self.student_fr = student_fr
+        self.stud_fr = stud_fr
 
     def set_font_color(self, color):
         self.ent.config(fg=color)
@@ -288,8 +302,11 @@ class Student:
         self.ent.event_generate('<Return>', when='tail')
 
     def rm_student_frame(self):
-        self.student_fr.destroy()
-        self.student_fr = None
+        self.stud_fr.destroy()
+
+    def expel_student(self):
+        self.rm_student_frame()
+        self.dean.expel_student(self)
 
 
 if __name__ == '__main__':
