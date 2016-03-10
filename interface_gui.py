@@ -4,6 +4,7 @@ from groups_maker import GroupsMaker
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 from tkinter.messagebox import *
 from gm_exceptions import *
+from tkinter import ttk
 
 
 class Univercity(Frame):
@@ -14,7 +15,7 @@ class Univercity(Frame):
         self.dean = Dean()
         self.add_widgets()
         self.calendar = []
-        self.canvY = IntVar()
+        self.canv_size = []
 
     def add_widgets(self):
         self.add_menu()
@@ -53,7 +54,7 @@ class Univercity(Frame):
         ent_frame.pack(side=TOP, fill=X)
         ent_frame.pack_propagate(False)
         text = Text(ent_frame)
-        scroll_bar = Scrollbar(ent_frame)
+        scroll_bar = ttk.Scrollbar(ent_frame)
         scroll_bar.config(command=text.yview)
         text.config(yscrollcommand=scroll_bar.set)
         scroll_bar.pack(side=RIGHT, fill=Y)
@@ -67,14 +68,19 @@ class Univercity(Frame):
         canv_frame = Frame(self)
         canv_frame.pack(side=TOP, expand=YES, fill=BOTH)
         canv = Canvas(canv_frame, highlightthickness=0)
+        canv.bind('<Configure>', self.resize_canvas)
         canv.config(width=200, height=200)
         canv.config(scrollregion=(0, 0, 200, 200))
-        sbar = Scrollbar(canv_frame)
+        sbar = ttk.Scrollbar(canv_frame)
         sbar.config(command=canv.yview)
         canv.config(yscrollcommand=sbar.set)
         sbar.pack(side=RIGHT, fill=Y)
         canv.pack(side=LEFT, expand=YES, fill=BOTH)
         self.canvas = canv
+
+    def resize_canvas(self, event):
+        self.canvas.config(width=event.width, height=event.height)
+        print(self.canvas.winfo_width(), self.canvas.winfo_height())
 
     def open_names_from_file(self):
         filename = askopenfilename()
@@ -201,6 +207,7 @@ class Dean:
 
     def enroll_student(self, student):
         self.students.append(student)
+        student.set_idx(len(self.students) + 1)
 
     def update_students_idx(self):
         for student, idx in zip(self.students, range(1, len(self.students) + 1)):
@@ -219,15 +226,19 @@ class Student:
     ent_width = 20  # in letter
     win_width = 250  # in px
     win_height = 20  # in px
+
     def __init__(self, name, dean, parent=None):
         self.name = name
         self.dean = dean
         self.idx = IntVar()
-        self.idx.set(len(self.dean.students) + 1)
         self.parent = parent
-        self.make_student_frame()
+        self.ent = None
+        self.student_fr = None
 
-    def make_student_frame(self):
+    def set_idx(self, idx):
+        self.idx.set(idx)
+
+    def make_student_frame(self, ):
         student_fr = Frame(self.parent)
         student_fr.pack(side=TOP)
         Label(student_fr, textvariable=self.idx, width=self.lab_width).pack(side=LEFT, anchor=W)
