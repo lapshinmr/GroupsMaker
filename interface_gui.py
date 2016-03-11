@@ -59,7 +59,8 @@ class Univercity(Frame):
         scroll_bar.config(command=text.yview)
         text.config(yscrollcommand=scroll_bar.set)
         scroll_bar.pack(side=RIGHT, fill=Y)
-        text.insert(1.0, 'Please, entry names of your students here.')
+        #text.insert(1.0, 'Please, entry names of your students here.')
+        text.insert(1.0, '1, 2, 3, 4')
         text.pack(side=LEFT, expand=YES, fill=BOTH)
         text.focus()
         self.input_names = text
@@ -88,7 +89,6 @@ class Univercity(Frame):
 
     def resize_canvas(self, event):
         self.set_canvas_size(event.width, event.height)
-        print(self.canvas_size)
         # self.dean.place_students()
 
     def open_names_from_file(self):
@@ -115,8 +115,8 @@ class Univercity(Frame):
         for stud_name in stud_names:
             new_stud = Student(stud_name, self.canvas)
             self.dean.enroll_student(new_stud)
-            self.dean.move_students()
             new_students.append(new_stud)
+        self.dean.move_students()
         self.dean.place_students(new_students)
         self.input_names.delete(1.0, END)
 
@@ -244,6 +244,7 @@ class Dean:
 
     def move_students(self):
         grid = self.get_grid()
+        print(grid)
         for (stud, coord) in zip(self.students, grid):
             stud.move_frame(coord)
 
@@ -315,7 +316,10 @@ class Student:
 
     def move_frame(self, new_coord):
         if self.cur_coord:
-            diff_x, diff_y = (self.cur_coord[0] - new_coord[0]), (self.cur_coord[1] - new_coord[1])
+            diff_x = (new_coord[1] - self.cur_coord[1]) * self.win_width
+            diff_y = (new_coord[0] - self.cur_coord[0]) * self.win_height
+            print(self.cur_coord, new_coord)
+            print(diff_x, diff_y)
             self.parent.move(self.stud_fr_win, diff_x, diff_y)
             self.cur_coord = new_coord
 
