@@ -12,10 +12,9 @@ class Univercity(Frame):
     def __init__(self, parent=None):
         Frame.__init__(self, parent)
         self.parent = parent
-        self.pack(side=TOP, expand=YES, fill=BOTH)
+        self.dean = Dean()
         self.add_widgets()
         self.canvas_size = list(self.get_canvas_size())
-        self.dean = Dean(self.canvas_size)
         self.calendar = []
 
     def add_widgets(self):
@@ -88,8 +87,7 @@ class Univercity(Frame):
 
     def resize_canvas(self, event):
         self.set_canvas_size(event.width, event.height)
-        self.dean.rm_students_frames()
-        self.dean.seat_students()
+        self.dean.place_students()
 
     def open_names_from_file(self):
         filename = askopenfilename()
@@ -110,13 +108,13 @@ class Univercity(Frame):
         return [name.strip() for name in names]
 
     def add(self):
-        # self.canvas.destroy()
-        new_students_names = self.split_names(self.input_names.get(1.0, END))
-        for student_name in new_students_names:
-            student = Student(student_name, self.dean, self.canvas)
-            self.dean.enroll_student(student)
-        self.dean.rm_students_frames()
-        self.dean.seat_students()
+        stud_names = self.split_names(self.input_names.get(1.0, END))
+        new_students = []
+        for stud_name in stud_names:
+            new_stud = Student(stud_name, self.canvas)
+            self.dean.enroll_student(new_stud)
+            new_students.append(new_stud)
+        self.dean.place_students(new_students)
         self.input_names.delete(1.0, END)
 
     def check_duplicates(self):
@@ -209,9 +207,15 @@ class Univercity(Frame):
 
 
 class Dean:
-    def __init__(self, canvas_size):
+    def __init__(self):
         self.students = []
-        self.canvas_size = canvas_size
+        self.canvas_size = None
+
+    def set_canvas_size(self, canv_width, canv_height):
+        self.canvas_size = canv_width, canv_height
+
+    def get_canvas_size(self):
+        return self.canvas_size
 
     def get_students_count(self):
         return len(self.students)
@@ -220,17 +224,23 @@ class Dean:
         student.set_idx(len(self.students) + 1)
         self.students.append(student)
 
-    def seat_students(self):
-        width, height = self.canvas_size
-        col_count = round(width / 250)
+    def get_grid(self):
+        col_count = round(self.canvas_size[0] / 250)
         row_count = math.ceil(self.get_students_count() / col_count)
-        print(col_count, row_count)
-        print(height, width)
         grid = []
         for col in [[(row, col) for row in range(row_count)] for col in range(col_count)]:
             grid.extend(col)
+        return grid
+
+    def place_students(self, new_students):
+        grid = self.get_grid()
+        for (stud, coord) in zip(self.students, grid)[-len(new_students):]:
+            stud.place(coord)
+
+    def move_students(self):
+        grid = self.get_grid()
         for (stud, coord) in zip(self.students, grid):
-            stud.sit_down(coord)
+            stud.move_frame(coord)
 
     def update_students_idx(self):
         for student, idx in zip(self.students, range(1, len(self.students) + 1)):
@@ -238,20 +248,14 @@ class Dean:
 
     def expel_student(self, stud):
         if stud.stud_fr:
-            stud.rm_student_frame()
+            stud.rm_frame()
         self.students.remove(stud)
         self.update_students_idx()
-        self.rm_students_frames()
-        self.seat_students()
+        self.move_students()
 
     def expel_all_students(self):
         while self.students:
             self.expel_student(self.students[-1])
-
-    def rm_students_frames(self):
-        for stud in self.students:
-            if stud.stud_fr:
-                stud.rm_student_frame()
 
     def get_students_names(self):
         return [student.name for student in self.students]
@@ -263,13 +267,14 @@ class Student:
     win_width = 250  # in px
     win_height = 20  # in px
 
-    def __init__(self, name, dean, parent=None):
+    def __init__(self, name, parent=None):
         self.name = name
-        self.dean = dean
         self.idx = IntVar()
         self.parent = parent
         self.ent = None
         self.stud_fr = None
+        self.cur_coord = None
+        self.expelled = False
 
     def set_idx(self, idx):
         self.idx.set(idx)
@@ -277,11 +282,11 @@ class Student:
     def get_idx(self):
         return self.idx.get()
 
-    def sit_down(self, coord):
+    def place(self, coord):
         stud_fr = Frame(self.parent)
         stud_fr.pack(side=TOP)
         Label(stud_fr, textvariable=self.idx, width=self.lab_width).pack(side=LEFT, anchor=W)
-        Button(stud_fr, text='x', command=self.rm_student_frame).pack(side=RIGHT, anchor=E)
+        Button(stud_fr, text='x', command=self.expel).pack(side=RIGHT, anchor=E)
         ent = Entry(stud_fr, width=self.ent_width, font=1)
         ent.pack(side=LEFT)
         ent.insert(0, self.name)
@@ -290,6 +295,7 @@ class Student:
                                   width=self.win_width, height=self.win_height)
         self.ent = ent
         self.stud_fr = stud_fr
+        self.cur_coord = coord
 
     def set_font_color(self, color):
         self.ent.config(fg=color)
@@ -301,12 +307,14 @@ class Student:
             return
         self.ent.event_generate('<Return>', when='tail')
 
-    def rm_student_frame(self):
-        self.stud_fr.destroy()
+    def move_frame(self, new_coord):
+        diff_x, diff_y = (self.cur_coord[0] - new_coord[0]), (self.cur_coord[1] - new_coord[1])
+        self.parent.move(self.stud_fr, diff_x, diff_y)
+        self.cur_coord = new_coord
 
-    def expel_student(self):
-        self.rm_student_frame()
-        self.dean.expel_student(self)
+    def expel(self):
+        self.stud_fr.destroy()
+        self.expelled = True
 
 
 if __name__ == '__main__':
@@ -317,6 +325,6 @@ if __name__ == '__main__':
     root.title('GroupsMaker')
     width, height = root.maxsize()
     root.geometry('%sx%s' % (round(0.25 * width), round(0.25 * height)))
-    Univercity(root).pack()
+    Univercity(root).pack(side=TOP, expand=YES, fill=BOTH)
     root.mainloop()
 
