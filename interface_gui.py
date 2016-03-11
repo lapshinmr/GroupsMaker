@@ -89,7 +89,8 @@ class Univercity(Frame):
 
     def resize_canvas(self, event):
         self.set_canvas_size(event.width, event.height)
-        # self.dean.place_students()
+        print(self.canvas_size)
+        self.dean.move_students()
 
     def open_names_from_file(self):
         filename = askopenfilename()
@@ -228,7 +229,7 @@ class Dean:
         self.students.append(student)
 
     def get_grid(self):
-        col_count = round(self.canv_size[0] / 250)
+        col_count = self.canv_size[0] // 250
         if col_count == 0:
             col_count = 1
         row_count = math.ceil(self.get_students_count() / col_count)
@@ -318,8 +319,6 @@ class Student:
         if self.cur_coord:
             diff_x = (new_coord[1] - self.cur_coord[1]) * self.win_width
             diff_y = (new_coord[0] - self.cur_coord[0]) * self.win_height
-            print(self.cur_coord, new_coord)
-            print(diff_x, diff_y)
             self.parent.move(self.stud_fr_win, diff_x, diff_y)
             self.cur_coord = new_coord
 
