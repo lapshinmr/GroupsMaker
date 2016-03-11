@@ -114,7 +114,7 @@ class Univercity(Frame):
         stud_names = self.split_names(self.input_names.get(1.0, END))
         new_students = []
         for stud_name in stud_names:
-            new_stud = Student(stud_name, self.canvas)
+            new_stud = Student(stud_name, self.dean, self.canvas)
             self.dean.enroll_student(new_stud)
             new_students.append(new_stud)
         self.dean.move_students()
@@ -254,11 +254,10 @@ class Dean:
             student.set_idx(idx)
 
     def expel_student(self, stud):
-        if stud.stud_fr:
-            stud.rm_frame()
-        self.students.remove(stud)
-        self.update_students_idx()
-        self.move_students()
+        if stud.expelled:
+            self.students.remove(stud)
+            self.update_students_idx()
+            self.move_students()
 
     def expel_all_students(self):
         while self.students:
@@ -274,14 +273,14 @@ class Student:
     win_width = 250  # in px
     win_height = 20  # in px
 
-    def __init__(self, name, parent=None):
+    def __init__(self, name, dean, parent=None):
         self.name = name
+        self.dean = dean
         self.idx = IntVar()
         self.parent = parent
         self.ent = None
         self.stud_fr = None
         self.cur_coord = None
-        self.expelled = False
 
     def set_idx(self, idx):
         self.idx.set(idx)
@@ -324,7 +323,8 @@ class Student:
 
     def expel(self):
         self.stud_fr.destroy()
-        self.expelled = True
+        self.dean.expel_student(self)
+        self.dean.move_students()
 
 
 if __name__ == '__main__':
