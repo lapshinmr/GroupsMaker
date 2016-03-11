@@ -36,7 +36,7 @@ class Univercity(Frame):
         but_frame = Frame(self)
         but_frame.pack(side=TOP, fill=X)
         Button(but_frame, text='add', command=self.add).pack(side=LEFT)
-        Button(but_frame, text='clean', command=self.expel_class).pack(side=LEFT)
+        Button(but_frame, text='clean', command=self.dean.expel_all_students).pack(side=LEFT)
         Button(but_frame, text='show timetable', command=self.show_calendar).pack(side=LEFT)
 
         Label(but_frame, text='group size', width=10).pack(side=LEFT)
@@ -135,10 +135,6 @@ class Univercity(Frame):
                 student.set_font_color('black')
         return duplicates
 
-    def expel_class(self):
-        while self.dean.students:
-            self.dean.expel_student(self.dean.students[-1])
-
     def show_calendar(self):
         duplicates = self.check_duplicates()
         if not duplicates:
@@ -225,7 +221,7 @@ class Dean:
         self.students.append(student)
 
     def seat_students(self):
-        height, width = self.canvas_size
+        width, height = self.canvas_size
         col_count = round(width / 250)
         row_count = math.ceil(self.get_students_count() / col_count)
         print(col_count, row_count)
@@ -247,6 +243,10 @@ class Dean:
         self.update_students_idx()
         self.rm_students_frames()
         self.seat_students()
+
+    def expel_all_students(self):
+        while self.students:
+            self.expel_student(self.students[-1])
 
     def rm_students_frames(self):
         for stud in self.students:
