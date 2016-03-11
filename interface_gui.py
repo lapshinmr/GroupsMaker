@@ -14,7 +14,8 @@ class Univercity(Frame):
         self.parent = parent
         self.dean = Dean()
         self.add_widgets()
-        self.canvas_size = list(self.get_canvas_size())
+        self.canvas_size = self.get_canvas_size()
+        self.dean.set_canvas_size(self.canvas_size)
         self.calendar = []
 
     def add_widgets(self):
@@ -78,16 +79,17 @@ class Univercity(Frame):
         self.canvas = canv
 
     def get_canvas_size(self):
-        return self.canvas.winfo_height(), self.canvas.winfo_width()
+        return [self.canvas.winfo_width(), self.canvas.winfo_height()]
 
-    def set_canvas_size(self, canvas_width, canvas_height):
-        self.canvas.config(width=canvas_width, height=canvas_height)
-        self.canvas_size[0] = canvas_width
-        self.canvas_size[1] = canvas_height
+    def set_canvas_size(self, canv_width, canv_height):
+        self.canvas.config(width=canv_width, height=canv_height)
+        self.canvas_size[0] = canv_width
+        self.canvas_size[1] = canv_height
 
     def resize_canvas(self, event):
         self.set_canvas_size(event.width, event.height)
-        self.dean.place_students()
+        print(self.canvas_size)
+        # self.dean.place_students()
 
     def open_names_from_file(self):
         filename = askopenfilename()
@@ -113,6 +115,7 @@ class Univercity(Frame):
         for stud_name in stud_names:
             new_stud = Student(stud_name, self.canvas)
             self.dean.enroll_student(new_stud)
+            self.dean.move_students()
             new_students.append(new_stud)
         self.dean.place_students(new_students)
         self.input_names.delete(1.0, END)
@@ -209,13 +212,13 @@ class Univercity(Frame):
 class Dean:
     def __init__(self):
         self.students = []
-        self.canvas_size = None
+        self.canv_size = None
 
-    def set_canvas_size(self, canv_width, canv_height):
-        self.canvas_size = canv_width, canv_height
+    def set_canvas_size(self, canv_size):
+        self.canv_size = canv_size
 
     def get_canvas_size(self):
-        return self.canvas_size
+        return self.canv_size
 
     def get_students_count(self):
         return len(self.students)
@@ -225,7 +228,9 @@ class Dean:
         self.students.append(student)
 
     def get_grid(self):
-        col_count = round(self.canvas_size[0] / 250)
+        col_count = round(self.canv_size[0] / 250)
+        if col_count == 0:
+            col_count = 1
         row_count = math.ceil(self.get_students_count() / col_count)
         grid = []
         for col in [[(row, col) for row in range(row_count)] for col in range(col_count)]:
@@ -234,7 +239,7 @@ class Dean:
 
     def place_students(self, new_students):
         grid = self.get_grid()
-        for (stud, coord) in zip(self.students, grid)[-len(new_students):]:
+        for (stud, coord) in list(zip(self.students, grid))[-len(new_students):]:
             stud.place(coord)
 
     def move_students(self):
@@ -291,8 +296,9 @@ class Student:
         ent.pack(side=LEFT)
         ent.insert(0, self.name)
         ent.bind('<KeyPress>', self.change_name)
-        self.parent.create_window(coord[1] * self.win_width, coord[0] * self.win_height, anchor=NW, window=stud_fr,
-                                  width=self.win_width, height=self.win_height)
+        self.stud_fr_win = self.parent.create_window(
+            coord[1] * self.win_width, coord[0] * self.win_height, anchor=NW, window=stud_fr,
+            width=self.win_width, height=self.win_height)
         self.ent = ent
         self.stud_fr = stud_fr
         self.cur_coord = coord
@@ -308,9 +314,10 @@ class Student:
         self.ent.event_generate('<Return>', when='tail')
 
     def move_frame(self, new_coord):
-        diff_x, diff_y = (self.cur_coord[0] - new_coord[0]), (self.cur_coord[1] - new_coord[1])
-        self.parent.move(self.stud_fr, diff_x, diff_y)
-        self.cur_coord = new_coord
+        if self.cur_coord:
+            diff_x, diff_y = (self.cur_coord[0] - new_coord[0]), (self.cur_coord[1] - new_coord[1])
+            self.parent.move(self.stud_fr_win, diff_x, diff_y)
+            self.cur_coord = new_coord
 
     def expel(self):
         self.stud_fr.destroy()
