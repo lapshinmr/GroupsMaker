@@ -89,7 +89,6 @@ class Univercity(Frame):
 
     def resize_canvas(self, event):
         self.set_canvas_size(event.width, event.height)
-        print(self.canvas_size)
         self.dean.move_students()
 
     def open_names_from_file(self):
@@ -245,7 +244,6 @@ class Dean:
 
     def move_students(self):
         grid = self.get_grid()
-        print(grid)
         for (stud, coord) in zip(self.students, grid):
             stud.move_frame(coord)
 
@@ -254,10 +252,10 @@ class Dean:
             student.set_idx(idx)
 
     def expel_student(self, stud):
-        if stud.expelled:
-            self.students.remove(stud)
-            self.update_students_idx()
-            self.move_students()
+        stud.stud_fr.destroy()
+        self.students.remove(stud)
+        self.update_students_idx()
+        self.move_students()
 
     def expel_all_students(self):
         while self.students:
@@ -292,7 +290,7 @@ class Student:
         stud_fr = Frame(self.parent)
         stud_fr.pack(side=TOP)
         Label(stud_fr, textvariable=self.idx, width=self.lab_width).pack(side=LEFT, anchor=W)
-        Button(stud_fr, text='x', command=self.expel).pack(side=RIGHT, anchor=E)
+        Button(stud_fr, text='x', command=lambda: self.dean.expel_student(self)).pack(side=RIGHT, anchor=E)
         ent = Entry(stud_fr, width=self.ent_width, font=1)
         ent.pack(side=LEFT)
         ent.insert(0, self.name)
@@ -320,11 +318,6 @@ class Student:
             diff_y = (new_coord[0] - self.cur_coord[0]) * self.win_height
             self.parent.move(self.stud_fr_win, diff_x, diff_y)
             self.cur_coord = new_coord
-
-    def expel(self):
-        self.stud_fr.destroy()
-        self.dean.expel_student(self)
-        self.dean.move_students()
 
 
 if __name__ == '__main__':
