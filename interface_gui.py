@@ -19,6 +19,8 @@ class Univercity(Frame):
     def add_widgets(self):
         self.add_menu()
         self.add_toolbar()
+        self.paned_win = PanedWindow(orient=VERTICAL)
+        self.paned_win.pack(fill=BOTH, expand=YES)
         self.add_input_field()
         self.add_canvas()
 
@@ -37,18 +39,19 @@ class Univercity(Frame):
         Button(but_frame, text='clean', command=self.dean.expel_all_students).pack(side=LEFT)
         Button(but_frame, text='show timetable', command=self.show_calendar).pack(side=LEFT)
 
-        Label(but_frame, text='group size', width=10).pack(side=LEFT)
-        self.size_group = Entry(but_frame, width=10, justify=CENTER)
-        self.size_group.insert(0, '2')
-        self.size_group.pack(side=LEFT)
+        size_fr = LabelFrame(but_frame, text='size', padx=5, pady=0)
+        size_fr.pack(side=RIGHT)
+        self.size_group = Spinbox(size_fr, from_=2, to_=5, justify=CENTER, width=6)
+        self.size_group.pack(side=TOP)
 
-        Label(but_frame, text='lessons', width=10).pack(side=LEFT)
-        self.duration = Entry(but_frame, width=10, justify=CENTER)
-        self.duration.insert(0, '5')
-        self.duration.pack(side=LEFT)
+        dur_fr = LabelFrame(but_frame, text='lessons', padx=5, pady=0)
+        dur_fr.pack(side=RIGHT)
+        self.duration = Spinbox(dur_fr, from_=1, to_=10, justify=CENTER, width=6)
+        self.duration.pack(side=TOP)
 
     def add_input_field(self):
-        ent_frame = Frame(self)
+        ent_frame = Frame(self.paned_win)
+        self.paned_win.add(ent_frame)
         ent_frame.config(height=50)
         ent_frame.pack(side=TOP, fill=X)
         ent_frame.pack_propagate(False)
@@ -65,7 +68,8 @@ class Univercity(Frame):
         # self.input_names.bind('<Return>', lambda event: self.add())
 
     def add_canvas(self):
-        canv_frame = Frame(self)
+        canv_frame = Frame(self.paned_win)
+        self.paned_win.add(canv_frame)
         canv_frame.pack(side=TOP, expand=YES, fill=BOTH)
         canv = Canvas(canv_frame, highlightthickness=0)
         canv.bind('<Configure>', self.resize_canvas)
@@ -225,7 +229,7 @@ class Dean:
         grid = []
         for col in [[(row, col) for row in range(row_count)] for col in range(col_count)]:
             grid.extend(col)
-        self.canvas.config(scrollregion=(0, 0, 200, row_count * Student.win_height))
+        self.canvas.config(scrollregion=(0, 0, col_count * Student.win_width, row_count * Student.win_height))
         return grid
 
     def place_students(self, new_students):
@@ -312,7 +316,6 @@ class Student:
 
 
 if __name__ == '__main__':
-
     root = Tk()
     #root.resizable(width=FALSE, height=FALSE)
     #root.wm_geometry("")
