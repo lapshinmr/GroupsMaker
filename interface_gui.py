@@ -14,8 +14,6 @@ class Univercity(Frame):
         self.parent = parent
         self.dean = Dean()
         self.add_widgets()
-        self.canvas_size = self.get_canvas_size()
-        self.dean.set_canvas_size(self.canvas_size)
         self.calendar = []
 
     def add_widgets(self):
@@ -71,24 +69,16 @@ class Univercity(Frame):
         canv_frame.pack(side=TOP, expand=YES, fill=BOTH)
         canv = Canvas(canv_frame, highlightthickness=0)
         canv.bind('<Configure>', self.resize_canvas)
-        canv.config(scrollregion=(0, 0, 200, 200))
         sbar = ttk.Scrollbar(canv_frame)
         sbar.config(command=canv.yview)
         canv.config(yscrollcommand=sbar.set)
         sbar.pack(side=RIGHT, fill=Y)
         canv.pack(side=LEFT, expand=YES, fill=BOTH)
         self.canvas = canv
-
-    def get_canvas_size(self):
-        return [self.canvas.winfo_width(), self.canvas.winfo_height()]
-
-    def set_canvas_size(self, canv_width, canv_height):
-        self.canvas.config(width=canv_width, height=canv_height)
-        self.canvas_size[0] = canv_width
-        self.canvas_size[1] = canv_height
+        self.dean.set_canvas(self.canvas)
 
     def resize_canvas(self, event):
-        self.set_canvas_size(event.width, event.height)
+        self.canvas.config(width=event.width, height=event.height)
         self.dean.move_students()
 
     def open_names_from_file(self):
@@ -212,13 +202,13 @@ class Univercity(Frame):
 class Dean:
     def __init__(self):
         self.students = []
-        self.canv_size = None
+        self.canvas = None
 
-    def set_canvas_size(self, canv_size):
-        self.canv_size = canv_size
+    def set_canvas(self, canvas):
+        self.canvas = canvas
 
     def get_canvas_size(self):
-        return self.canv_size
+        return self.canvas.winfo_width(), self.canvas.winfo_height()
 
     def get_students_count(self):
         return len(self.students)
@@ -228,13 +218,14 @@ class Dean:
         self.students.append(student)
 
     def get_grid(self):
-        col_count = self.canv_size[0] // 250
+        col_count = self.get_canvas_size()[0] // Student.win_width
         if col_count == 0:
             col_count = 1
         row_count = math.ceil(self.get_students_count() / col_count)
         grid = []
         for col in [[(row, col) for row in range(row_count)] for col in range(col_count)]:
             grid.extend(col)
+        self.canvas.config(scrollregion=(0, 0, 200, row_count * Student.win_height))
         return grid
 
     def place_students(self, new_students):
