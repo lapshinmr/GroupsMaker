@@ -46,10 +46,14 @@ class University(Frame):
     def add_toolbar(self):
         but_frame = Frame(self)
         but_frame.pack(side=TOP, fill=X)
-        self.add_img = ImageTk.PhotoImage(Image.open(imgdir + os.sep + 'add3.png'))
+        self.add_img = ImageTk.PhotoImage(Image.open(imgdir + os.sep + 'add4.png'))
+        self.clean_img = ImageTk.PhotoImage(Image.open(imgdir + os.sep + 'clean1.png'))
+        self.timetable_img = ImageTk.PhotoImage(Image.open(imgdir + os.sep + 'timetable1.png'))
+        self.quit_img = ImageTk.PhotoImage(Image.open(imgdir + os.sep + 'quit2.png'))
         Button(but_frame, image=self.add_img, command=self.add).pack(side=LEFT)
-        Button(but_frame, text='clean', command=self.dean.expel_all_students).pack(side=LEFT)
-        Button(but_frame, text='show timetable', command=self.show_timetable).pack(side=LEFT)
+        Button(but_frame, image=self.clean_img, command=self.dean.expel_all_students).pack(side=LEFT)
+        Button(but_frame, image=self.timetable_img, command=self.show_timetable).pack(side=LEFT)
+        Button(but_frame, image=self.quit_img, command=self.quit).pack(side=LEFT)
 
         size_fr = LabelFrame(but_frame, text='size', padx=5, pady=0)
         size_fr.pack(side=RIGHT)
@@ -294,7 +298,7 @@ class Student:
     lab_width = 3  # in letter
     ent_width = 20  # in letter
     win_width = 250  # in px
-    win_height = 26  # in px
+    win_height = 30  # in px
 
     def __init__(self, name, dean, parent=None):
         self.name = name
@@ -315,8 +319,8 @@ class Student:
         stud_fr = Frame(self.parent)
         stud_fr.pack(side=TOP)
         Label(stud_fr, textvariable=self.idx, width=self.lab_width).pack(side=LEFT, anchor=W)
-        self.close_img = ImageTk.PhotoImage(Image.open(imgdir + os.sep + 'close3.png'))
-        Button(stud_fr, image=self.close_img, command=lambda: self.dean.expel_student(self)).pack(side=RIGHT, anchor=E)
+        self.expel_img = ImageTk.PhotoImage(Image.open(imgdir + os.sep + 'expel2.png'))
+        Button(stud_fr, image=self.expel_img, command=lambda: self.dean.expel_student(self)).pack(side=RIGHT, anchor=E)
         ent = Entry(stud_fr, width=self.ent_width, font=1)
         ent.pack(side=LEFT)
         ent.insert(0, self.name)
