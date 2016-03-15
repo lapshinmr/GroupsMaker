@@ -50,7 +50,7 @@ class Univercity(Frame):
         self.duration.pack(side=TOP)
 
     def add_input_field(self):
-        ent_frame = Frame(self.paned_win)
+        ent_frame = LabelFrame(self.paned_win, text='input names here', padx=5, pady=0)
         ent_frame.config(height=50)
         ent_frame.pack(side=TOP, fill=X)
         ent_frame.pack_propagate(False)
@@ -113,27 +113,14 @@ class Univercity(Frame):
         self.dean.move_students()
         self.dean.place_students(new_students)
         self.input_names.delete(1.0, END)
-
-    def check_duplicates(self):
-        duplicates = False
-        count = {}
-        for name in self.dean.get_students_names():
-            if name in count:
-                count[name] += 1
-            else:
-                count[name] = 1
-        for student in self.dean.students:
-            if count[student.name] > 1:
-                student.set_font_color('red')
-                duplicates = True
-            else:
-                student.set_font_color('black')
-        return duplicates
+        self.dean.paint_dup_names()
 
     def show_calendar(self):
-        duplicates = self.check_duplicates()
-        if not duplicates:
-            g = GroupsMaker(self.dean.get_students_names(), int(self.duration.get()), size_group=int(self.size_group.get()))
+        dups = self.dean.find_duplicates()
+        if not dups:
+            g = GroupsMaker(
+                self.dean.get_students_names(), int(self.duration.get()), size_group=int(self.size_group.get())
+            )
             try:
                 self.calendar = g.get_timetable()
                 time_table = Toplevel(self)
@@ -217,6 +204,9 @@ class Dean:
     def get_students_count(self):
         return len(self.students)
 
+    def get_students_names(self):
+        return [student.name for student in self.students]
+
     def enroll_student(self, student):
         student.set_idx(len(self.students) + 1)
         self.students.append(student)
@@ -251,13 +241,35 @@ class Dean:
         self.students.remove(stud)
         self.update_students_idx()
         self.move_students()
+        self.paint_dup_names()
 
     def expel_all_students(self):
         while self.students:
             self.expel_student(self.students[-1])
 
-    def get_students_names(self):
-        return [student.name for student in self.students]
+    def find_duplicates(self):
+        dups = {}
+        for name in self.get_students_names():
+            if name in dups:
+                dups[name] += 1
+            else:
+                dups[name] = 1
+        name_to_remove = []
+        for name, count in dups.items():
+            if count == 1:
+                name_to_remove.append(name)
+        for name in name_to_remove:
+            del dups[name]
+        print(dups)
+        return dups
+
+    def paint_dup_names(self):
+        dups = self.find_duplicates()
+        for student in self.students:
+            if student.name in dups:
+                student.set_font_color('red')
+            else:
+                student.set_font_color('black')
 
 
 class Student:
