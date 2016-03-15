@@ -6,15 +6,24 @@ from tkinter.messagebox import *
 from gm_exceptions import *
 from tkinter import ttk
 import math
+from PIL import Image, ImageTk
 
 
-class Univercity(Frame):
+imgdir = 'pict'
+
+
+class University(Frame):
     def __init__(self, parent=None):
         Frame.__init__(self, parent)
         self.parent = parent
+        self.duration = None
+        self.size_group = None
+        self.input_names = None
+        self.time_table = None
+        self.paned_win = None
         self.dean = Dean()
         self.add_widgets()
-        self.calendar = []
+        self.timetable = []
 
     def add_widgets(self):
         self.add_menu()
@@ -28,16 +37,19 @@ class Univercity(Frame):
         top = Menu(self.parent)
         self.parent.config(menu=top)
         file = Menu(top, tearoff=False)
-        file.add_command(label='load names', command=self.open_names_from_file,  underline=0)
-        file.add_command(label='save names', command=self.save_names_as_text,  underline=0)
+        file.add_command(label='Load names', command=self.open_names_from_file,  underline=0)
+        file.add_command(label='Save names', command=self.save_names_as_text,  underline=0)
+        file.add_command(label='Save timetable', command=self.save_calendar_as_plain_text)
+        file.add_command(label='Quit', command=self.quit, underline=1)
         top.add_cascade(label='File', menu=file, underline=0)
 
     def add_toolbar(self):
         but_frame = Frame(self)
         but_frame.pack(side=TOP, fill=X)
-        Button(but_frame, text='add', command=self.add).pack(side=LEFT)
+        self.add_img = ImageTk.PhotoImage(Image.open(imgdir + os.sep + 'add3.png'))
+        Button(but_frame, image=self.add_img, command=self.add).pack(side=LEFT)
         Button(but_frame, text='clean', command=self.dean.expel_all_students).pack(side=LEFT)
-        Button(but_frame, text='show timetable', command=self.show_calendar).pack(side=LEFT)
+        Button(but_frame, text='show timetable', command=self.show_timetable).pack(side=LEFT)
 
         size_fr = LabelFrame(but_frame, text='size', padx=5, pady=0)
         size_fr.pack(side=RIGHT)
@@ -51,7 +63,7 @@ class Univercity(Frame):
 
     def add_input_field(self):
         ent_frame = LabelFrame(self.paned_win, text='input names here', padx=5, pady=0)
-        ent_frame.config(height=50)
+        ent_frame.config(height=70)
         ent_frame.pack(side=TOP, fill=X)
         ent_frame.pack_propagate(False)
         text = Text(ent_frame)
@@ -59,16 +71,15 @@ class Univercity(Frame):
         scroll_bar.config(command=text.yview)
         text.config(yscrollcommand=scroll_bar.set)
         scroll_bar.pack(side=RIGHT, fill=Y)
-        #text.insert(1.0, 'Please, entry names of your students here.')
         text.insert(1.0, '1, 2, 3, 4')
         text.pack(side=LEFT, expand=YES, fill=BOTH)
         text.focus()
         self.input_names = text
         self.paned_win.add(ent_frame)
-        # self.input_names.bind('<Return>', lambda event: self.add())
+        self.input_names.bind('<Return>', lambda event: self.add())
 
     def add_canvas(self):
-        canv_frame = Frame(self.paned_win)
+        canv_frame = LabelFrame(self.paned_win, text='current names', padx=5, pady=0)
         canv_frame.pack(side=TOP, expand=YES, fill=BOTH)
         canv = Canvas(canv_frame, highlightthickness=0)
         canv.bind('<Configure>', self.resize_canvas)
@@ -115,44 +126,43 @@ class Univercity(Frame):
         self.input_names.delete(1.0, END)
         self.dean.paint_dup_names()
 
-    def show_calendar(self):
+    def gen_timetable(self):
         dups = self.dean.find_duplicates()
-        if not dups:
-            g = GroupsMaker(
-                self.dean.get_students_names(), int(self.duration.get()), size_group=int(self.size_group.get())
-            )
-            try:
-                self.calendar = g.get_timetable()
-                time_table = Toplevel(self)
-                time_table.title('Timetable')
-                Button(time_table, text='save timetable', command=self.save_calendar_as_plain_text).pack(side=BOTTOM, fill=X)
-                lesson_count = 1
-                for lesson in self.calendar:
-                    lesson_frame = Frame(time_table)
-                    lesson_frame.pack(side=LEFT, fill=Y)
-                    Label(lesson_frame, text='%s %s' % (lesson_count, 'lesson')).pack(side=TOP)
-                    lesson_count += 1
-                    for combs in lesson:
-                        comb_frame = Frame(lesson_frame, bd=2, relief=RAISED)
-                        comb_frame.pack(side=TOP)
-                        for name in combs:
-                            Label(comb_frame, width=10, text=name).pack(side=TOP)
-            except NotEnoughCombinations:
-                showwarning('Warning', 'The number of students is not enough to form the groups')
-        else:
-            showwarning('Warning', 'The timetable is not created. Please change duplicated the names.')
+        if dups:
+            showwarning('Warning', warnings['dups'])
+            return
+        duration = int(self.duration.get())
+        size_group = int(self.size_group.get())
+        students_names = self.dean.get_students_names()
+        group = GroupsMaker(students_names, duration, size_group=size_group)
+        try:
+            self.timetable = group.get_timetable()
+        except NotEnoughCombinations:
+            showwarning('Warning', warnings['not_enough'])
 
-    def save_calendar_as_plain_text(self):
-        filename = asksaveasfilename(filetypes=[('txt', '.txt')])
-        if filename:
-            filename = os.path.splitext(filename)[0]
-            open(filename + '.txt', 'w', encoding='utf-8').write(self.generate_txt())
-            open(filename + '.tex', 'w', encoding='utf-8').write(self.generate_tex())
+    def show_timetable(self):
+        self.gen_timetable()
+        if self.time_table:
+            self.time_table.destroy()
+        self.time_table = LabelFrame(self.paned_win, text='timetable', padx=5, pady=0)
+        self.time_table.pack(side=LEFT, expand=YES, fill=BOTH)
+        lesson_count = 1
+        for lesson in self.timetable:
+            lesson_frame = Frame(self.time_table)
+            lesson_frame.pack(side=LEFT, fill=Y)
+            Label(lesson_frame, text='%s %s' % (lesson_count, 'lesson')).pack(side=TOP)
+            lesson_count += 1
+            for combs in lesson:
+                comb_frame = Frame(lesson_frame, bd=2, relief=RAISED, padx=5, pady=5)
+                comb_frame.pack(side=TOP)
+                for name in combs:
+                    Label(comb_frame, width=10, text=name).pack(side=TOP)
+        self.paned_win.add(self.time_table)
 
     def generate_txt(self):
         text = ''
         lesson_count = 1
-        for lesson in self.calendar:
+        for lesson in self.timetable:
             text += '%s неделя: ' % lesson_count
             lesson_count += 1
             for combs in lesson:
@@ -161,24 +171,26 @@ class Univercity(Frame):
         return text
 
     def generate_tex(self):
-        start = (r'\documentclass[a4paper]{article}' + '\n'
-                 r'\usepackage[landscape]{geometry}' + '\n'
-                 r'\usepackage[utf8]{inputenc}' + '\n'
-                 r'\usepackage[russian]{babel}' + '\n'
-                 r'\begin{document}' + '\n'
-                 r'\thispagestyle{empty}' + '\n'
-                 r'\mbox{}' + '\n'
-                 r'\vfill' + '\n'
-                 r'\begin{center}' + '\n'
-                 )
-        end = (r'\end{center}' + '\n'
-                  r'\vfill' + '\n'
-                  r'\end{document}' + '\n')
-
+        start = (
+            r'\documentclass[a4paper]{article}' + '\n'
+            r'\usepackage[landscape]{geometry}' + '\n'
+            r'\usepackage[utf8]{inputenc}' + '\n'
+            r'\usepackage[russian]{babel}' + '\n'
+            r'\begin{document}' + '\n'
+            r'\thispagestyle{empty}' + '\n'
+            r'\mbox{}' + '\n'
+            r'\vfill' + '\n'
+            r'\begin{center}' + '\n'
+        )
+        end = (
+            r'\end{center}' + '\n'
+            r'\vfill' + '\n'
+            r'\end{document}' + '\n'
+        )
         main_table = r'\begin{tabular}'
-        main_table += '{' + '|'.join('c' * (len(self.calendar[0]) + 1)) + r'}\hline'
+        main_table += '{' + '|'.join('c' * (len(self.timetable[0]) + 1)) + r'}\hline'
         lesson_count = 1
-        for lesson in self.calendar:
+        for lesson in self.timetable:
             main_table += str(lesson_count)
             lesson_count += 1
             for comb in lesson:
@@ -188,6 +200,13 @@ class Univercity(Frame):
             main_table += r'\\\hline' + '\n'
         main_table += r'\end{tabular}' + '\n'
         return start + main_table + end
+
+    def save_calendar_as_plain_text(self):
+        filename = asksaveasfilename(filetypes=[('txt', '.txt')])
+        if filename:
+            filename = os.path.splitext(filename)[0]
+            open(filename + '.txt', 'w', encoding='utf-8').write(self.generate_txt())
+            open(filename + '.tex', 'w', encoding='utf-8').write(self.generate_tex())
 
 
 class Dean:
@@ -260,7 +279,6 @@ class Dean:
                 name_to_remove.append(name)
         for name in name_to_remove:
             del dups[name]
-        print(dups)
         return dups
 
     def paint_dup_names(self):
@@ -276,7 +294,7 @@ class Student:
     lab_width = 3  # in letter
     ent_width = 20  # in letter
     win_width = 250  # in px
-    win_height = 20  # in px
+    win_height = 26  # in px
 
     def __init__(self, name, dean, parent=None):
         self.name = name
@@ -297,7 +315,8 @@ class Student:
         stud_fr = Frame(self.parent)
         stud_fr.pack(side=TOP)
         Label(stud_fr, textvariable=self.idx, width=self.lab_width).pack(side=LEFT, anchor=W)
-        Button(stud_fr, text='x', command=lambda: self.dean.expel_student(self)).pack(side=RIGHT, anchor=E)
+        self.close_img = ImageTk.PhotoImage(Image.open(imgdir + os.sep + 'close3.png'))
+        Button(stud_fr, image=self.close_img, command=lambda: self.dean.expel_student(self)).pack(side=RIGHT, anchor=E)
         ent = Entry(stud_fr, width=self.ent_width, font=1)
         ent.pack(side=LEFT)
         ent.insert(0, self.name)
@@ -333,7 +352,7 @@ if __name__ == '__main__':
     #root.wm_geometry("")
     root.title('GroupsMaker')
     width, height = root.maxsize()
-    root.geometry('%sx%s' % (round(0.25 * width), round(0.25 * height)))
-    Univercity(root).pack(side=TOP, expand=YES, fill=BOTH)
+    root.geometry('%sx%s' % (round(0.25 * width), round(0.7 * height)))
+    University(root).pack(side=TOP, expand=YES, fill=BOTH)
     root.mainloop()
 
