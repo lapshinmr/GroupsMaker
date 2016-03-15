@@ -19,8 +19,8 @@ class Univercity(Frame):
     def add_widgets(self):
         self.add_menu()
         self.add_toolbar()
-        self.paned_win = PanedWindow(orient=VERTICAL)
-        self.paned_win.pack(fill=BOTH, expand=YES)
+        self.paned_win = PanedWindow(self, orient=VERTICAL)
+        self.paned_win.pack(side=TOP, fill=BOTH, expand=YES)
         self.add_input_field()
         self.add_canvas()
 
@@ -51,7 +51,6 @@ class Univercity(Frame):
 
     def add_input_field(self):
         ent_frame = Frame(self.paned_win)
-        self.paned_win.add(ent_frame)
         ent_frame.config(height=50)
         ent_frame.pack(side=TOP, fill=X)
         ent_frame.pack_propagate(False)
@@ -65,11 +64,11 @@ class Univercity(Frame):
         text.pack(side=LEFT, expand=YES, fill=BOTH)
         text.focus()
         self.input_names = text
+        self.paned_win.add(ent_frame)
         # self.input_names.bind('<Return>', lambda event: self.add())
 
     def add_canvas(self):
         canv_frame = Frame(self.paned_win)
-        self.paned_win.add(canv_frame)
         canv_frame.pack(side=TOP, expand=YES, fill=BOTH)
         canv = Canvas(canv_frame, highlightthickness=0)
         canv.bind('<Configure>', self.resize_canvas)
@@ -80,6 +79,7 @@ class Univercity(Frame):
         canv.pack(side=LEFT, expand=YES, fill=BOTH)
         self.canvas = canv
         self.dean.set_canvas(self.canvas)
+        self.paned_win.add(canv_frame)
 
     def resize_canvas(self, event):
         self.canvas.config(width=event.width, height=event.height)
