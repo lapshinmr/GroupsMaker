@@ -18,7 +18,7 @@ class University(Frame):
         Frame.__init__(self, parent)
         self.parent = parent
         self.duration = None
-        self.size_group = None
+        self.size_group = IntVar()
         self.input_names = None
         self.time_table = None
         self.paned_win = None
@@ -53,15 +53,18 @@ class University(Frame):
         self.clean_img = ImageTk.PhotoImage(Image.open(self.imghand.get('expel_all')))
         self.timetable_img = ImageTk.PhotoImage(Image.open(self.imghand.get('tt')))
         self.quit_img = ImageTk.PhotoImage(Image.open(self.imghand.get('quit')))
+        self.save_tt = ImageTk.PhotoImage(Image.open(self.imghand.get('save_tt')))
         Button(but_frame, image=self.add_img, command=self.add).pack(side=LEFT)
         Button(but_frame, image=self.clean_img, command=self.dean.expel_all_students).pack(side=LEFT)
         Button(but_frame, image=self.timetable_img, command=self.show_timetable).pack(side=LEFT)
-        Button(but_frame, image=self.quit_img, command=self.quit).pack(side=LEFT)
+        Button(but_frame, image=self.save_tt, command=self.save_calendar_as_plain_text).pack(side=LEFT)
+        Button(but_frame, image=self.quit_img, command=self.quit).pack(side=RIGHT)
 
-        size_fr = LabelFrame(but_frame, text='size', padx=5, pady=0)
-        size_fr.pack(side=RIGHT)
-        self.size_group = Spinbox(size_fr, from_=2, to_=5, justify=CENTER, width=6)
-        self.size_group.pack(side=TOP)
+
+        # size_fr = LabelFrame(but_frame, text='size', padx=5, pady=0)
+        # size_fr.pack(side=RIGHT)
+        # self.size_group = Spinbox(size_fr, from_=2, to_=5, justify=CENTER, width=6)
+        # self.size_group.pack(side=TOP)
 
         dur_fr = LabelFrame(but_frame, text='lessons', padx=5, pady=0)
         dur_fr.pack(side=RIGHT)
@@ -307,7 +310,7 @@ class Student:
     lab_width = 3  # in letter
     ent_width = 20  # in letter
     win_width = 250  # in px
-    win_height = 30  # in px
+    win_height = 26  # in px
 
     def __init__(self, name, dean, parent=None):
         self.name = name
