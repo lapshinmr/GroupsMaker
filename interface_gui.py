@@ -8,6 +8,7 @@ from imglib import ImageHandler
 from tkinter import ttk
 import math
 from PIL import Image, ImageTk
+from widgets import EntryPM
 
 
 imgdir = 'pict'
@@ -60,15 +61,14 @@ class University(Frame):
         Button(but_frame, image=self.save_tt, command=self.save_calendar_as_plain_text).pack(side=LEFT)
         Button(but_frame, image=self.quit_img, command=self.quit).pack(side=RIGHT)
 
-
-        # size_fr = LabelFrame(but_frame, text='size', padx=5, pady=0)
-        # size_fr.pack(side=RIGHT)
-        # self.size_group = Spinbox(size_fr, from_=2, to_=5, justify=CENTER, width=6)
-        # self.size_group.pack(side=TOP)
+        size_fr = LabelFrame(but_frame, text='size', padx=5, pady=0)
+        size_fr.pack(side=RIGHT)
+        self.size_group = EntryPM(size_fr, self.imghand.get('minus', img_size=30), self.imghand.get('plus', img_size=30))
+        self.size_group.pack(side=TOP)
 
         dur_fr = LabelFrame(but_frame, text='lessons', padx=5, pady=0)
         dur_fr.pack(side=RIGHT)
-        self.duration = Spinbox(dur_fr, from_=1, to_=10, justify=CENTER, width=6)
+        self.duration = EntryPM(dur_fr, self.imghand.get('minus', img_size=30), self.imghand.get('plus', img_size=30))
         self.duration.pack(side=TOP)
 
     def add_input_field(self):
