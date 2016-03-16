@@ -23,6 +23,7 @@ class University(Frame):
         self.time_table = None
         self.paned_win = None
         self.dean = Dean()
+        self.imghand = ImageHandler('pict')
         self.add_widgets()
         self.timetable = []
 
@@ -48,10 +49,10 @@ class University(Frame):
     def add_toolbar(self):
         but_frame = Frame(self)
         but_frame.pack(side=TOP, fill=X)
-        self.add_img = ImageTk.PhotoImage(Image.open(imgdir + os.sep + 'add4.png'))
-        self.clean_img = ImageTk.PhotoImage(Image.open(imgdir + os.sep + 'clean1.png'))
-        self.timetable_img = ImageTk.PhotoImage(Image.open(imgdir + os.sep + 'timetable1.png'))
-        self.quit_img = ImageTk.PhotoImage(Image.open(imgdir + os.sep + 'quit2.png'))
+        self.add_img = ImageTk.PhotoImage(Image.open(self.imghand.get('enroll')))
+        self.clean_img = ImageTk.PhotoImage(Image.open(self.imghand.get('expel_all')))
+        self.timetable_img = ImageTk.PhotoImage(Image.open(self.imghand.get('tt')))
+        self.quit_img = ImageTk.PhotoImage(Image.open(self.imghand.get('quit')))
         Button(but_frame, image=self.add_img, command=self.add).pack(side=LEFT)
         Button(but_frame, image=self.clean_img, command=self.dean.expel_all_students).pack(side=LEFT)
         Button(but_frame, image=self.timetable_img, command=self.show_timetable).pack(side=LEFT)
@@ -316,6 +317,7 @@ class Student:
         self.ent = None
         self.stud_fr = None
         self.cur_coord = None
+        self.imghand = ImageHandler('pict')
 
     def set_idx(self, idx):
         self.idx.set(idx)
@@ -327,7 +329,7 @@ class Student:
         stud_fr = Frame(self.parent)
         stud_fr.pack(side=TOP)
         Label(stud_fr, textvariable=self.idx, width=self.lab_width).pack(side=LEFT, anchor=W)
-        self.expel_img = ImageTk.PhotoImage(Image.open(imgdir + os.sep + 'close_minus1.png'))
+        self.expel_img = ImageTk.PhotoImage(Image.open(self.imghand.get('expel', img_size=20)))
         Button(stud_fr, image=self.expel_img, command=lambda: self.dean.expel_student(self)).pack(side=RIGHT, anchor=E)
         ent = Entry(stud_fr, width=self.ent_width, font=1)
         ent.pack(side=LEFT)
