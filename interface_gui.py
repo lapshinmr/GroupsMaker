@@ -61,15 +61,13 @@ class University(Frame):
         Button(but_frame, image=self.save_tt, command=self.save_calendar_as_plain_text).pack(side=LEFT)
         Button(but_frame, image=self.quit_img, command=self.quit).pack(side=RIGHT)
 
-        size_fr = LabelFrame(but_frame, text='size', padx=5, pady=0)
-        size_fr.pack(side=RIGHT)
-        self.size_group = EntryPM(size_fr, self.imghand.get('minus', img_size=30), self.imghand.get('plus', img_size=30))
-        self.size_group.pack(side=TOP)
+        self.size_group = EntryPM(
+            but_frame, 'size', self.imghand.get('minus', img_size=24), self.imghand.get('plus', img_size=24))
+        self.size_group.pack(side=RIGHT)
 
-        dur_fr = LabelFrame(but_frame, text='lessons', padx=5, pady=0)
-        dur_fr.pack(side=RIGHT)
-        self.duration = EntryPM(dur_fr, self.imghand.get('minus', img_size=30), self.imghand.get('plus', img_size=30))
-        self.duration.pack(side=TOP)
+        self.duration = EntryPM(
+            but_frame, 'lessons', self.imghand.get('minus', img_size=24), self.imghand.get('plus', img_size=24))
+        self.duration.pack(side=RIGHT)
 
     def add_input_field(self):
         ent_frame = LabelFrame(self.paned_win, text='input names here', padx=5, pady=0)

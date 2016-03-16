@@ -3,21 +3,29 @@ from PIL import Image, ImageTk
 
 
 class EntryPM(Frame):
-    def __init__(self, parent=None, path_dec=None, path_inc=None):
+    start_count = 1
+
+    def __init__(self, parent=None, labeltext='', path_dec=None, path_inc=None):
         """
         :param parent:
         :param path_inc: path to image for button that increment count
         :param path_dec: path to image for button that decrement count
         """
         Frame.__init__(self, parent)
+        self.parent = parent
+        self.labeltext = labeltext
         self.ent = None
         self.path_dec = path_dec
         self.path_inc = path_inc
         self.count = IntVar()
-        self.count.set(1)
+        self.count.set(self.start_count)
         self.add_widgets()
 
     def add_widgets(self):
+        Label(self, text=self.labeltext, pady=0).pack(side=TOP)
+        ent_but_fr = Frame(self)
+        ent_but_fr.pack(side=BOTTOM)
+        ent_but_fr.config(pady=0)
         if self.path_inc:
             self.path_inc = ImageTk.PhotoImage(Image.open(self.path_inc))
             but_inc = Button(self, image=self.path_inc, command=self.inc_count)
@@ -60,5 +68,5 @@ class EntryPM(Frame):
 
 if __name__ == '__main__':
     root = Tk()
-    EntryPM(root).pack(side=TOP)
+    EntryPM(root, labeltext='text').pack(side=TOP)
     root.mainloop()
