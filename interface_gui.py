@@ -4,6 +4,7 @@ from groups_maker import GroupsMaker
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 from tkinter.messagebox import *
 from gm_exceptions import *
+from imglib import ImageHandler
 from tkinter import ttk
 import math
 from PIL import Image, ImageTk
@@ -32,6 +33,7 @@ class University(Frame):
         self.paned_win.pack(side=TOP, fill=BOTH, expand=YES)
         self.add_input_field()
         self.add_canvas()
+        self.add_timetable()
 
     def add_menu(self):
         top = Menu(self.parent)
@@ -86,6 +88,7 @@ class University(Frame):
         canv_frame = LabelFrame(self.paned_win, text='current names', padx=5, pady=0)
         canv_frame.pack(side=TOP, expand=YES, fill=BOTH)
         canv = Canvas(canv_frame, highlightthickness=0)
+        canv.config(height=150)
         canv.bind('<Configure>', self.resize_canvas)
         sbar = ttk.Scrollbar(canv_frame)
         sbar.config(command=canv.yview)
@@ -95,6 +98,11 @@ class University(Frame):
         self.canvas = canv
         self.dean.set_canvas(self.canvas)
         self.paned_win.add(canv_frame)
+
+    def add_timetable(self):
+        self.time_table = LabelFrame(self.paned_win, text='timetable', padx=5, pady=0)
+        self.time_table.pack(side=LEFT, expand=YES, fill=BOTH)
+        self.paned_win.add(self.time_table)
 
     def resize_canvas(self, event):
         self.canvas.config(width=event.width, height=event.height)
@@ -319,7 +327,7 @@ class Student:
         stud_fr = Frame(self.parent)
         stud_fr.pack(side=TOP)
         Label(stud_fr, textvariable=self.idx, width=self.lab_width).pack(side=LEFT, anchor=W)
-        self.expel_img = ImageTk.PhotoImage(Image.open(imgdir + os.sep + 'expel2.png'))
+        self.expel_img = ImageTk.PhotoImage(Image.open(imgdir + os.sep + 'close_minus1.png'))
         Button(stud_fr, image=self.expel_img, command=lambda: self.dean.expel_student(self)).pack(side=RIGHT, anchor=E)
         ent = Entry(stud_fr, width=self.ent_width, font=1)
         ent.pack(side=LEFT)
@@ -356,7 +364,7 @@ if __name__ == '__main__':
     #root.wm_geometry("")
     root.title('GroupsMaker')
     width, height = root.maxsize()
-    root.geometry('%sx%s' % (round(0.25 * width), round(0.7 * height)))
+    root.geometry('%sx%s' % (round(0.35 * width), round(0.5 * height)))
     University(root).pack(side=TOP, expand=YES, fill=BOTH)
     root.mainloop()
 
