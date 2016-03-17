@@ -112,6 +112,14 @@ class University(Frame):
         if self.ttcanv:
             self.ttcanv.destroy()
         self.ttcanv = Canvas(self.tt)
+        vsbar = ttk.Scrollbar(self.ttcanv)
+        hsbar = ttk.Scrollbar(self.ttcanv)
+        vsbar.config(command=self.ttcanv.yview)
+        hsbar.config(command=self.ttcanv.xview, orient=HORIZONTAL)
+        self.ttcanv.config(yscrollcommand=vsbar.set)
+        self.ttcanv.config(xscrollcommand=hsbar.set)
+        vsbar.pack(side=RIGHT, fill=Y)
+        hsbar.pack(side=BOTTOM, fill=X)
         self.ttcanv.pack(side=TOP, expand=YES, fill=BOTH)
 
     def resize_canvas(self, event):
