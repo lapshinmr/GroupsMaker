@@ -21,7 +21,9 @@ class University(Frame):
         self.duration = None
         self.size_group = IntVar()
         self.input_names = None
-        self.time_table = None
+        self.stud_canv = None
+        self.tt = None
+        self.tt_canv = None
         self.paned_win = None
         self.dean = Dean()
         self.imghand = ImageHandler('pict')
@@ -97,17 +99,19 @@ class University(Frame):
         canv.config(yscrollcommand=sbar.set)
         sbar.pack(side=RIGHT, fill=Y)
         canv.pack(side=LEFT, expand=YES, fill=BOTH)
-        self.canvas = canv
-        self.dean.set_canvas(self.canvas)
+        self.stud_canv = canv
+        self.dean.set_canvas(self.stud_canv)
         self.paned_win.add(canv_frame)
 
     def add_timetable(self):
-        self.time_table = LabelFrame(self.paned_win, text='timetable', padx=5, pady=0)
-        self.time_table.pack(side=LEFT, expand=YES, fill=BOTH)
-        self.paned_win.add(self.time_table)
+        self.tt = LabelFrame(self.paned_win, text='timetable', padx=5, pady=0)
+        self.tt.pack(side=LEFT, expand=YES, fill=BOTH)
+        self.tt_canv = Canvas(self.tt, bg='red')
+        self.tt_canv.pack(side=TOP, expand=YES, fill=BOTH)
+        self.paned_win.add(self.tt)
 
     def resize_canvas(self, event):
-        self.canvas.config(width=event.width, height=event.height)
+        self.stud_canv.config(width=event.width, height=event.height)
         self.dean.move_students()
 
     def open_names_from_file(self):
@@ -132,7 +136,7 @@ class University(Frame):
         stud_names = self.split_names(self.input_names.get(1.0, END))
         new_students = []
         for stud_name in stud_names:
-            new_stud = Student(stud_name, self.dean, self.canvas)
+            new_stud = Student(stud_name, self.dean, self.stud_canv)
             self.dean.enroll_student(new_stud)
             new_students.append(new_stud)
         self.dean.move_students()
@@ -156,22 +160,29 @@ class University(Frame):
 
     def show_timetable(self):
         self.gen_timetable()
-        if self.time_table:
-            self.time_table.destroy()
-        self.time_table = LabelFrame(self.paned_win, text='timetable', padx=5, pady=0)
-        self.time_table.pack(side=LEFT, expand=YES, fill=BOTH)
-        lesson_count = 1
+        if self.tt_canv:
+            self.tt_canv.destroy()
+        self.tt_canv = Canvas(self.tt, bg='red')
+        self.tt_canv.pack(side=TOP, expand=YES, fill=BOTH)
+        les_count = 0
+        les_x, les_y = 0, 0
         for lesson in self.timetable:
-            lesson_frame = Frame(self.time_table)
-            lesson_frame.pack(side=LEFT, fill=Y)
-            Label(lesson_frame, text='%s %s' % (lesson_count, 'lesson')).pack(side=TOP)
-            lesson_count += 1
+            les_fr = Frame(self.tt_canv, bd=3, relief=RIDGE, padx=5, pady=5)
+            les_fr.pack()
+            les_lab = Label(les_fr, text='%s %s' % (les_count + 1, 'lesson'))
+            les_lab.pack(side=TOP)
+            sep = ttk.Separator(les_fr, orient=HORIZONTAL)
+            sep.pack(side=TOP, fill=X)
+            self.tt_canv.create_window(les_x, les_y, window=les_fr, anchor=NW)
+            les_count += 1
             for combs in lesson:
-                comb_frame = Frame(lesson_frame, bd=2, relief=RAISED, padx=5, pady=5)
-                comb_frame.pack(side=TOP)
+                comb_fr = Frame(les_fr, padx=10, pady=10)
+                comb_fr.pack(side=TOP)
                 for name in combs:
-                    Label(comb_frame, width=10, text=name).pack(side=TOP)
-        self.paned_win.add(self.time_table)
+                    lab = Label(comb_fr, text=name)
+                    lab.pack(side=TOP)
+            les_fr.update()
+            les_x += les_fr.winfo_width()
 
     def generate_txt(self):
         text = ''

@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import ttk
 from PIL import Image, ImageTk
 
 
@@ -22,19 +23,30 @@ class EntryPM(Frame):
         self.add_widgets()
 
     def add_widgets(self):
-        Label(self, text=self.labeltext, pady=0).pack(side=TOP)
+        # LABEL
+        lab_fr = Frame(self)
+        lab_fr.pack(side=TOP, fill=X, expand=YES)
+        Frame(lab_fr, width=5).pack(side=LEFT)
+        ttk.Separator(lab_fr).pack(side=LEFT, fill=X, expand=YES)
+        Label(lab_fr, text=self.labeltext, pady=0).pack(side=LEFT)
+        ttk.Separator(lab_fr).pack(side=LEFT, fill=X, expand=YES)
+        Frame(lab_fr, width=5).pack(side=LEFT)
+        # FRAME for BUTTON and ENTRY
         ent_but_fr = Frame(self)
         ent_but_fr.pack(side=BOTTOM)
         ent_but_fr.config(pady=0)
+        # MINUS BUTTON
         if self.path_inc:
             self.path_inc = ImageTk.PhotoImage(Image.open(self.path_inc))
             but_inc = Button(self, image=self.path_inc, command=self.inc_count)
         else:
             but_inc = Button(self, text='+', command=self.inc_count)
         but_inc.pack(side=RIGHT)
+        # ENTRY
         ent = Entry(self, justify=CENTER, width=6, textvariable=self.count)
         ent.pack(side=RIGHT, expand=YES, fill=BOTH)
         self.ent = ent
+        # PLUS BUTTON
         if self.path_dec:
             self.path_dec = ImageTk.PhotoImage(Image.open(self.path_dec))
             but_dec = Button(self, image=self.path_dec, command=self.dec_count)
