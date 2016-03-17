@@ -23,7 +23,7 @@ class University(Frame):
         self.input_names = None
         self.stud_canv = None
         self.tt = None
-        self.tt_canv = None
+        self.ttcanv = None
         self.paned_win = None
         self.dean = Dean()
         self.imghand = ImageHandler('pict')
@@ -106,9 +106,13 @@ class University(Frame):
     def add_timetable(self):
         self.tt = LabelFrame(self.paned_win, text='timetable', padx=5, pady=0)
         self.tt.pack(side=LEFT, expand=YES, fill=BOTH)
-        self.tt_canv = Canvas(self.tt, bg='red')
-        self.tt_canv.pack(side=TOP, expand=YES, fill=BOTH)
         self.paned_win.add(self.tt)
+
+    def add_ttcanv(self):
+        if self.ttcanv:
+            self.ttcanv.destroy()
+        self.ttcanv = Canvas(self.tt)
+        self.ttcanv.pack(side=TOP, expand=YES, fill=BOTH)
 
     def resize_canvas(self, event):
         self.stud_canv.config(width=event.width, height=event.height)
@@ -160,20 +164,17 @@ class University(Frame):
 
     def show_timetable(self):
         self.gen_timetable()
-        if self.tt_canv:
-            self.tt_canv.destroy()
-        self.tt_canv = Canvas(self.tt, bg='red')
-        self.tt_canv.pack(side=TOP, expand=YES, fill=BOTH)
+        self.add_ttcanv()
         les_count = 0
         les_x, les_y = 0, 0
         for lesson in self.timetable:
-            les_fr = Frame(self.tt_canv, bd=3, relief=RIDGE, padx=5, pady=5)
+            les_fr = Frame(self.ttcanv, bd=2, relief=RIDGE, padx=5, pady=5)
             les_fr.pack()
             les_lab = Label(les_fr, text='%s %s' % (les_count + 1, 'lesson'))
             les_lab.pack(side=TOP)
             sep = ttk.Separator(les_fr, orient=HORIZONTAL)
             sep.pack(side=TOP, fill=X)
-            self.tt_canv.create_window(les_x, les_y, window=les_fr, anchor=NW)
+            self.ttcanv.create_window(les_x, les_y, window=les_fr, anchor=NW)
             les_count += 1
             for combs in lesson:
                 comb_fr = Frame(les_fr, padx=10, pady=10)
@@ -182,7 +183,7 @@ class University(Frame):
                     lab = Label(comb_fr, text=name)
                     lab.pack(side=TOP)
             les_fr.update()
-            les_x += les_fr.winfo_width()
+            les_x += les_fr.winfo_width() + 5
 
     def generate_txt(self):
         text = ''
