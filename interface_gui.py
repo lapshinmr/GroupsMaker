@@ -350,6 +350,7 @@ class Student:
         if event.keysym == 'Return':
             new_name = self.ent.get()
             self.name = new_name
+            self.dean.paint_dup_names()
             return
         self.ent.event_generate('<Return>', when='tail')
 
