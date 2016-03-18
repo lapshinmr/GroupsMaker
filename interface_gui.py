@@ -258,7 +258,7 @@ class Dean:
         return len(self.students)
 
     def get_students_names(self):
-        return [student.name for student in self.students]
+        return [student.get_name() for student in self.students]
 
     def enroll_student(self, student):
         student.set_idx(len(self.students) + 1)
@@ -318,7 +318,7 @@ class Dean:
     def paint_dup_names(self):
         dups = self.find_duplicates()
         for student in self.students:
-            if student.name in dups:
+            if student.get_name() in dups:
                 student.set_font_color('red')
             else:
                 student.set_font_color('black')
@@ -331,8 +331,10 @@ class Student:
     win_height = 26  # in px
 
     def __init__(self, name, dean, parent=None):
-        self.name = name
         self.dean = dean
+        self.name = StringVar()
+        self.set_name(name)
+        self.name.trace('w', self.check_dups)
         self.idx = IntVar()
         self.parent = parent
         self.ent = None
@@ -346,33 +348,31 @@ class Student:
     def get_idx(self):
         return self.idx.get()
 
+    def set_name(self, name):
+        self.name.set(name)
+
+    def get_name(self):
+        return self.name.get()
+
     def place(self, coord):
         stud_fr = Frame(self.parent)
         stud_fr.pack(side=TOP)
         Label(stud_fr, textvariable=self.idx, width=self.lab_width).pack(side=LEFT, anchor=W)
         self.expel_img = ImageTk.PhotoImage(Image.open(self.imghand.get('expel', img_size=20)))
         Button(stud_fr, image=self.expel_img, command=lambda: self.dean.expel_student(self)).pack(side=RIGHT, anchor=E)
-        ent = Entry(stud_fr, width=self.ent_width, font=1)
-        ent.pack(side=LEFT)
-        ent.insert(0, self.name)
-        ent.bind('<KeyPress>', self.change_name)
+        self.ent = Entry(stud_fr, textvariable=self.name, width=self.ent_width, font=1)
+        self.ent.pack(side=LEFT)
         self.stud_fr_win = self.parent.create_window(
             coord[1] * self.win_width, coord[0] * self.win_height, anchor=NW, window=stud_fr,
             width=self.win_width, height=self.win_height)
-        self.ent = ent
         self.stud_fr = stud_fr
         self.cur_coord = coord
 
     def set_font_color(self, color):
         self.ent.config(fg=color)
 
-    def change_name(self, event):
-        if event.keysym == 'Return':
-            new_name = self.ent.get()
-            self.name = new_name
-            self.dean.paint_dup_names()
-            return
-        self.ent.event_generate('<Return>', when='tail')
+    def check_dups(self, *args):
+        self.dean.paint_dup_names()
 
     def move_frame(self, new_coord):
         if self.cur_coord:
