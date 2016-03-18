@@ -103,28 +103,24 @@ class University(Frame):
         self.dean.set_canvas(self.stud_canv)
         self.paned_win.add(canv_frame)
 
-    def add_timetable(self):
-        self.tt = LabelFrame(self.paned_win, text='timetable', padx=5, pady=0)
-        self.tt.pack(side=LEFT, expand=YES, fill=BOTH)
-        self.paned_win.add(self.tt)
-
-    def add_ttcanv(self):
-        if self.ttcanv:
-            self.ttcanv.destroy()
-        self.ttcanv = Canvas(self.tt)
-        vsbar = ttk.Scrollbar(self.ttcanv)
-        hsbar = ttk.Scrollbar(self.ttcanv)
-        vsbar.config(command=self.ttcanv.yview)
-        hsbar.config(command=self.ttcanv.xview, orient=HORIZONTAL)
-        self.ttcanv.config(yscrollcommand=vsbar.set)
-        self.ttcanv.config(xscrollcommand=hsbar.set)
-        vsbar.pack(side=RIGHT, fill=Y)
-        hsbar.pack(side=BOTTOM, fill=X)
-        self.ttcanv.pack(side=TOP, expand=YES, fill=BOTH)
-
     def resize_canvas(self, event):
         self.stud_canv.config(width=event.width, height=event.height)
         self.dean.move_students()
+
+    def add_timetable(self):
+        self.tt = LabelFrame(self.paned_win, text='timetable', padx=5, pady=0)
+        self.tt.pack(side=LEFT, expand=YES, fill=BOTH)
+        self.ttcanv = Canvas(self.tt)
+        vsbar = ttk.Scrollbar(self.tt)
+        hsbar = ttk.Scrollbar(self.tt)
+        vsbar.config(command=self.ttcanv.yview, orient=VERTICAL)
+        hsbar.config(command=self.ttcanv.xview, orient=HORIZONTAL)
+        self.ttcanv.config(yscrollcommand=vsbar.set)
+        self.ttcanv.config(xscrollcommand=hsbar.set)
+        hsbar.pack(side=BOTTOM, fill=X)
+        vsbar.pack(side=RIGHT, fill=Y)
+        self.paned_win.add(self.tt)
+        self.ttcanv.pack(side=TOP, expand=YES, fill=BOTH)
 
     def open_names_from_file(self):
         filename = askopenfilename()
@@ -171,10 +167,12 @@ class University(Frame):
             showwarning('Warning', warnings['not_enough'])
 
     def show_timetable(self):
+        start_x, start_y = 0, 0
+        
         self.gen_timetable()
-        self.add_ttcanv()
+        self.ttcanv.delete('all')
         les_count = 0
-        les_x, les_y = 0, 0
+        cur_x, cur_y = start_x, start_y
         for lesson in self.timetable:
             les_fr = Frame(self.ttcanv, bd=2, relief=RIDGE, padx=5, pady=5)
             les_fr.pack()
@@ -182,7 +180,6 @@ class University(Frame):
             les_lab.pack(side=TOP)
             sep = ttk.Separator(les_fr, orient=HORIZONTAL)
             sep.pack(side=TOP, fill=X)
-            self.ttcanv.create_window(les_x, les_y, window=les_fr, anchor=NW)
             les_count += 1
             for combs in lesson:
                 comb_fr = Frame(les_fr, padx=10, pady=10)
@@ -191,7 +188,9 @@ class University(Frame):
                     lab = Label(comb_fr, text=name)
                     lab.pack(side=TOP)
             les_fr.update()
+            self.ttcanv.create_window(les_x, les_y, window=les_fr, anchor=NW)
             les_x += les_fr.winfo_width() + 5
+            self.ttcanv.config(scrollregion=(0, 0, les_x, les_fr.winfo_height() + 20))
 
     def generate_txt(self):
         text = ''
