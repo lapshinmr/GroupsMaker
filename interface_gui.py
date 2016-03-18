@@ -167,30 +167,35 @@ class University(Frame):
             showwarning('Warning', warnings['not_enough'])
 
     def show_timetable(self):
-        start_x, start_y = 0, 0
-        
+        les_fr_margin_x, les_fr_margin_y = 5, 5
+        comb_margin_x, comb_margin_y = 10, 10
+        les_fr_border_thikness = 2
+        space_between_les = 5
+        python_offset = 1
+        left_corner_x, left_corner_y = 0, 0
         self.gen_timetable()
         self.ttcanv.delete('all')
         les_count = 0
-        cur_x, cur_y = start_x, start_y
+        right_corner_x, right_corner_y = left_corner_x, left_corner_y
         for lesson in self.timetable:
-            les_fr = Frame(self.ttcanv, bd=2, relief=RIDGE, padx=5, pady=5)
+            les_fr = Frame(self.ttcanv, bd=les_fr_border_thikness, relief=RIDGE,
+                           padx=les_fr_margin_x, pady=les_fr_margin_y)
             les_fr.pack()
-            les_lab = Label(les_fr, text='%s %s' % (les_count + 1, 'lesson'))
+            les_lab = Label(les_fr, text='%s %s' % (les_count + python_offset, 'lesson'))
             les_lab.pack(side=TOP)
             sep = ttk.Separator(les_fr, orient=HORIZONTAL)
             sep.pack(side=TOP, fill=X)
             les_count += 1
             for combs in lesson:
-                comb_fr = Frame(les_fr, padx=10, pady=10)
+                comb_fr = Frame(les_fr, padx=comb_margin_x, pady=comb_margin_y)
                 comb_fr.pack(side=TOP)
                 for name in combs:
                     lab = Label(comb_fr, text=name)
                     lab.pack(side=TOP)
             les_fr.update()
-            self.ttcanv.create_window(les_x, les_y, window=les_fr, anchor=NW)
-            les_x += les_fr.winfo_width() + 5
-            self.ttcanv.config(scrollregion=(0, 0, les_x, les_fr.winfo_height() + 20))
+            self.ttcanv.create_window(right_corner_x, right_corner_y, window=les_fr, anchor=NW)
+            right_corner_x += les_fr.winfo_width() + space_between_les
+            self.ttcanv.config(scrollregion=(0, 0, right_corner_x, les_fr.winfo_height()))
 
     def generate_txt(self):
         text = ''
