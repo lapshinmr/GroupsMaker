@@ -8,7 +8,7 @@ from imglib import ImageHandler
 from tkinter import ttk
 import math
 from PIL import Image, ImageTk
-from widgets import EntryPM
+from widgets import EntryPM, create_tool_tip
 
 
 imgdir = 'pict'
@@ -57,7 +57,9 @@ class University(Frame):
         self.timetable_img = ImageTk.PhotoImage(Image.open(self.imghand.get('tt')))
         self.quit_img = ImageTk.PhotoImage(Image.open(self.imghand.get('quit')))
         self.save_tt = ImageTk.PhotoImage(Image.open(self.imghand.get('save_tt')))
-        Button(but_frame, image=self.add_img, command=self.add).pack(side=LEFT)
+        add_but = Button(but_frame, image=self.add_img, command=self.add)
+        add_but.pack(side=LEFT)
+        create_tool_tip(add_but, 'Add student(s)')
         Button(but_frame, image=self.clean_img, command=self.dean.expel_all_students).pack(side=LEFT)
         Button(but_frame, image=self.timetable_img, command=self.show_timetable).pack(side=LEFT)
         Button(but_frame, image=self.save_tt, command=self.save_calendar_as_plain_text).pack(side=LEFT)
@@ -172,15 +174,14 @@ class University(Frame):
         les_fr_border_thikness = 2
         space_between_les = 5
         python_offset = 1
-        left_corner_x, left_corner_y = 0, 0
+        nw_corner_x, nw_corner_y = 0, 0
         self.gen_timetable()
         self.ttcanv.delete('all')
         les_count = 0
-        right_corner_x, right_corner_y = left_corner_x, left_corner_y
         for lesson in self.timetable:
             les_fr = Frame(self.ttcanv, bd=les_fr_border_thikness, relief=RIDGE,
                            padx=les_fr_margin_x, pady=les_fr_margin_y)
-            les_fr.pack()
+            les_fr.pack(expand=YES, fill=Y)
             les_lab = Label(les_fr, text='%s %s' % (les_count + python_offset, 'lesson'))
             les_lab.pack(side=TOP)
             sep = ttk.Separator(les_fr, orient=HORIZONTAL)
@@ -193,9 +194,11 @@ class University(Frame):
                     lab = Label(comb_fr, text=name)
                     lab.pack(side=TOP)
             les_fr.update()
-            self.ttcanv.create_window(right_corner_x, right_corner_y, window=les_fr, anchor=NW)
-            right_corner_x += les_fr.winfo_width() + space_between_les
-            self.ttcanv.config(scrollregion=(0, 0, right_corner_x, les_fr.winfo_height()))
+            self.ttcanv.create_window(nw_corner_x, nw_corner_y, window=les_fr, anchor=NW)
+            nw_corner_x += les_fr.winfo_width() + space_between_les
+            les_height = les_fr.winfo_height()
+            print(nw_corner_x, nw_corner_y, les_height)
+            self.ttcanv.config(scrollregion=(0, 0, nw_corner_x, les_height))
 
     def generate_txt(self):
         text = ''
