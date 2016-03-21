@@ -79,49 +79,42 @@ class EntryPM(Frame):
 
 
 class ToolTip:
-    def __init__(self, widget):
+    def __init__(self, widget, tip=None):
         self.widget = widget
-        self.tip_window = None
-        self.id = None
-        self.x = 0
-        self.y = 0
-        self.text = None
+        self.tip_win = None
+        self.tip_text = tip
+        self.x = None
+        self.y = None
+        self.widget.bind('<Motion>', self.showtip)
+        self.widget.bind('<Leave>', self.hidetip)
+        # self.widget.bind('<Motion>', self.mouse_pos)
 
-    def showtip(self, text):
-        self.text = text
-        if self.tip_window or not self.text:
-            return
-        x, y, cx, cy = self.widget.bbox("insert")
-        x = x + self.widget.winfo_rootx() + 27
-        y = y + cy + self.widget.winfo_rooty() + 27
-        self.tip_window = tw = Toplevel(self.widget)
-        tw.wm_overrideredirect(1)
-        tw.wm_geometry("+%d+%d" % (x, y))
-        label = Label(tw, text=self.text, justify=LEFT, background="#ffffe0", relief=SOLID, borderwidth=1,
-                      font=("tahoma", "8", "normal"))
-        label.pack(ipadx=1)
+    def showtip(self, event):
+        if not self.tip_win and self.tip_text:
+            self.x, self.y = event.x, event.y
+            print(self.x, self.y)
+            self.tip_win = Toplevel(self.widget)
+            self.tip_win.wm_overrideredirect(1)
+            self.tip_win.wm_geometry("+%d+%d" % (self.x, self.y))
+            label = Label(
+                self.tip_win, text=self.tip_text, justify=LEFT, background="#ffffe0", relief=SOLID,
+                borderwidth=1, font=("tahoma", "8", "normal")
+            )
+            label.pack(ipadx=1)
 
-    def hidetip(self):
-        tw = self.tip_window
-        self.tip_window = None
-        if tw:
-            tw.destroy()
+    def hidetip(self, event):
+        if self.tip_win:
+            self.tip_win.destroy()
+            self.tip_win = None
 
-
-def create_tool_tip(widget, text):
-    tool_tip = ToolTip(widget)
-
-    def enter(event):
-        tool_tip.showtip(text)
-
-    def leave(event):
-        tool_tip.hidetip()
-
-    widget.bind('<Enter>', enter)
-    widget.bind('<Leave>', leave)
+    def mouse_pos(self, event):
+        self.x, self.y = event.x, event.y
+        print(self.x, self.y)
 
 
 if __name__ == '__main__':
     root = Tk()
-    EntryPM(root, labeltext='text').pack(side=TOP)
+    but = Button(root, text='test', command=root.quit)
+    but.pack(side=TOP, expand=YES, fil=BOTH)
+    ToolTip(but, tip='tip')
     root.mainloop()

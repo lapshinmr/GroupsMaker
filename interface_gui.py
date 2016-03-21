@@ -174,7 +174,7 @@ class University(Frame):
         les_fr_border_thikness = 2
         space_between_les = 5
         python_offset = 1
-        nw_corner_x, nw_corner_y = 0, 0
+        nw_x, nw_y = 0, 0
         self.gen_timetable()
         self.ttcanv.delete('all')
         les_count = 0
@@ -193,12 +193,12 @@ class University(Frame):
                 for name in combs:
                     lab = Label(comb_fr, text=name)
                     lab.pack(side=TOP)
-            les_fr.update()
-            self.ttcanv.create_window(nw_corner_x, nw_corner_y, window=les_fr, anchor=NW)
-            nw_corner_x += les_fr.winfo_width() + space_between_les
+            les_fr.update_idletasks()
+            self.ttcanv.create_window(nw_x, nw_y, window=les_fr, anchor=NW)
+            nw_x += les_fr.winfo_width() + space_between_les
             les_height = les_fr.winfo_height()
-            print(nw_corner_x, nw_corner_y, les_height)
-            self.ttcanv.config(scrollregion=(0, 0, nw_corner_x, les_height))
+            print(nw_x, nw_y, les_height)
+            self.ttcanv.config(scrollregion=(0, 0, nw_x, les_height))
 
     def generate_txt(self):
         text = ''
