@@ -5,10 +5,10 @@ from tkinter.filedialog import askopenfilename, asksaveasfilename
 from tkinter.messagebox import *
 from gm_exceptions import *
 from imglib import ImageHandler
-from tkinter import ttk
 import math
 from PIL import Image, ImageTk
 from widgets import EntryPM, TipButton
+from tkinter import ttk
 
 
 imgdir = 'pict'
@@ -21,7 +21,7 @@ class University(Frame):
         self.duration = None
         self.size_group = IntVar()
         self.input_names = None
-        self.stud_canv = None
+        self.stcanv = None
         self.tt = None
         self.ttcanv = None
         self.paned_win = None
@@ -63,11 +63,9 @@ class University(Frame):
         TipButton(but_frame, image=self.timetable_img, tip='Generate timetable', command=self.show_timetable).pack(side=LEFT)
         TipButton(but_frame, image=self.save_tt, tip='Save timetable', command=self.save_calendar_as_plain_text).pack(side=LEFT)
         TipButton(but_frame, image=self.quit_img, tip='Quit', command=self.quit).pack(side=RIGHT)
-
         self.size_group = EntryPM(
             but_frame, 'size', self.imghand.get('minus', img_size=24), self.imghand.get('plus', img_size=24))
         self.size_group.pack(side=RIGHT)
-
         self.duration = EntryPM(
             but_frame, 'lessons', self.imghand.get('minus', img_size=24), self.imghand.get('plus', img_size=24))
         self.duration.pack(side=RIGHT)
@@ -78,7 +76,7 @@ class University(Frame):
         ent_frame.pack(side=TOP, fill=X)
         ent_frame.pack_propagate(False)
         text = Text(ent_frame)
-        scroll_bar = ttk.Scrollbar(ent_frame)
+        scroll_bar = Scrollbar(ent_frame)
         scroll_bar.config(command=text.yview)
         text.config(yscrollcommand=scroll_bar.set)
         scroll_bar.pack(side=RIGHT, fill=Y)
@@ -88,40 +86,73 @@ class University(Frame):
         self.input_names = text
         self.paned_win.add(ent_frame)
         self.input_names.bind('<Return>', lambda event: self.add())
+        self.input_names.bind('<Shift-Return>', lambda event: self.add_return())
+        self.input_names.bind('<4>', lambda event: self.input_names.yview('scroll', -1, 'units'))
+        self.input_names.bind('<5>', lambda event: self.input_names.yview('scroll', 1, 'units'))
+
+    def add_return(self):
+        self.input_names.insert(END, '')
 
     def add_canvas(self):
         canv_frame = LabelFrame(self.paned_win, text='current names', padx=5, pady=0)
         canv_frame.pack(side=TOP, expand=YES, fill=BOTH)
+        sbar = Scrollbar(canv_frame)
+        sbar.pack(side=RIGHT, fill=Y)
         canv = Canvas(canv_frame, highlightthickness=0)
         canv.config(height=150)
         canv.bind('<Configure>', self.resize_canvas)
-        sbar = ttk.Scrollbar(canv_frame)
-        sbar.config(command=canv.yview)
         canv.config(yscrollcommand=sbar.set)
-        sbar.pack(side=RIGHT, fill=Y)
         canv.pack(side=LEFT, expand=YES, fill=BOTH)
-        self.stud_canv = canv
-        self.dean.set_canvas(self.stud_canv)
+        canv.bind('<Enter>', self.set_infocus_stcanv)
+        canv.bind('<Leave>', self.set_outfocus_stcanv)
+        sbar.config(command=canv.yview)
+        self.sbar = sbar
+        self.stcanv = canv
+        self.dean.set_canvas(self.stcanv)
         self.paned_win.add(canv_frame)
 
+    def set_infocus_stcanv(self, event):
+        print('stcanv focus True')
+        self.stcanv.bind_all('<4>', lambda event: self.stcanv.yview('scroll', -1, 'units'))
+        self.stcanv.bind_all('<5>', lambda event: self.stcanv.yview('scroll', 1, 'units'))
+
+    def set_outfocus_stcanv(self, event):
+        print('stcanv focus False')
+        self.stcanv.unbind_all('<4>')
+        self.stcanv.unbind_all('<5>')
+
     def resize_canvas(self, event):
-        self.stud_canv.config(width=event.width, height=event.height)
+        self.stcanv.config(width=event.width, height=event.height)
         self.dean.move_students()
 
     def add_timetable(self):
         self.tt = LabelFrame(self.paned_win, text='timetable', padx=5, pady=0)
         self.tt.pack(side=LEFT, expand=YES, fill=BOTH)
-        self.ttcanv = Canvas(self.tt)
-        vsbar = ttk.Scrollbar(self.tt)
-        hsbar = ttk.Scrollbar(self.tt)
-        vsbar.config(command=self.ttcanv.yview, orient=VERTICAL)
-        hsbar.config(command=self.ttcanv.xview, orient=HORIZONTAL)
-        self.ttcanv.config(yscrollcommand=vsbar.set)
-        self.ttcanv.config(xscrollcommand=hsbar.set)
+        ttcanv = Canvas(self.tt)
+        vsbar = Scrollbar(self.tt)
+        hsbar = Scrollbar(self.tt)
+        vsbar.config(command=ttcanv.yview, orient=VERTICAL)
+        hsbar.config(command=ttcanv.xview, orient=HORIZONTAL)
+        ttcanv.config(yscrollcommand=vsbar.set)
+        ttcanv.config(xscrollcommand=hsbar.set)
         hsbar.pack(side=BOTTOM, fill=X)
         vsbar.pack(side=RIGHT, fill=Y)
+        self.ttcanv_in_focus = False
+        ttcanv.bind('<Enter>', self.set_infocus_ttcanv)
+        ttcanv.bind('<Leave>', self.set_outfocus_ttcanv)
+        self.ttcanv = ttcanv
         self.paned_win.add(self.tt)
         self.ttcanv.pack(side=TOP, expand=YES, fill=BOTH)
+
+    def set_infocus_ttcanv(self, event):
+        print('ttcanv focus True')
+        self.ttcanv.bind_all('<4>', lambda event: self.ttcanv.xview('scroll', -1, 'units'))
+        self.ttcanv.bind_all('<5>', lambda event: self.ttcanv.xview('scroll', 1, 'units'))
+
+    def set_outfocus_ttcanv(self, event):
+        print('ttcanv focus False')
+        self.ttcanv.unbind_all('<4>')
+        self.ttcanv.unbind_all('<5>')
 
     def open_names_from_file(self):
         filename = askopenfilename()
@@ -145,7 +176,7 @@ class University(Frame):
         stud_names = self.split_names(self.input_names.get(1.0, END))
         new_students = []
         for stud_name in stud_names:
-            new_stud = Student(stud_name, self.dean, self.stud_canv)
+            new_stud = Student(stud_name, self.dean, self.stcanv)
             self.dean.enroll_student(new_stud)
             new_students.append(new_stud)
         self.dean.move_students()
@@ -192,7 +223,7 @@ class University(Frame):
                 for name in combs:
                     lab = Label(comb_fr, text=name)
                     lab.pack(side=TOP)
-            les_fr.update_idletasks()
+            les_fr.update()
             self.ttcanv.create_window(nw_x, nw_y, window=les_fr, anchor=NW)
             nw_x += les_fr.winfo_width() + space_between_les
             les_height = les_fr.winfo_height()
