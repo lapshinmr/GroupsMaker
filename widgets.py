@@ -80,19 +80,20 @@ class EntryPM(Frame):
 
 
 class TipButton(Button):
+    cursor_width = 10
+    cursor_height = 10
+
     def __init__(self, parent, tip=None, **kwargs):
-        if 'tip' in kwargs:
-            tip = kwargs['tip']
-            del kwargs['tip']
         Button.__init__(self, parent)
         self.config(**kwargs)
-        self.tip_win = None
-        self.tip_text = tip
-        self.x = None
-        self.y = None
-        self.bind('<Enter>', self.showtip)
-        self.bind('<Leave>', self.hidetip)
-        self.bind('<Motion>', self.mouse_pos)
+        if tip:
+            self.tip_text = tip
+            self.tip_win = None
+            self.x = None
+            self.y = None
+            self.bind('<Enter>', self.showtip)
+            self.bind('<Leave>', self.hidetip)
+            self.bind('<Motion>', self.mouse_pos)
 
     def showtip(self, event):
         if not self.tip_win and self.tip_text:
@@ -101,8 +102,7 @@ class TipButton(Button):
             self.tip_win.wm_overrideredirect(True)
             label = Label(
                 self.tip_win, text=self.tip_text, justify=LEFT, background="#ffffe0", relief=SOLID,
-                borderwidth=1, font=("tahoma", "8", "normal")
-            )
+                borderwidth=1, font=("tahoma", "8", "normal"))
             label.pack(ipadx=1)
 
     def hidetip(self, event):
@@ -111,7 +111,7 @@ class TipButton(Button):
             self.tip_win = None
 
     def mouse_pos(self, event):
-        self.x, self.y = self.winfo_pointerx() + 10, self.winfo_pointery() + 10
+        self.x, self.y = self.winfo_pointerx() + self.cursor_width, self.winfo_pointery() + self.cursor_height
         self.tip_win.wm_geometry("+%d+%d" % (self.x, self.y))
 
 

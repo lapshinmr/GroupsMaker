@@ -8,7 +8,7 @@ from imglib import ImageHandler
 from tkinter import ttk
 import math
 from PIL import Image, ImageTk
-from widgets import EntryPM, create_tool_tip
+from widgets import EntryPM, TipButton
 
 
 imgdir = 'pict'
@@ -57,13 +57,12 @@ class University(Frame):
         self.timetable_img = ImageTk.PhotoImage(Image.open(self.imghand.get('tt')))
         self.quit_img = ImageTk.PhotoImage(Image.open(self.imghand.get('quit')))
         self.save_tt = ImageTk.PhotoImage(Image.open(self.imghand.get('save_tt')))
-        add_but = Button(but_frame, image=self.add_img, command=self.add)
+        add_but = TipButton(but_frame, image=self.add_img, tip='Add student(s)', command=self.add)
         add_but.pack(side=LEFT)
-        create_tool_tip(add_but, 'Add student(s)')
-        Button(but_frame, image=self.clean_img, command=self.dean.expel_all_students).pack(side=LEFT)
-        Button(but_frame, image=self.timetable_img, command=self.show_timetable).pack(side=LEFT)
-        Button(but_frame, image=self.save_tt, command=self.save_calendar_as_plain_text).pack(side=LEFT)
-        Button(but_frame, image=self.quit_img, command=self.quit).pack(side=RIGHT)
+        TipButton(but_frame, image=self.clean_img, tip='Expel student(s)', command=self.dean.expel_all_students).pack(side=LEFT)
+        TipButton(but_frame, image=self.timetable_img, tip='Generate timetable', command=self.show_timetable).pack(side=LEFT)
+        TipButton(but_frame, image=self.save_tt, tip='Save timetable', command=self.save_calendar_as_plain_text).pack(side=LEFT)
+        TipButton(but_frame, image=self.quit_img, tip='Quit', command=self.quit).pack(side=RIGHT)
 
         self.size_group = EntryPM(
             but_frame, 'size', self.imghand.get('minus', img_size=24), self.imghand.get('plus', img_size=24))
