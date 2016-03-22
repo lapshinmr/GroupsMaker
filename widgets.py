@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from PIL import Image, ImageTk
+import time
 
 
 class EntryPM(Frame):
@@ -78,24 +79,26 @@ class EntryPM(Frame):
         return cur_count
 
 
-class ToolTip:
-    def __init__(self, widget, tip=None):
-        self.widget = widget
+class TipButton(Button):
+    def __init__(self, parent, tip=None, **kwargs):
+        if 'tip' in kwargs:
+            tip = kwargs['tip']
+            del kwargs['tip']
+        Button.__init__(self, parent)
+        self.config(**kwargs)
         self.tip_win = None
         self.tip_text = tip
         self.x = None
         self.y = None
-        self.widget.bind('<Motion>', self.showtip)
-        self.widget.bind('<Leave>', self.hidetip)
-        # self.widget.bind('<Motion>', self.mouse_pos)
+        self.bind('<Enter>', self.showtip)
+        self.bind('<Leave>', self.hidetip)
+        self.bind('<Motion>', self.mouse_pos)
 
     def showtip(self, event):
         if not self.tip_win and self.tip_text:
+            self.tip_win = Toplevel(self)
             self.x, self.y = event.x, event.y
-            print(self.x, self.y)
-            self.tip_win = Toplevel(self.widget)
-            self.tip_win.wm_overrideredirect(1)
-            self.tip_win.wm_geometry("+%d+%d" % (self.x, self.y))
+            self.tip_win.wm_overrideredirect(True)
             label = Label(
                 self.tip_win, text=self.tip_text, justify=LEFT, background="#ffffe0", relief=SOLID,
                 borderwidth=1, font=("tahoma", "8", "normal")
@@ -108,13 +111,12 @@ class ToolTip:
             self.tip_win = None
 
     def mouse_pos(self, event):
-        self.x, self.y = event.x, event.y
-        print(self.x, self.y)
+        self.x, self.y = self.winfo_pointerx() + 10, self.winfo_pointery() + 10
+        self.tip_win.wm_geometry("+%d+%d" % (self.x, self.y))
 
 
 if __name__ == '__main__':
     root = Tk()
-    but = Button(root, text='test', command=root.quit)
-    but.pack(side=TOP, expand=YES, fil=BOTH)
-    ToolTip(but, tip='tip')
+    tt = TipButton(root, tip='tip', text='push me', command=root.quit)
+    tt.pack()
     root.mainloop()
