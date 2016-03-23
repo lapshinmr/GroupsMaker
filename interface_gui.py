@@ -9,6 +9,7 @@ import math
 from PIL import Image, ImageTk
 from widgets import EntryPM, TipButton
 from tkinter import ttk
+from interface_functions import *
 
 
 imgdir = 'pict'
@@ -70,19 +71,6 @@ class University(Frame):
             but_frame, 'lessons', self.imghand.get('minus', img_size=24), self.imghand.get('plus', img_size=24))
         self.duration.pack(side=RIGHT)
 
-    def bind_scroll_canv(self, canv, direct='Y'):
-        if direct == 'X' or direct == 'x':
-            canv.bind_all('<4>', lambda event: canv.xview('scroll', -1, 'units'))
-            canv.bind_all('<5>', lambda event: canv.xview('scroll', 1, 'units'))
-        elif direct == 'Y' or direct == 'y':
-            canv.bind_all('<4>', lambda event: canv.yview('scroll', -1, 'units'))
-            canv.bind_all('<5>', lambda event: canv.yview('scroll', 1, 'units'))
-
-    def unbind_scroll_canv(self, canv):
-        canv.unbind_all('<4>')
-        canv.unbind_all('<5>')
-
-
     def add_input_field(self):
         ent_frame = LabelFrame(self.paned_win, text='input names here', padx=5, pady=0)
         ent_frame.config(height=70)
@@ -100,8 +88,8 @@ class University(Frame):
         self.paned_win.add(ent_frame)
         self.input_names.bind('<Return>', lambda event: self.add())
         self.input_names.bind('<Shift-Return>', lambda event: self.add_return())
-        self.input_names.bind('<Enter>', lambda event: self.bind_scroll_canv(self.input_names))
-        self.input_names.bind('<Leave>', lambda event: self.unbind_scroll_canv(self.input_names))
+        self.input_names.bind('<Enter>', lambda event: bind_scroll_canv(self.input_names))
+        self.input_names.bind('<Leave>', lambda event: unbind_scroll_canv(self.input_names))
 
     def add_return(self):
         self.input_names.insert(END, '')
@@ -116,8 +104,8 @@ class University(Frame):
         canv.bind('<Configure>', self.resize_canvas)
         canv.config(yscrollcommand=sbar.set)
         canv.pack(side=LEFT, expand=YES, fill=BOTH)
-        canv.bind('<Enter>', lambda event: self.bind_scroll_canv(canv))
-        canv.bind('<Leave>', lambda event: self.unbind_scroll_canv(canv))
+        canv.bind('<Enter>', lambda event: bind_scroll_canv(canv))
+        canv.bind('<Leave>', lambda event: unbind_scroll_canv(canv))
         sbar.config(command=canv.yview)
         self.sbar = sbar
         self.stcanv = canv
@@ -140,8 +128,8 @@ class University(Frame):
         ttcanv.config(xscrollcommand=hsbar.set)
         hsbar.pack(side=BOTTOM, fill=X)
         vsbar.pack(side=RIGHT, fill=Y)
-        ttcanv.bind('<Enter>', lambda event: self.bind_scroll_canv(ttcanv, 'X'))
-        ttcanv.bind('<Leave>', lambda event: self.unbind_scroll_canv(ttcanv))
+        ttcanv.bind('<Enter>', lambda event: bind_scroll_canv(ttcanv, 'X'))
+        ttcanv.bind('<Leave>', lambda event: unbind_scroll_canv(ttcanv))
         self.ttcanv = ttcanv
         self.paned_win.add(self.tt)
         self.ttcanv.pack(side=TOP, expand=YES, fill=BOTH)
@@ -215,7 +203,7 @@ class University(Frame):
                 for name in combs:
                     lab = Label(comb_fr, text=name)
                     lab.pack(side=TOP)
-            les_fr.update()
+            les_fr.update_idletasks()
             self.ttcanv.create_window(nw_x, nw_y, window=les_fr, anchor=NW)
             nw_x += les_fr.winfo_width() + space_between_les
             les_height = les_fr.winfo_height()
