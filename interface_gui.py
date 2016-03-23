@@ -410,11 +410,18 @@ class Student:
         radio_fr.pack(side=TOP, fill=X)
         Radiobutton(radio_fr, text='White', variable=self.cur_exlist, value='White', command=self.onPress).pack(side=LEFT)
         Radiobutton(radio_fr, text='Black', variable=self.cur_exlist, value='Black', command=self.onPress).pack(side=RIGHT)
-        self.listbox = Listbox(popup)
-        self.listbox.pack(side=TOP, expand=YES, fill=BOTH)
+        list_fr = Frame(popup)
+        list_fr.pack(side=TOP, expand=YES, fill=BOTH)
+        listbox = Listbox(list_fr)
+        sbar = Scrollbar(list_fr)
+        sbar.pack(side=RIGHT, fill=Y)
+        sbar.config(command=listbox.yview)
+        listbox.config(yscrollcommand=sbar.set)
+        listbox.pack(side=LEFT, expand=YES, fill=BOTH)
         for name in self.dean.get_students_names():
             if name != self.name.get():
-                self.listbox.insert(END, name)
+                listbox.insert(END, name)
+        self.listbox = listbox
         but_fr = Frame(popup)
         but_fr.pack(side=BOTTOM, fill=X)
         Button(popup, text='Add', command=self.append_exlist).pack(side=LEFT, expand=YES, fill=X)
@@ -425,13 +432,11 @@ class Student:
 
     def append_exlist(self):
         if self.cur_exlist.get() == 'White':
-            print('in White')
             select_idx = self.listbox.curselection()
             select_name = self.listbox.get(select_idx)
             print(select_name)
         else:
-            print('in Black')
-
+            pass
 
 
 if __name__ == '__main__':
