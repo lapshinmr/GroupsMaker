@@ -358,6 +358,10 @@ class Student:
         self.stud_fr = None
         self.cur_coord = None
         self.imghand = ImageHandler('pict')
+        self.white_exlist = []
+        self.black_exlist = []
+        self.cur_exlist = StringVar()
+        self.cur_exlist.set('White')
 
     def set_idx(self, idx):
         self.idx.set(idx)
@@ -379,6 +383,7 @@ class Student:
         TipButton(stud_fr, image=self.expel_img, tip='delete', command=lambda: self.dean.expel_student(self)).pack(side=RIGHT, anchor=E)
         self.ent = Entry(stud_fr, textvariable=self.name, width=self.ent_width, font=1)
         self.ent.pack(side=LEFT)
+        self.ent.bind('<Button-3>', lambda event: self.edit_exlist())
         self.stud_fr_win = self.parent.create_window(
             coord[1] * self.win_width, coord[0] * self.win_height, anchor=NW, window=stud_fr,
             width=self.win_width, height=self.win_height)
@@ -397,6 +402,36 @@ class Student:
             diff_y = (new_coord[0] - self.cur_coord[0]) * self.win_height
             self.parent.move(self.stud_fr_win, diff_x, diff_y)
             self.cur_coord = new_coord
+
+    def edit_exlist(self):
+        popup = Toplevel()
+        Label(popup, textvariable=self.name, bd=2, relief=RIDGE).pack(side=TOP, fill=X)
+        radio_fr = Frame(popup)
+        radio_fr.pack(side=TOP, fill=X)
+        Radiobutton(radio_fr, text='White', variable=self.cur_exlist, value='White', command=self.onPress).pack(side=LEFT)
+        Radiobutton(radio_fr, text='Black', variable=self.cur_exlist, value='Black', command=self.onPress).pack(side=RIGHT)
+        self.listbox = Listbox(popup)
+        self.listbox.pack(side=TOP, expand=YES, fill=BOTH)
+        for name in self.dean.get_students_names():
+            if name != self.name.get():
+                self.listbox.insert(END, name)
+        but_fr = Frame(popup)
+        but_fr.pack(side=BOTTOM, fill=X)
+        Button(popup, text='Add', command=self.append_exlist).pack(side=LEFT, expand=YES, fill=X)
+        Button(popup, text='Accept', command=popup.destroy).pack(side=RIGHT, expand=YES, fill=X)
+
+    def onPress(self):
+        print(self.cur_exlist.get())
+
+    def append_exlist(self):
+        if self.cur_exlist.get() == 'White':
+            print('in White')
+            select_idx = self.listbox.curselection()
+            select_name = self.listbox.get(select_idx)
+            print(select_name)
+        else:
+            print('in Black')
+
 
 
 if __name__ == '__main__':
