@@ -376,7 +376,7 @@ class Student:
         stud_fr.pack(side=TOP)
         Label(stud_fr, textvariable=self.idx, width=self.lab_width).pack(side=LEFT, anchor=W)
         self.expel_img = ImageTk.PhotoImage(Image.open(self.imghand.get('expel', img_size=20)))
-        Button(stud_fr, image=self.expel_img, command=lambda: self.dean.expel_student(self)).pack(side=RIGHT, anchor=E)
+        TipButton(stud_fr, image=self.expel_img, tip='delete', command=lambda: self.dean.expel_student(self)).pack(side=RIGHT, anchor=E)
         self.ent = Entry(stud_fr, textvariable=self.name, width=self.ent_width, font=1)
         self.ent.pack(side=LEFT)
         self.stud_fr_win = self.parent.create_window(

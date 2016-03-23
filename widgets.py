@@ -91,19 +91,8 @@ class TipButton(Button):
             self.tip_win = None
             self.x = None
             self.y = None
-            self.bind('<Enter>', self.showtip)
             self.bind('<Leave>', self.hidetip)
             self.bind('<Motion>', self.mouse_pos)
-
-    def showtip(self, event):
-        if not self.tip_win and self.tip_text:
-            self.tip_win = Toplevel(self)
-            self.x, self.y = event.x, event.y
-            self.tip_win.wm_overrideredirect(True)
-            label = Label(
-                self.tip_win, text=self.tip_text, justify=LEFT, background="#ffffe0", relief=SOLID,
-                borderwidth=1, font=("tahoma", "8", "normal"))
-            label.pack(ipadx=1)
 
     def hidetip(self, event):
         if self.tip_win:
@@ -112,6 +101,13 @@ class TipButton(Button):
 
     def mouse_pos(self, event):
         self.x, self.y = self.winfo_pointerx() + self.cursor_width, self.winfo_pointery() + self.cursor_height
+        if not self.tip_win and self.tip_text:
+            self.tip_win = Toplevel(self)
+            self.tip_win.wm_overrideredirect(True)
+            label = Label(
+                self.tip_win, text=self.tip_text, justify=LEFT, background="#ffffe0", relief=SOLID,
+                borderwidth=1, font=("tahoma", "8", "normal"))
+            label.pack(ipadx=1)
         self.tip_win.wm_geometry("+%d+%d" % (self.x, self.y))
 
 
