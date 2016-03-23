@@ -70,6 +70,19 @@ class University(Frame):
             but_frame, 'lessons', self.imghand.get('minus', img_size=24), self.imghand.get('plus', img_size=24))
         self.duration.pack(side=RIGHT)
 
+    def bind_scroll_canv(self, canv, direct='Y'):
+        if direct == 'X' or direct == 'x':
+            canv.bind_all('<4>', lambda event: canv.xview('scroll', -1, 'units'))
+            canv.bind_all('<5>', lambda event: canv.xview('scroll', 1, 'units'))
+        elif direct == 'Y' or direct == 'y':
+            canv.bind_all('<4>', lambda event: canv.yview('scroll', -1, 'units'))
+            canv.bind_all('<5>', lambda event: canv.yview('scroll', 1, 'units'))
+
+    def unbind_scroll_canv(self, canv):
+        canv.unbind_all('<4>')
+        canv.unbind_all('<5>')
+
+
     def add_input_field(self):
         ent_frame = LabelFrame(self.paned_win, text='input names here', padx=5, pady=0)
         ent_frame.config(height=70)
@@ -87,8 +100,8 @@ class University(Frame):
         self.paned_win.add(ent_frame)
         self.input_names.bind('<Return>', lambda event: self.add())
         self.input_names.bind('<Shift-Return>', lambda event: self.add_return())
-        self.input_names.bind('<4>', lambda event: self.input_names.yview('scroll', -1, 'units'))
-        self.input_names.bind('<5>', lambda event: self.input_names.yview('scroll', 1, 'units'))
+        self.input_names.bind('<Enter>', lambda event: self.bind_scroll_canv(self.input_names))
+        self.input_names.bind('<Leave>', lambda event: self.unbind_scroll_canv(self.input_names))
 
     def add_return(self):
         self.input_names.insert(END, '')
@@ -103,23 +116,13 @@ class University(Frame):
         canv.bind('<Configure>', self.resize_canvas)
         canv.config(yscrollcommand=sbar.set)
         canv.pack(side=LEFT, expand=YES, fill=BOTH)
-        canv.bind('<Enter>', self.set_infocus_stcanv)
-        canv.bind('<Leave>', self.set_outfocus_stcanv)
+        canv.bind('<Enter>', lambda event: self.bind_scroll_canv(canv))
+        canv.bind('<Leave>', lambda event: self.unbind_scroll_canv(canv))
         sbar.config(command=canv.yview)
         self.sbar = sbar
         self.stcanv = canv
         self.dean.set_canvas(self.stcanv)
         self.paned_win.add(canv_frame)
-
-    def set_infocus_stcanv(self, event):
-        print('stcanv focus True')
-        self.stcanv.bind_all('<4>', lambda event: self.stcanv.yview('scroll', -1, 'units'))
-        self.stcanv.bind_all('<5>', lambda event: self.stcanv.yview('scroll', 1, 'units'))
-
-    def set_outfocus_stcanv(self, event):
-        print('stcanv focus False')
-        self.stcanv.unbind_all('<4>')
-        self.stcanv.unbind_all('<5>')
 
     def resize_canvas(self, event):
         self.stcanv.config(width=event.width, height=event.height)
@@ -137,22 +140,11 @@ class University(Frame):
         ttcanv.config(xscrollcommand=hsbar.set)
         hsbar.pack(side=BOTTOM, fill=X)
         vsbar.pack(side=RIGHT, fill=Y)
-        self.ttcanv_in_focus = False
-        ttcanv.bind('<Enter>', self.set_infocus_ttcanv)
-        ttcanv.bind('<Leave>', self.set_outfocus_ttcanv)
+        ttcanv.bind('<Enter>', lambda event: self.bind_scroll_canv(ttcanv, 'X'))
+        ttcanv.bind('<Leave>', lambda event: self.unbind_scroll_canv(ttcanv))
         self.ttcanv = ttcanv
         self.paned_win.add(self.tt)
         self.ttcanv.pack(side=TOP, expand=YES, fill=BOTH)
-
-    def set_infocus_ttcanv(self, event):
-        print('ttcanv focus True')
-        self.ttcanv.bind_all('<4>', lambda event: self.ttcanv.xview('scroll', -1, 'units'))
-        self.ttcanv.bind_all('<5>', lambda event: self.ttcanv.xview('scroll', 1, 'units'))
-
-    def set_outfocus_ttcanv(self, event):
-        print('ttcanv focus False')
-        self.ttcanv.unbind_all('<4>')
-        self.ttcanv.unbind_all('<5>')
 
     def open_names_from_file(self):
         filename = askopenfilename()
