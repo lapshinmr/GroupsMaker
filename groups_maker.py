@@ -9,12 +9,14 @@ class GroupsMaker:
     """
     Class work with set of names
     """
-    def __init__(self, student_names, lessons_total, size_group=2, unwanted_combs=None):
+    def __init__(self, student_names, lessons_total, size_group=2, whitelist=(), blacklist=()):
         self.student_names = student_names
         self.lessons_total = lessons_total
         self.size_group = size_group
-        self.unwanted_combs = unwanted_combs
+        self.whitelist = whitelist
+        self.blacklist = blacklist
         self.unique_combs = self.make_unique_combs()
+        self.unique_combs = self.subtract_exclist(self.blacklist)
         self.unique_combs_total = len(self.unique_combs)
         self.students_total = len(self.student_names)
 
@@ -28,11 +30,21 @@ class GroupsMaker:
             for name in self.student_names:
                 for comb in combs:
                     if name not in comb:
-                        comb += (name,)
+                        comb += (name, )
                         tmp_combs.append(comb)
             else:
                 combs = tmp_combs[:]
         return list(set([tuple(sorted(comb)) for comb in combs]))
+
+    def subtract_exclist(self, exclist):
+        unique_combs = self.unique_combs[:]
+        try:
+            for comb in exclist:
+                unique_combs.remove(comb)
+        except ValueError:
+            print('blacklist is wrong')
+        finally:
+            return unique_combs
 
     @staticmethod
     def get_combs_with_name(name, combs):
@@ -81,10 +93,10 @@ class GroupsMaker:
                     lesson_combs[idx] += (name,)
         return lesson_combs
 
-    def get_unique_lessons(self, number):
+    def get_unique_lessons(self, number, unique_combs):
         while True:
             try:
-                all_combs = self.unique_combs[:]
+                all_combs = unique_combs[:]
                 calendar = []
                 total_attempts = 0
                 while len(calendar) < number:
@@ -103,36 +115,32 @@ class GroupsMaker:
             except AttemptsExceeded:
                 print('one more time')
 
+    def get_crop_timetable(self):
+        timetable = []
+        if self.whitelist:
+            unique_combs = self.subtract_exclist(self.whitelist)
+            unique_lessons_count = len(unique_combs) // onelesson_combs_count
+            timetable.extend(self.get_unique_lessons(unique_lessons_count, unique_combs))
+
     def get_timetable(self):
         """
         Makes from N students class groups with n students during m lessons/days
         """
-        available_lessons = self.unique_combs_total // (self.students_total // self.size_group)
-        lessons_pack = []
-        for dummy in range(self.lessons_total // available_lessons):
-            lessons_pack.extend(self.get_unique_lessons(available_lessons))
+        timetable = []
+        les_groups_total = self.students_total // self.size_group
+        unique_lessons_count = self.unique_combs_total // les_groups_total
+        whole_lesson_sets = self.lessons_total // unique_lessons_count
+        for dummy in range(whole_lesson_sets - 1):
+            timetable.extend(self.get_unique_lessons(unique_lessons_count, self.unique_combs))
         else:
-            lessons_pack.extend(self.get_unique_lessons(self.lessons_total % available_lessons))
-        return lessons_pack
+            remainder = self.lessons_total % unique_lessons_count
+            timetable.extend(self.get_unique_lessons(remainder, self.unique_combs))
+        return timetable
 
 
 if __name__ == '__main__':
     # students = ['misha', 'kate', 'serega', 'yula', 'dasha', 'sasha', 'dima', 'stas', 'masha', 'kolya']
     # students = [str(item) for item in list(range(10))]
     students = list(range(6))
-    g = GroupsMaker(students, 30, size_group=3)
-    print(g.unique_combs_total)
-    for lesson in g.get_timetable():
-        print(lesson)
-    # print(len(g.unique_combs))
-    # print(g.compare_combs_duration())
-    # count = {}
-    # for day in g.get_lessons():
-    #     for comb in day:
-    #         if comb in count:
-    #             count[comb] += 1
-    #         else:
-    #             count[comb] = 1
-    # for key in count:
-    #     print(key, count[key])
-
+    g = GroupsMaker(students, 5, size_group=2, blacklist=((1, 2), (3, 5), (1, 3)))
+    print(g.unique_combs)
