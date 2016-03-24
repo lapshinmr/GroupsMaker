@@ -403,7 +403,14 @@ class Student:
     def edit_exclist(self):
         editor_win = Toplevel()
         editor_win.title('Lists editor')
-        ListsEditor(editor_win, name=self.name.get(), names=self.dean.get_students_names()).pack()
+        names = self.dean.get_students_names()
+        for name in self.whitelist + self.blacklist:
+            names.remove(name)
+        editor = ListsEditor(editor_win, name=self.name.get(), names=names,
+                             whitelist=self.whitelist, blacklist=self.blacklist)
+        editor.pack()
+        self.whitelist = editor.get_whitelist()
+        self.blacklist = editor.get_blacklist()
 
 
 if __name__ == '__main__':

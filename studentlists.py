@@ -4,11 +4,11 @@ from tkinter import *
 class ListsEditor(Frame):
     def __init__(self, parent=None, name='', names=(), whitelist=(), blacklist=()):
         Frame.__init__(self, parent)
+        self.parent = parent
         self.pack()
         self.name = StringVar()
         self.name.set(name)
         self.names = names
-        print(self.name.get())
         self.whitelist = list(whitelist)
         self.blacklist = list(blacklist)
         self.cur_exclist = BooleanVar()
@@ -74,6 +74,7 @@ class ListsEditor(Frame):
             print('Listbox is empty (%s)' % e.__class__.__name__)
         else:
             self.listbox.delete(select_idx)
+            self.names.remove(select_name)
             if not self.cur_exclist.get():
                 self.whitelist.append(select_name)
                 Label(self.whitelist_fr, text=select_name).pack(side=TOP, fill=X)
@@ -82,8 +83,15 @@ class ListsEditor(Frame):
                 Label(self.blacklist_fr, text=select_name).pack(side=TOP, fill=X)
 
     def add_buttons(self):
-        Button(self, text='Add', command=self.append_exclist).pack(side=LEFT, expand=YES, fill=X)
-        Button(self, text='Accept', command=self.destroy).pack(side=RIGHT, expand=YES, fill=X)
+        Button(self, text='Add', command=self.append_exclist).pack(side=TOP, expand=YES, fill=X)
+        Button(self, text='Accept', command=self.parent.destroy).pack(side=TOP, expand=YES, fill=X)
+
+    def get_whitelist(self):
+        return self.whitelist
+
+    def get_blacklist(self):
+        return self.blacklist
+
 
 if __name__ == '__main__':
     ListsEditor(None, 'misha', ('kate', 'yula', 'dasha'), ('serega',), ('sasha',)).mainloop()
