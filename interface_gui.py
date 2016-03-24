@@ -10,6 +10,7 @@ from PIL import Image, ImageTk
 from widgets import EntryPM, TipButton
 from tkinter import ttk
 from interface_functions import *
+from studentlists import *
 
 
 imgdir = 'pict'
@@ -358,10 +359,6 @@ class Student:
         self.stud_fr = None
         self.cur_coord = None
         self.imghand = ImageHandler('pict')
-        self.exclude_lists = {'White': [],
-                              'Black': []}
-        self.cur_exlist = StringVar()
-        self.cur_exlist.set('White')
 
     def set_idx(self, idx):
         self.idx.set(idx)
@@ -404,57 +401,6 @@ class Student:
             self.cur_coord = new_coord
 
     def edit_exlist(self):
-        exeditor = Toplevel()
-        Label(exeditor, textvariable=self.name, bd=2, relief=RIDGE).pack(side=TOP, fill=X)
-        radio_fr = Frame(exeditor)
-        radio_fr.pack(side=TOP, fill=X)
-        Radiobutton(radio_fr, text='White', variable=self.cur_exlist, value='White').pack(
-            side=LEFT, expand=YES, fill=X)
-        Radiobutton(radio_fr, text='Black', variable=self.cur_exlist, value='Black').pack(
-            side=RIGHT, expand=YES, fill=X)
-        list_fr = Frame(exeditor)
-        list_fr.pack(side=TOP, expand=YES, fill=BOTH)
-        listbox = Listbox(list_fr)
-        sbar = Scrollbar(list_fr)
-        sbar.pack(side=RIGHT, fill=Y)
-        sbar.config(command=listbox.yview)
-        listbox.config(yscrollcommand=sbar.set)
-        listbox.pack(side=LEFT, expand=YES, fill=BOTH)
-        for name in self.dean.get_students_names():
-            if name != self.name.get():
-                listbox.insert(END, name)
-        self.listbox = listbox
-        but_fr = Frame(exeditor)
-        but_fr.pack(side=BOTTOM, fill=X)
-        exlist_fr = Frame(exeditor)
-        exlist_fr.pack(side=TOP, expand=YES, fill=BOTH)
-        self.white_fr = Frame(exlist_fr)
-        self.black_fr = Frame(exlist_fr)
-        self.white_fr.pack(side=LEFT, expand=YES, fill=BOTH)
-        self.black_fr.pack(side=LEFT, expand=YES, fill=BOTH)
-        self.show_exlists()
-        Button(exeditor, text='Add', command=self.append_exlist).pack(side=LEFT, expand=YES, fill=X)
-        Button(exeditor, text='Accept', command=exeditor.destroy).pack(side=RIGHT, expand=YES, fill=X)
-
-    def append_exlist(self):
-        select_idx = self.listbox.curselection()
-        select_name = self.listbox.get(select_idx)
-        cur_exlist = self.cur_exlist.get()
-        self.exclude_lists[self.cur_exlist.get()].append(select_name)
-        if cur_exlist == 'White':
-            self.listbox.delete(select_idx)
-            Label(self.white_fr, text=select_name).pack(side=TOP, fill=X)
-        else:
-            self.listbox.delete(select_idx)
-            Label(self.black_fr, text=select_name).pack(side=TOP, fill=X)
-
-    def show_exlists(self):
-        for exlist_name, exlist in self.exclude_lists.items():
-            for name in exlist:
-                if exlist_name == 'White':
-                    Label(self.white_fr, text=name).pack(side=TOP, fill=X)
-                else:
-                    Label(self.black_fr, text=name).pack(side=TOP, fill=X)
 
 
 if __name__ == '__main__':
