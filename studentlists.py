@@ -2,12 +2,13 @@ from tkinter import *
 
 
 class ListsEditor(Frame):
-    def __init__(self, name='', names=(), whitelist=(), blacklist=(), parent=None):
+    def __init__(self, parent=None, name='', names=(), whitelist=(), blacklist=()):
         Frame.__init__(self, parent)
         self.pack()
         self.name = StringVar()
         self.name.set(name)
         self.names = names
+        print(self.name.get())
         self.whitelist = list(whitelist)
         self.blacklist = list(blacklist)
         self.cur_exclist = BooleanVar()
@@ -82,8 +83,8 @@ class ListsEditor(Frame):
 
     def add_buttons(self):
         Button(self, text='Add', command=self.append_exclist).pack(side=LEFT, expand=YES, fill=X)
-        Button(self, text='Accept', command=self.quit).pack(side=RIGHT, expand=YES, fill=X)
+        Button(self, text='Accept', command=self.destroy).pack(side=RIGHT, expand=YES, fill=X)
 
 if __name__ == '__main__':
-    ListsEditor('misha', ('kate', 'yula', 'dasha'), ('serega',), ('sasha',)).mainloop()
+    ListsEditor(None, 'misha', ('kate', 'yula', 'dasha'), ('serega',), ('sasha',)).mainloop()
 

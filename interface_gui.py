@@ -1,16 +1,15 @@
 import os
-from tkinter import *
+import math
 from groups_maker import GroupsMaker
+from studentlists import *
+from interface_functions import *
+from gm_exceptions import *
+from widgets import EntryPM, TipButton
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 from tkinter.messagebox import *
-from gm_exceptions import *
 from imglib import ImageHandler
-import math
 from PIL import Image, ImageTk
-from widgets import EntryPM, TipButton
 from tkinter import ttk
-from interface_functions import *
-from studentlists import *
 
 
 imgdir = 'pict'
@@ -59,8 +58,7 @@ class University(Frame):
         self.timetable_img = ImageTk.PhotoImage(Image.open(self.imghand.get('tt')))
         self.quit_img = ImageTk.PhotoImage(Image.open(self.imghand.get('quit')))
         self.save_tt = ImageTk.PhotoImage(Image.open(self.imghand.get('save_tt')))
-        add_but = TipButton(but_frame, image=self.add_img, tip='Add student(s)', command=self.add)
-        add_but.pack(side=LEFT)
+        TipButton(but_frame, image=self.add_img, tip='Add student(s)', command=self.add).pack(side=LEFT)
         TipButton(but_frame, image=self.clean_img, tip='Expel student(s)', command=self.dean.expel_all_students).pack(side=LEFT)
         TipButton(but_frame, image=self.timetable_img, tip='Generate timetable', command=self.show_timetable).pack(side=LEFT)
         TipButton(but_frame, image=self.save_tt, tip='Save timetable', command=self.save_calendar_as_plain_text).pack(side=LEFT)
@@ -348,11 +346,13 @@ class Student:
     win_width = 250  # in px
     win_height = 26  # in px
 
-    def __init__(self, name, dean, parent=None):
+    def __init__(self, name, dean, parent=None, whitelist=(), blacklist=()):
         self.dean = dean
         self.name = StringVar()
         self.set_name(name)
         self.name.trace('w', self.check_dups)
+        self.whitelist = whitelist
+        self.blacklist = blacklist
         self.idx = IntVar()
         self.parent = parent
         self.ent = None
@@ -380,7 +380,7 @@ class Student:
         TipButton(stud_fr, image=self.expel_img, tip='delete', command=lambda: self.dean.expel_student(self)).pack(side=RIGHT, anchor=E)
         self.ent = Entry(stud_fr, textvariable=self.name, width=self.ent_width, font=1)
         self.ent.pack(side=LEFT)
-        self.ent.bind('<Button-3>', lambda event: self.edit_exlist())
+        self.ent.bind('<Button-3>', lambda event: self.edit_exclist())
         self.stud_fr_win = self.parent.create_window(
             coord[1] * self.win_width, coord[0] * self.win_height, anchor=NW, window=stud_fr,
             width=self.win_width, height=self.win_height)
@@ -400,7 +400,10 @@ class Student:
             self.parent.move(self.stud_fr_win, diff_x, diff_y)
             self.cur_coord = new_coord
 
-    def edit_exlist(self):
+    def edit_exclist(self):
+        editor_win = Toplevel()
+        editor_win.title('Lists editor')
+        ListsEditor(editor_win, name=self.name.get(), names=self.dean.get_students_names()).pack()
 
 
 if __name__ == '__main__':
