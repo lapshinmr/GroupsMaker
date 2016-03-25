@@ -15,8 +15,8 @@ class GroupsMaker:
         self.st_names = st_names
         self.les_total = les_total
         self.size_group = size_group
-        self.whitelist = whitelist
-        self.blacklist = blacklist
+        self.whitelist = self.sort_exclist(whitelist)
+        self.blacklist = self.sort_exclist(blacklist)
         self.wrong_whitelist = None
         self.wrong_blacklist = None
         self.uniq_combs, self.wrong_blacklist = self.subtract_exclist(self.make_uniq_combs(), self.blacklist)
@@ -26,6 +26,10 @@ class GroupsMaker:
         self.first_ttpart_total = 0
         self.middle_ttpart_total = 0
         self.last_ttpart_total = 0
+
+    @staticmethod
+    def sort_exclist(exclist):
+        return list(set([tuple(sorted(comb)) for comb in exclist]))
 
     def make_uniq_combs(self):
         """
@@ -130,9 +134,13 @@ class GroupsMaker:
 
     def first_ttpart(self):
         uniq_combs, self.wrong_whitelist = self.subtract_exclist(self.uniq_combs, self.whitelist)
-        uniq_les_total = len(uniq_combs) // self.les_groups_total
-        self.first_ttpart_total = uniq_les_total
-        return self.get_unique_lessons(uniq_les_total, uniq_combs)
+        uniq_combs_total = len(uniq_combs)
+        uniq_les_total = uniq_combs_total // self.les_groups_total
+        if self.les_total < uniq_les_total:
+            self.first_ttpart_total = self.les_total
+        else:
+            self.first_ttpart_total = uniq_les_total
+        return self.get_unique_lessons(self.first_ttpart_total, uniq_combs)
 
     def middle_ttpart(self):
         timetable = []
@@ -166,13 +174,14 @@ class GroupsMaker:
 if __name__ == '__main__':
     # students = ['misha', 'kate', 'serega', 'yula', 'dasha', 'sasha', 'dima', 'stas', 'masha', 'kolya']
     # students = [str(item) for item in list(range(10))]
-    students = list(range(4))
-    whitelist = ((0, 1), (1, 0))
-    blacklist = ((2, 3), )
-    g = GroupsMaker(students, 10, size_group=2, blacklist=blacklist, whitelist=whitelist)
-    print(g.uniq_combs_total)
+    students = list(range(12))
+    whitelist = ()
+    blacklist = ()
+    g = GroupsMaker(students, 20, size_group=2, blacklist=blacklist, whitelist=whitelist)
+    timetable = g.get_timetable()
+    print(timetable)
     part_count = 1
-    for part in g.get_timetable():
+    for part in timetable:
         print('Part %s:' % part_count)
         part_count += 1
         for lesson in part:

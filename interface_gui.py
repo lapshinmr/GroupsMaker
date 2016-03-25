@@ -187,27 +187,29 @@ class University(Frame):
         self.gen_timetable()
         self.ttcanv.delete('all')
         les_count = 0
-        for lesson in self.timetable:
-            les_fr = Frame(self.ttcanv, bd=les_fr_border_thikness, relief=RIDGE,
-                           padx=les_fr_margin_x, pady=les_fr_margin_y)
-            les_fr.pack(expand=YES, fill=Y)
-            les_lab = Label(les_fr, text='%s %s' % (les_count + python_offset, 'lesson'))
-            les_lab.pack(side=TOP)
-            sep = ttk.Separator(les_fr, orient=HORIZONTAL)
-            sep.pack(side=TOP, fill=X)
-            les_count += 1
-            for combs in lesson:
-                comb_fr = Frame(les_fr, padx=comb_margin_x, pady=comb_margin_y)
-                comb_fr.pack(side=TOP)
-                for name in combs:
-                    lab = Label(comb_fr, text=name)
-                    lab.pack(side=TOP)
-            les_fr.update_idletasks()
-            self.ttcanv.create_window(nw_x, nw_y, window=les_fr, anchor=NW)
-            nw_x += les_fr.winfo_width() + space_between_les
-            les_height = les_fr.winfo_height()
-            print(nw_x, nw_y, les_height)
-            self.ttcanv.config(scrollregion=(0, 0, nw_x, les_height))
+        for part in self.timetable:
+            for lesson in part:
+                les_fr = Frame(self.ttcanv, bd=les_fr_border_thikness, relief=RIDGE,
+                               padx=les_fr_margin_x, pady=les_fr_margin_y)
+                les_fr.pack(expand=YES, fill=Y)
+                les_lab = Label(les_fr, text='%s %s' % (les_count + python_offset, 'lesson'))
+                les_lab.pack(side=TOP)
+                sep = ttk.Separator(les_fr, orient=HORIZONTAL)
+                sep.pack(side=TOP, fill=X)
+                les_count += 1
+                for combs in lesson:
+                    comb_fr = Frame(les_fr, padx=comb_margin_x, pady=comb_margin_y)
+                    comb_fr.pack(side=TOP)
+                    for name in combs:
+                        lab = Label(comb_fr, text=name)
+                        lab.pack(side=TOP)
+                les_fr.update_idletasks()
+                self.ttcanv.create_window(nw_x, nw_y, window=les_fr, anchor=NW)
+                nw_x += les_fr.winfo_width() + space_between_les
+                les_height = les_fr.winfo_height()
+                self.ttcanv.config(scrollregion=(0, 0, nw_x, les_height))
+            self.ttcanv.create_line(nw_x, 0, nw_x, les_height, fill='red')
+            nw_x += space_between_les
 
     def generate_txt(self):
         text = ''
