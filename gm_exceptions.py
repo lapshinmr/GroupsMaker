@@ -12,5 +12,9 @@ class AttemptsExceeded(GroupsMakerException):
     pass
 
 
+class GenerateTimetableException(GroupsMakerException):
+    pass
+
+
 class NotEnoughCombinations(GroupsMakerException):
     pass

@@ -48,7 +48,7 @@ class GroupsMaker:
             for comb in exclist:
                 unique_combs.remove(comb)
         except ValueError:
-            print('blacklist is wrong')
+            print('exclist is wrong')
         finally:
             return unique_combs
 
@@ -100,26 +100,30 @@ class GroupsMaker:
         return lesson_combs
 
     def get_unique_lessons(self, number, unique_combs):
+        timetable_attempt = 0
         while True:
             try:
                 all_combs = unique_combs[:]
                 calendar = []
-                total_attempts = 0
+                day_attempts = 0
                 while len(calendar) < number:
                     while True:
                         try:
                             groups = self.get_lesson_combs(all_combs)
                             break
                         except IndexError:
-                            total_attempts += 1
-                            if total_attempts > 30:
-                                raise AttemptsExceeded(total_attempts)
+                            day_attempts += 1
+                            if day_attempts > 30:
+                                raise AttemptsExceeded(day_attempts)
                             continue
                     all_combs = list(set(all_combs) - set(groups))
                     calendar.append(groups)
                 return calendar
             except AttemptsExceeded:
-                print('one more time')
+                timetable_attempt += 1
+                if timetable_attempt > 30:
+                    print("Sorry, I can't generate timetable")
+                    raise GenerateTimetableException
 
     def first_ttpart(self):
         uniq_combs = self.subtract_exclist(self.whitelist)
@@ -132,7 +136,7 @@ class GroupsMaker:
         uniq_les_total = self.uniq_combs_total // self.les_groups_total
         whole_les_uniq_sets_total = (self.les_total - self.first_ttpart_total) // uniq_les_total
         for uniq_set in range(whole_les_uniq_sets_total):
-            timetable.extend(self.get_unique_lessons(uniq_les_total, self.uniq_combs))
+            timetable.append(self.get_unique_lessons(uniq_les_total, self.uniq_combs))
         self.middle_ttpart_total = whole_les_uniq_sets_total * uniq_les_total
         return timetable
 
@@ -142,29 +146,25 @@ class GroupsMaker:
 
     def get_timetable(self):
         timetable = []
-        # timetable.extend(self.first_ttpart())
-        print('=' * 20 + 'First part' + '=' * 20)
-        for les in self.first_ttpart():
-            print(les)
+        timetable.append(self.first_ttpart())
         if self.first_ttpart_total < self.les_total:
-            print('=' * 20 + 'Middle part' + '=' * 20)
-            # timetable.extend(self.middle_ttpart())
-            for les in self.middle_ttpart():
-                print(les)
+            timetable.extend(self.middle_ttpart())
         if self.first_ttpart_total + self.middle_ttpart_total < self.les_total:
-            print('=' * 20 + 'Last part' + '=' * 20)
-            # timetable.extend(self.last_ttpart())
-            for les in self.last_ttpart():
-                print(les)
-        #return timetable
+            timetable.append(self.last_ttpart())
+        return timetable
 
 
 if __name__ == '__main__':
     # students = ['misha', 'kate', 'serega', 'yula', 'dasha', 'sasha', 'dima', 'stas', 'masha', 'kolya']
     # students = [str(item) for item in list(range(10))]
     students = list(range(4))
-    whitelist = ()
-    blacklist = ()
-    g = GroupsMaker(students, 7, size_group=2, blacklist=blacklist)
+    whitelist = ((0, 1), )
+    blacklist = ((2, 3), )
+    g = GroupsMaker(students, 10, size_group=2, blacklist=blacklist, whitelist=whitelist)
     print(g.uniq_combs_total)
-    print(g.get_timetable())
+    part_count = 1
+    for part in g.get_timetable():
+        print('Part %s:' % part_count)
+        part_count += 1
+        for lesson in part:
+            print('\t%s' % lesson)
