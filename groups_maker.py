@@ -17,8 +17,9 @@ class GroupsMaker:
         self.size_group = size_group
         self.whitelist = whitelist
         self.blacklist = blacklist
-        self.uniq_combs = self.make_uniq_combs()
-        self.uniq_combs = self.subtract_exclist(self.blacklist)
+        self.wrong_whitelist = None
+        self.wrong_blacklist = None
+        self.uniq_combs, self.wrong_blacklist = self.subtract_exclist(self.make_uniq_combs(), self.blacklist)
         self.uniq_combs_total = len(self.uniq_combs)
         self.st_total = len(self.st_names)
         self.les_groups_total = self.st_total // self.size_group
@@ -42,15 +43,17 @@ class GroupsMaker:
                 combs = tmp_combs[:]
         return list(set([tuple(sorted(comb)) for comb in combs]))
 
-    def subtract_exclist(self, exclist):
-        unique_combs = self.uniq_combs[:]
-        try:
-            for comb in exclist:
-                unique_combs.remove(comb)
-        except ValueError:
-            print('exclist is wrong')
-        finally:
-            return unique_combs
+    @staticmethod
+    def subtract_exclist(uniq_combs, exclist):
+        wrong_exclist = []
+        uniq_combs = uniq_combs[:]
+        for comb in exclist:
+            try:
+                uniq_combs.remove(comb)
+            except ValueError:
+                print('No such comb %s in unique combs' % str(comb))
+                wrong_exclist.append(comb)
+        return uniq_combs, wrong_exclist
 
     @staticmethod
     def get_combs_with_name(name, combs):
@@ -126,7 +129,7 @@ class GroupsMaker:
                     raise GenerateTimetableException
 
     def first_ttpart(self):
-        uniq_combs = self.subtract_exclist(self.whitelist)
+        uniq_combs, self.wrong_whitelist = self.subtract_exclist(self.uniq_combs, self.whitelist)
         uniq_les_total = len(uniq_combs) // self.les_groups_total
         self.first_ttpart_total = uniq_les_total
         return self.get_unique_lessons(uniq_les_total, uniq_combs)
@@ -153,12 +156,18 @@ class GroupsMaker:
             timetable.append(self.last_ttpart())
         return timetable
 
+    def get_wrong_whitelist(self):
+        return self.wrong_whitelist
+
+    def get_wrong_blacklist(self):
+        return self.wrong_blacklist
+
 
 if __name__ == '__main__':
     # students = ['misha', 'kate', 'serega', 'yula', 'dasha', 'sasha', 'dima', 'stas', 'masha', 'kolya']
     # students = [str(item) for item in list(range(10))]
     students = list(range(4))
-    whitelist = ((0, 1), )
+    whitelist = ((0, 1), (1, 0))
     blacklist = ((2, 3), )
     g = GroupsMaker(students, 10, size_group=2, blacklist=blacklist, whitelist=whitelist)
     print(g.uniq_combs_total)
@@ -168,3 +177,6 @@ if __name__ == '__main__':
         part_count += 1
         for lesson in part:
             print('\t%s' % lesson)
+
+    print(g.get_wrong_whitelist())
+    print(g.get_wrong_blacklist())
