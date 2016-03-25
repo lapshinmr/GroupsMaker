@@ -374,6 +374,12 @@ class Student:
     def get_name(self):
         return self.name.get()
 
+    def get_whitelist(self):
+        return self.whitelist
+
+    def get_blacklist(self):
+        return self.blacklist
+
     def place(self, coord):
         stud_fr = Frame(self.parent)
         stud_fr.pack(side=TOP)
