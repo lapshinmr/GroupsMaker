@@ -72,16 +72,11 @@ class GroupsMaker:
     def get_module(self):
         return self.st_total - (self.st_total // self.size_group) * self.size_group
 
-    def lesson_possibility(self):
-        if not self.st_total // self.size_group >= 2:
-            raise NotEnoughCombinations
-
     def get_lesson_combs(self, combs):
         """
         Method choose combs for one lesson/day so combs has no repetitions of names.
         Quantity of names may be add or even.
         """
-        self.lesson_possibility()
         names = self.st_names[:]
         unique_combs = combs[:]
         lesson_combs = []
@@ -128,12 +123,15 @@ class GroupsMaker:
         timetable = []
         parts = []
         timetable.extend(self.get_part_without_whitelist())
+        attempts = 0
         while len(timetable) < self.les_total:
             next_tt_part = self.get_unique_lessons(self.uniq_combs)
-            print(timetable)
             if next_tt_part:
                 parts.append(len(timetable))
                 timetable.extend(next_tt_part)
+            attempts += 1
+            if attempts > 150:
+                break
         else:
             cur_ttlen = len(timetable)
             extra_ttlen = cur_ttlen - self.les_total
@@ -151,14 +149,13 @@ class GroupsMaker:
 if __name__ == '__main__':
     # students = ['misha', 'kate', 'serega', 'yula', 'dasha', 'sasha', 'dima', 'stas', 'masha', 'kolya']
     # students = [str(item) for item in list(range(10))]
-    students = list(range(6))
-    whitelist = ((0, 1), )
-    blacklist = ((3, 4), )
+    students = list(range(4))
+    whitelist = ()
+    blacklist = ((1, 2), (1, 3), (2, 3))
     g = GroupsMaker(students, 10, size_group=2, blacklist=blacklist, whitelist=whitelist)
+    print(g.uniq_combs)
     timetable, parts = g.get_timetable()
     for les in timetable:
         print(les)
     print(parts)
 
-    print(g.get_wrong_whitelist())
-    print(g.get_wrong_blacklist())
