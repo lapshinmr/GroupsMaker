@@ -171,7 +171,9 @@ class University(Frame):
         duration = int(self.duration.get())
         size_group = int(self.size_group.get())
         students_names = self.dean.get_students_names()
-        group = GroupsMaker(students_names, duration, size_group=size_group)
+        group = GroupsMaker(
+            students_names, duration, size_group=size_group, whitelist=self.dean.whitelist, blacklist=self.dean.blacklist
+        )
         try:
             self.timetable = group.get_timetable()
         except NotEnoughCombinations:
