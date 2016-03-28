@@ -417,6 +417,10 @@ class Student:
         editor = ListsEditor(editor_win, name=self.name.get(), names=names,
                              whitelist=self.whitelist, blacklist=self.blacklist)
         editor.pack()
+        editor_win.focus_set()
+        editor_win.wait_visibility()
+        editor_win.grab_set()
+        editor_win.wait_window()
         self.whitelist = editor.get_whitelist()
         self.blacklist = editor.get_blacklist()
 

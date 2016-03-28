@@ -82,9 +82,13 @@ class ListsEditor(Frame):
                 self.blacklist.append(select_name)
                 Label(self.blacklist_fr, text=select_name).pack(side=TOP, fill=X)
 
+    def accept_command(self):
+        self.parent.destroy()
+
     def add_buttons(self):
         Button(self, text='Add', command=self.append_exclist).pack(side=TOP, expand=YES, fill=X)
-        Button(self, text='Accept', command=self.parent.destroy).pack(side=TOP, expand=YES, fill=X)
+        Button(self, text='Accept', command=self.accept_command).pack(side=TOP, expand=YES, fill=X)
+
 
     def get_whitelist(self):
         return self.whitelist
