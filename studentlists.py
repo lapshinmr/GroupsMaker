@@ -89,12 +89,11 @@ class ListsEditor(Frame):
         Button(self, text='Add', command=self.append_exclist).pack(side=TOP, expand=YES, fill=X)
         Button(self, text='Accept', command=self.accept_command).pack(side=TOP, expand=YES, fill=X)
 
+    def get_whitelist_combs(self):
+        return [(self.name.get(), stud) for stud in self.whitelist]
 
-    def get_whitelist(self):
-        return self.whitelist
-
-    def get_blacklist(self):
-        return self.blacklist
+    def get_blacklist_combs(self):
+        return [(self.name.get(), stud) for stud in self.blacklist]
 
 
 if __name__ == '__main__':

@@ -265,6 +265,8 @@ class Dean:
     def __init__(self):
         self.students = []
         self.canvas = None
+        self.whitelist = []
+        self.blacklist = []
 
     def set_canvas(self, canvas):
         self.canvas = canvas
@@ -341,6 +343,38 @@ class Dean:
             else:
                 student.set_font_color('black')
 
+    def push_whitelist(self, name):
+        whitelist = []
+        for comb in self.whitelist:
+            if name in comb:
+                comb = list(comb)
+                comb.remove(name)
+                whitelist.extend(comb)
+        return whitelist
+
+    def push_blacklist(self, name):
+        blacklist = []
+        for comb in self.blacklist:
+            if name in comb:
+                comb = list(comb)
+                comb.remove(name)
+                blacklist.extend(comb)
+        return blacklist
+
+    def pull_whitelist(self, combs):
+        for comb in combs:
+            comb = sorted(comb)
+            if tuple(comb) not in self.whitelist:
+                self.whitelist.extend(combs)
+        print('Whitelist in dean %s' % self.whitelist)
+
+    def pull_blacklist(self, combs):
+        for comb in combs:
+            comb = sorted(comb)
+            if tuple(comb) not in self.blacklist:
+                self.blacklist.extend(combs)
+        print('Blacklist in dean %s' % self.blacklist)
+
 
 class Student:
     lab_width = 3  # in letter
@@ -348,13 +382,11 @@ class Student:
     win_width = 250  # in px
     win_height = 26  # in px
 
-    def __init__(self, name, dean, parent=None, whitelist=(), blacklist=()):
+    def __init__(self, name, dean, parent=None):
         self.dean = dean
         self.name = StringVar()
         self.set_name(name)
         self.name.trace('w', self.check_dups)
-        self.whitelist = whitelist
-        self.blacklist = blacklist
         self.idx = IntVar()
         self.parent = parent
         self.ent = None
@@ -409,20 +441,32 @@ class Student:
             self.cur_coord = new_coord
 
     def edit_exclist(self):
+        class StLists(ListsEditor):
+            def __init__(self, dean, parent=None, name='', names=(), whitelist=(), blacklist=()):
+                ListsEditor.__init__(self, parent, name, names, whitelist, blacklist)
+                self.dean = dean
+
+            def accept_command(self):
+                self.dean.pull_whitelist(self.get_whitelist_combs())
+                self.dean.pull_blacklist(self.get_blacklist_combs())
+                self.parent.destroy()
+
         editor_win = Toplevel()
         editor_win.title('Lists editor')
         names = self.dean.get_students_names()
-        for name in self.whitelist + self.blacklist:
+        whitelist = self.dean.push_whitelist(self.name.get())
+        blacklist = self.dean.push_blacklist(self.name.get())
+        print('white: %s' % whitelist)
+        print('black: %s' % blacklist)
+        print('names: %s' % names)
+        for name in whitelist + blacklist:
             names.remove(name)
-        editor = ListsEditor(editor_win, name=self.name.get(), names=names,
-                             whitelist=self.whitelist, blacklist=self.blacklist)
+        editor = StLists(self.dean, editor_win, name=self.name.get(), names=names, whitelist=whitelist, blacklist=blacklist)
         editor.pack()
         editor_win.focus_set()
-        editor_win.wait_visibility()
+        editor_win.wait_visibility(editor)
         editor_win.grab_set()
         editor_win.wait_window()
-        self.whitelist = editor.get_whitelist()
-        self.blacklist = editor.get_blacklist()
 
 
 if __name__ == '__main__':
