@@ -179,36 +179,35 @@ class University(Frame):
         except NotEnoughStudents:
             showwarning('Warning', warnings['not_enough'])
 
-    def draw_lesson(self, lesson, count, nw_x, nw_y, fr_width, fr_height):
+    def draw_lesson(self, lesson, count):
         comb_margin_x, comb_margin_y = 10, 10
         fr_bd = 2
-        fr = Frame(self.ttcanv, bd=fr_bd, relief=RIDGE, width=fr_width, height=fr_height)
-        fr.propagate(False)
-        fr.pack(expand=YES, fill=Y)
-        les_lab = Label(fr, text='%s %s' % (count + 1, 'lesson'))  # 1 is a python offset
-        les_lab.pack(side=TOP)
-        sep = ttk.Separator(fr, orient=HORIZONTAL)
-        sep.pack(side=TOP, fill=X)
+        fr = Frame(self.ttcanv, bd=fr_bd, relief=RIDGE)
+        fr.pack(side=LEFT)
+        Label(fr, text='%s %s' % (count + 1, 'lesson')).pack(side=TOP)  # 1 is a python offset
+        ttk.Separator(fr, orient=HORIZONTAL).pack(side=TOP, fill=X)
         for combs in lesson:
             comb_fr = Frame(fr, padx=comb_margin_x, pady=comb_margin_y)
-            comb_fr.pack(side=TOP, expand=YES, fill=X)
+            comb_fr.pack(side=TOP)
             for name in combs:
-                Label(comb_fr, text=name).pack(side=TOP, expand=YES, fill=X)
-        self.ttcanv.create_window(nw_x, nw_y, window=fr, anchor=NW)
+                Label(comb_fr, text=name).pack(side=TOP)
+        fr.update()
+        return fr, fr.winfo_width(), fr.winfo_height()
 
     def show_timetable(self):
         space = 5
         nw_x, nw_y = 0, 0
-        fr_width = 100
-        fr_height = 300
         self.gen_timetable()
         self.ttcanv.delete('all')
+        print(self.parts)
         for count, lesson in enumerate(self.timetable):
-            self.draw_lesson(lesson, count, nw_x, nw_y, fr_width, fr_height)
-            nw_x += fr_width + space
-            self.ttcanv.config(scrollregion=(0, 0, nw_x, fr_height))
-            # self.ttcanv.create_line(nw_x, 0, nw_x, fr_height, fill='red')
-            # nw_x += space_between_les
+            fr, les_width, les_height = self.draw_lesson(lesson, count)
+            self.ttcanv.create_window(nw_x, nw_y, window=fr, anchor=NW, width=les_width, height=les_height)
+            nw_x += les_width + space
+            self.ttcanv.config(scrollregion=(0, 0, nw_x, les_height))
+            if count + 1 in self.parts:
+                self.ttcanv.create_oval(nw_x + 1, nw_y + 1, nw_x + 2, nw_y + 2, fill='red')
+                nw_x += space + 2
 
     def generate_txt(self):
         text = ''
