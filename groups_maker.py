@@ -11,7 +11,7 @@ class GroupsMaker:
     st - student;
     exclist - exclude list
     """
-    def __init__(self, st_names, les_total, size_group=2, whitelist=(), blacklist=()):
+    def __init__(self, st_names, les_total, size_group=2, attempts_factor=10, whitelist=(), blacklist=()):
         self.st_names = st_names
         self.les_total = les_total
         self.size_group = size_group
@@ -26,6 +26,8 @@ class GroupsMaker:
         self.first_ttpart_total = 0
         self.middle_ttpart_total = 0
         self.last_ttpart_total = 0
+        self.attempts = 0
+        self.limit_attempts = self.les_total * attempts_factor
 
     @staticmethod
     def sort_exclist(exclist):
@@ -72,7 +74,7 @@ class GroupsMaker:
     def get_module(self):
         return self.st_total - (self.st_total // self.size_group) * self.size_group
 
-    def get_lesson_combs(self, combs):
+    def get_lesson(self, combs):
         """
         Method choose combs for one lesson/day so combs has no repetitions of names.
         Quantity of names may be add or even.
@@ -101,14 +103,13 @@ class GroupsMaker:
                     lesson_combs[idx] += (name,)
         return lesson_combs
 
-    def get_unique_lessons(self, unique_combs):
+    def get_lessons(self, unique_combs):
         all_combs = unique_combs[:]
         calendar = []
         while True:
             try:
-                lesson = self.get_lesson_combs(all_combs)
+                lesson = self.get_lesson(all_combs)
             except IndexError:
-                print("Combinations for counstruct groups is enough")
                 break
             else:
                 all_combs = list(set(all_combs) - set(lesson))
@@ -117,21 +118,20 @@ class GroupsMaker:
 
     def get_part_without_whitelist(self):
         uniq_combs, self.wrong_whitelist = self.subtract_exclist(self.uniq_combs, self.whitelist)
-        return self.get_unique_lessons(uniq_combs)
+        return self.get_lessons(uniq_combs)
 
     def get_timetable(self):
         timetable = []
         parts = []
         timetable.extend(self.get_part_without_whitelist())
-        attempts = 0
         while len(timetable) < self.les_total:
-            next_tt_part = self.get_unique_lessons(self.uniq_combs)
+            next_tt_part = self.get_lessons(self.uniq_combs)
             if next_tt_part:
                 parts.append(len(timetable))
                 timetable.extend(next_tt_part)
-            attempts += 1
-            if attempts > 150:
-                break
+            self.attempts += 1
+            if self.attempts > self.limit_attempts:
+                raise NotEnoughStudents
         else:
             cur_ttlen = len(timetable)
             extra_ttlen = cur_ttlen - self.les_total
@@ -145,17 +145,38 @@ class GroupsMaker:
     def get_wrong_blacklist(self):
         return self.wrong_blacklist
 
+    def get_attempts(self):
+        return self.attempts
+
 
 if __name__ == '__main__':
     # students = ['misha', 'kate', 'serega', 'yula', 'dasha', 'sasha', 'dima', 'stas', 'masha', 'kolya']
     # students = [str(item) for item in list(range(10))]
+
+    """
+    # Montecarlo test
     students = list(range(4))
     whitelist = ()
-    blacklist = ((1, 2), (1, 3), (2, 3))
-    g = GroupsMaker(students, 10, size_group=2, blacklist=blacklist, whitelist=whitelist)
-    print(g.uniq_combs)
-    timetable, parts = g.get_timetable()
-    for les in timetable:
-        print(les)
-    print(parts)
+    blacklist = ((1, 2), (1, 3))
+
+    les_total = 10
+    attempt_factors = []
+    loops_total = 10000
+    limit = 10
+    fails = 0
+    for dummy in range(loops_total):
+        g = GroupsMaker(students, les_total=les_total, size_group=2, blacklist=blacklist, whitelist=whitelist,
+                        attempts_factor=limit)
+        try:
+            timetable, parts = g.get_timetable()
+        except NotEnoughStudents:
+            fails += 1
+        else:
+            attempt_factors.append(g.get_attempts() / les_total)
+    print('Avarage: %s' % (sum(attempt_factors) / loops_total))
+    print('Max: %s' % max(attempt_factors))
+    print('Min: %s' % min(attempt_factors))
+    print('Factors > %s: %s' % (limit, round(fails / loops_total * 100, 2)) + r'%')
+    """
+
 

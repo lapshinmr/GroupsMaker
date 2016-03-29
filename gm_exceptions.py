@@ -8,13 +8,6 @@ class GroupsMakerException(Exception):
     pass
 
 
-class AttemptsExceeded(GroupsMakerException):
+class NotEnoughStudents(GroupsMakerException):
     pass
 
-
-class GenerateTimetableException(GroupsMakerException):
-    pass
-
-
-class NotEnoughCombinations(GroupsMakerException):
-    pass

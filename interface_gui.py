@@ -175,43 +175,40 @@ class University(Frame):
             students_names, duration, size_group=size_group, whitelist=self.dean.whitelist, blacklist=self.dean.blacklist
         )
         try:
-            self.timetable = group.get_timetable()
-        except NotEnoughCombinations:
+            self.timetable, self.parts = group.get_timetable()
+        except NotEnoughStudents:
             showwarning('Warning', warnings['not_enough'])
 
-    def show_timetable(self):
-        les_fr_margin_x, les_fr_margin_y = 5, 5
+    def draw_lesson(self, lesson, count, nw_x, nw_y, fr_width, fr_height):
         comb_margin_x, comb_margin_y = 10, 10
-        les_fr_border_thikness = 2
-        space_between_les = 5
-        python_offset = 1
+        fr_bd = 2
+        fr = Frame(self.ttcanv, bd=fr_bd, relief=RIDGE, width=fr_width, height=fr_height)
+        fr.propagate(False)
+        fr.pack(expand=YES, fill=Y)
+        les_lab = Label(fr, text='%s %s' % (count + 1, 'lesson'))  # 1 is a python offset
+        les_lab.pack(side=TOP)
+        sep = ttk.Separator(fr, orient=HORIZONTAL)
+        sep.pack(side=TOP, fill=X)
+        for combs in lesson:
+            comb_fr = Frame(fr, padx=comb_margin_x, pady=comb_margin_y)
+            comb_fr.pack(side=TOP, expand=YES, fill=X)
+            for name in combs:
+                Label(comb_fr, text=name).pack(side=TOP, expand=YES, fill=X)
+        self.ttcanv.create_window(nw_x, nw_y, window=fr, anchor=NW)
+
+    def show_timetable(self):
+        space = 5
         nw_x, nw_y = 0, 0
+        fr_width = 100
+        fr_height = 300
         self.gen_timetable()
         self.ttcanv.delete('all')
-        les_count = 0
-        for part in self.timetable:
-            for lesson in part:
-                les_fr = Frame(self.ttcanv, bd=les_fr_border_thikness, relief=RIDGE,
-                               padx=les_fr_margin_x, pady=les_fr_margin_y)
-                les_fr.pack(expand=YES, fill=Y)
-                les_lab = Label(les_fr, text='%s %s' % (les_count + python_offset, 'lesson'))
-                les_lab.pack(side=TOP)
-                sep = ttk.Separator(les_fr, orient=HORIZONTAL)
-                sep.pack(side=TOP, fill=X)
-                les_count += 1
-                for combs in lesson:
-                    comb_fr = Frame(les_fr, padx=comb_margin_x, pady=comb_margin_y)
-                    comb_fr.pack(side=TOP)
-                    for name in combs:
-                        lab = Label(comb_fr, text=name)
-                        lab.pack(side=TOP)
-                les_fr.update_idletasks()
-                self.ttcanv.create_window(nw_x, nw_y, window=les_fr, anchor=NW)
-                nw_x += les_fr.winfo_width() + space_between_les
-                les_height = les_fr.winfo_height()
-                self.ttcanv.config(scrollregion=(0, 0, nw_x, les_height))
-            self.ttcanv.create_line(nw_x, 0, nw_x, les_height, fill='red')
-            nw_x += space_between_les
+        for count, lesson in enumerate(self.timetable):
+            self.draw_lesson(lesson, count, nw_x, nw_y, fr_width, fr_height)
+            nw_x += fr_width + space
+            self.ttcanv.config(scrollregion=(0, 0, nw_x, fr_height))
+            # self.ttcanv.create_line(nw_x, 0, nw_x, fr_height, fill='red')
+            # nw_x += space_between_les
 
     def generate_txt(self):
         text = ''
