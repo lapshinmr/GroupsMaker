@@ -29,7 +29,7 @@ class University(Frame):
         self.dean = Dean()
         self.imghand = ImageHandler('pict')
         self.repeat = BooleanVar()
-        self.repeat_show = BooleanVar()
+        self.repeat_show_sep = BooleanVar()
         self.add_widgets()
         self.timetable = []
 
@@ -66,13 +66,22 @@ class University(Frame):
         TipButton(but_frame, image=self.save_tt, tip='Save timetable', command=self.save_calendar_as_plain_text).pack(side=LEFT)
         TipButton(but_frame, image=self.quit_img, tip='Quit', command=self.quit).pack(side=RIGHT)
         self.repeat.set(False)
-        Checkbutton(but_frame, text='Repetitions', variable=self.repeat).pack(side=RIGHT)
+        Checkbutton(but_frame, text='Repeats', variable=self.repeat, command=self.show_seps).pack(side=LEFT)
         self.size_group = EntryPM(
             but_frame, 'size', self.imghand.get('minus', img_size=24), self.imghand.get('plus', img_size=24))
         self.size_group.pack(side=RIGHT)
         self.duration = EntryPM(
             but_frame, 'lessons', self.imghand.get('minus', img_size=24), self.imghand.get('plus', img_size=24))
         self.duration.pack(side=RIGHT)
+        self.but_frame = but_frame
+
+    def show_seps(self):
+        if self.repeat.get():
+            self.repeat_sep_ch = Checkbutton(self.but_frame, text='Show Repeats separator', variable=self.repeat_show_sep,
+                                             command=lambda: self.show_timetable(gen_timetable=False))
+            self.repeat_sep_ch.pack(side=LEFT)
+        else:
+            self.repeat_sep_ch.destroy()
 
     def add_input_field(self):
         ent_frame = LabelFrame(self.paned_win, text='input names here', padx=5, pady=0)
@@ -182,31 +191,32 @@ class University(Frame):
         except NotEnoughStudents:
             showwarning('Warning', warnings['not_enough'])
 
-    def show_timetable(self):
-        def draw_lesson(les_groups, les_count):
-            comb_margin_x, comb_margin_y = 10, 10
-            les_fr = Frame(self.ttcanv, bd=2, relief=RIDGE)
-            les_fr.pack(side=LEFT)
-            Label(les_fr, text='%s %s' % (les_count + 1, 'lesson')).pack(side=TOP)  # 1 is a python offset
-            ttk.Separator(les_fr, orient=HORIZONTAL).pack(side=TOP, fill=X)
-            for combs in les_groups:
-                comb_fr = Frame(les_fr, padx=comb_margin_x, pady=comb_margin_y)
-                comb_fr.pack(side=TOP)
-                for name in combs:
-                    Label(comb_fr, text=name).pack(side=TOP)
-            les_fr.update()
-            return les_fr, les_fr.winfo_width(), les_fr.winfo_height()
+    def draw_lesson(self, les_groups, les_count):
+        comb_margin_x, comb_margin_y = 10, 10
+        les_fr = Frame(self.ttcanv, bd=2, relief=RIDGE)
+        les_fr.pack(side=TOP)
+        Label(les_fr, text='%s %s' % (les_count + 1, 'lesson')).pack(side=TOP)  # 1 is a python offset
+        ttk.Separator(les_fr, orient=HORIZONTAL).pack(side=TOP, fill=X)
+        for combs in les_groups:
+            comb_fr = Frame(les_fr, padx=comb_margin_x, pady=comb_margin_y)
+            comb_fr.pack(side=TOP)
+            for name in combs:
+                Label(comb_fr, text=name).pack(side=TOP)
+        les_fr.update()
+        return les_fr, les_fr.winfo_width(), les_fr.winfo_height()
 
+    def show_timetable(self, gen_timetable=True):
         space = 5
         nw_x, nw_y = 0, 0
-        self.gen_timetable()
+        if gen_timetable:
+            self.gen_timetable()
         self.ttcanv.delete('all')
         for count, lesson in enumerate(self.timetable):
-            fr, les_width, les_height = draw_lesson(lesson, count)
+            fr, les_width, les_height = self.draw_lesson(lesson, count)
             self.ttcanv.create_window(nw_x, nw_y, window=fr, anchor=NW, width=les_width, height=les_height)
             nw_x += les_width + space
             self.ttcanv.config(scrollregion=(0, 0, nw_x, les_height))
-            if self.repeat.get():
+            if self.repeat.get() and self.repeat_show_sep.get():
                 if count + 1 in self.parts:
                     self.ttcanv.create_oval(nw_x + 1, nw_y + 1, nw_x + 2, nw_y + 2, fill='red')
                     nw_x += space + 2
