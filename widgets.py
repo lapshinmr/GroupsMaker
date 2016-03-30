@@ -118,6 +118,7 @@ class TipCheckbutton(Checkbutton, Tip):
         Checkbutton.__init__(self, parent, **kwargs)
         Tip.__init__(self, parent, tip)
 
+
 if __name__ == '__main__':
     root = Tk()
     tt = TipButton(root, tip='tip', text='push me', command=root.quit)

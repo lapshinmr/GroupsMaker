@@ -66,7 +66,7 @@ class University(Frame):
         TipButton(but_frame, image=self.save_tt, tip='Save timetable', command=self.save_calendar_as_plain_text).pack(side=LEFT)
         TipButton(but_frame, image=self.quit_img, tip='Quit', command=self.quit).pack(side=RIGHT)
         self.repeat.set(False)
-        TipCheckbutton(but_frame, image=self.add_img, tip='Repeat combs', variable=self.repeat, command=self.show_seps).pack(side=LEFT)
+        TipCheckbutton(but_frame, text='R', tip='Repeat combs', variable=self.repeat, command=self.show_seps).pack(side=LEFT)
         self.size_group = EntryPM(
             but_frame, 'size', self.imghand.get('minus', img_size=24), self.imghand.get('plus', img_size=24))
         self.size_group.pack(side=RIGHT)
@@ -77,8 +77,10 @@ class University(Frame):
 
     def show_seps(self):
         if self.repeat.get():
-            self.repeat_sep_ch = Checkbutton(self.but_frame, text='Show Repeats separator', variable=self.repeat_show_sep,
-                                             command=lambda: self.show_timetable(gen_timetable=False))
+            self.repeat_sep_ch = TipCheckbutton(
+                self.but_frame, text='S', tip='Show separator', variable=self.repeat_show_sep,
+                command=lambda: self.show_timetable(gen_timetable=False)
+            )
             self.repeat_sep_ch.pack(side=LEFT)
         else:
             self.repeat_sep_ch.destroy()
@@ -476,9 +478,6 @@ class Student:
         names = self.dean.get_students_names()
         whitelist = self.dean.push_whitelist(self.name.get())
         blacklist = self.dean.push_blacklist(self.name.get())
-        print('white: %s' % whitelist)
-        print('black: %s' % blacklist)
-        print('names: %s' % names)
         for name in whitelist + blacklist:
             names.remove(name)
         editor = StLists(self.dean, editor_win, name=self.name.get(), names=names, whitelist=whitelist, blacklist=blacklist)
