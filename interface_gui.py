@@ -205,6 +205,15 @@ class University(Frame):
         les_fr.update()
         return les_fr, les_fr.winfo_width(), les_fr.winfo_height()
 
+    def draw_separator(self, oval_size, oval_total, coord, avail_height):
+        step = avail_height // (oval_total - 1)
+        for oval_idx in range(1, oval_total - 1):
+            p1x = coord[0]
+            p1y = coord[1] + step * oval_idx
+            p2x = coord[0] + oval_size
+            p2y = coord[1] + oval_size + step * oval_idx
+            self.ttcanv.create_oval(p1x, p1y, p2x, p2y, fill='blue', outline='blue')
+
     def show_timetable(self, gen_timetable=True):
         space = 5
         nw_x, nw_y = 0, 0
@@ -218,8 +227,9 @@ class University(Frame):
             self.ttcanv.config(scrollregion=(0, 0, nw_x, les_height))
             if self.repeat.get() and self.repeat_show_sep.get():
                 if count + 1 in self.parts:
-                    self.ttcanv.create_oval(nw_x + 1, nw_y + 1, nw_x + 2, nw_y + 2, fill='red')
-                    nw_x += space + 2
+                    sep_width = 4
+                    self.draw_separator(oval_size=sep_width, oval_total=8, coord=(nw_x, nw_y), avail_height=les_height)
+                    nw_x += space + sep_width
 
     def generate_txt(self):
         text = ''
