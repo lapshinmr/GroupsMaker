@@ -28,6 +28,8 @@ class University(Frame):
         self.paned_win = None
         self.dean = Dean()
         self.imghand = ImageHandler('pict')
+        self.repeat = BooleanVar()
+        self.repeat_show = BooleanVar()
         self.add_widgets()
         self.timetable = []
 
@@ -63,6 +65,8 @@ class University(Frame):
         TipButton(but_frame, image=self.timetable_img, tip='Generate timetable', command=self.show_timetable).pack(side=LEFT)
         TipButton(but_frame, image=self.save_tt, tip='Save timetable', command=self.save_calendar_as_plain_text).pack(side=LEFT)
         TipButton(but_frame, image=self.quit_img, tip='Quit', command=self.quit).pack(side=RIGHT)
+        self.repeat.set(False)
+        Checkbutton(but_frame, text='Repetitions', variable=self.repeat).pack(side=RIGHT)
         self.size_group = EntryPM(
             but_frame, 'size', self.imghand.get('minus', img_size=24), self.imghand.get('plus', img_size=24))
         self.size_group.pack(side=RIGHT)
@@ -171,43 +175,41 @@ class University(Frame):
         duration = int(self.duration.get())
         size_group = int(self.size_group.get())
         students_names = self.dean.get_students_names()
-        group = GroupsMaker(
-            students_names, duration, size_group=size_group, whitelist=self.dean.whitelist, blacklist=self.dean.blacklist
-        )
+        group = GroupsMaker(students_names, duration, size_group=size_group, whitelist=self.dean.whitelist,
+                            blacklist=self.dean.blacklist, repetitions=self.repeat.get())
         try:
             self.timetable, self.parts = group.get_timetable()
         except NotEnoughStudents:
             showwarning('Warning', warnings['not_enough'])
 
-    def draw_lesson(self, lesson, count):
-        comb_margin_x, comb_margin_y = 10, 10
-        fr_bd = 2
-        fr = Frame(self.ttcanv, bd=fr_bd, relief=RIDGE)
-        fr.pack(side=LEFT)
-        Label(fr, text='%s %s' % (count + 1, 'lesson')).pack(side=TOP)  # 1 is a python offset
-        ttk.Separator(fr, orient=HORIZONTAL).pack(side=TOP, fill=X)
-        for combs in lesson:
-            comb_fr = Frame(fr, padx=comb_margin_x, pady=comb_margin_y)
-            comb_fr.pack(side=TOP)
-            for name in combs:
-                Label(comb_fr, text=name).pack(side=TOP)
-        fr.update()
-        return fr, fr.winfo_width(), fr.winfo_height()
-
     def show_timetable(self):
+        def draw_lesson(les_groups, les_count):
+            comb_margin_x, comb_margin_y = 10, 10
+            les_fr = Frame(self.ttcanv, bd=2, relief=RIDGE)
+            les_fr.pack(side=LEFT)
+            Label(les_fr, text='%s %s' % (les_count + 1, 'lesson')).pack(side=TOP)  # 1 is a python offset
+            ttk.Separator(les_fr, orient=HORIZONTAL).pack(side=TOP, fill=X)
+            for combs in les_groups:
+                comb_fr = Frame(les_fr, padx=comb_margin_x, pady=comb_margin_y)
+                comb_fr.pack(side=TOP)
+                for name in combs:
+                    Label(comb_fr, text=name).pack(side=TOP)
+            les_fr.update()
+            return les_fr, les_fr.winfo_width(), les_fr.winfo_height()
+
         space = 5
         nw_x, nw_y = 0, 0
         self.gen_timetable()
         self.ttcanv.delete('all')
-        print(self.parts)
         for count, lesson in enumerate(self.timetable):
-            fr, les_width, les_height = self.draw_lesson(lesson, count)
+            fr, les_width, les_height = draw_lesson(lesson, count)
             self.ttcanv.create_window(nw_x, nw_y, window=fr, anchor=NW, width=les_width, height=les_height)
             nw_x += les_width + space
             self.ttcanv.config(scrollregion=(0, 0, nw_x, les_height))
-            if count + 1 in self.parts:
-                self.ttcanv.create_oval(nw_x + 1, nw_y + 1, nw_x + 2, nw_y + 2, fill='red')
-                nw_x += space + 2
+            if self.repeat.get():
+                if count + 1 in self.parts:
+                    self.ttcanv.create_oval(nw_x + 1, nw_y + 1, nw_x + 2, nw_y + 2, fill='red')
+                    nw_x += space + 2
 
     def generate_txt(self):
         text = ''

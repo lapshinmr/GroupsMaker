@@ -11,12 +11,14 @@ class GroupsMaker:
     st - student;
     exclist - exclude list
     """
-    def __init__(self, st_names, les_total, size_group=2, attempts_factor=10, whitelist=(), blacklist=()):
+    def __init__(self, st_names, les_total, size_group=2, attempts_factor=10,
+                 whitelist=(), blacklist=(), repetitions=False):
         self.st_names = st_names
         self.les_total = les_total
         self.size_group = size_group
         self.whitelist = self.sort_exclist(whitelist)
         self.blacklist = self.sort_exclist(blacklist)
+        self.repetitions = repetitions
         self.wrong_whitelist = None
         self.wrong_blacklist = None
         self.uniq_combs, self.wrong_blacklist = self.subtract_exclist(self.make_uniq_combs(), self.blacklist)
@@ -124,6 +126,8 @@ class GroupsMaker:
         timetable = []
         parts = []
         timetable.extend(self.get_part_without_whitelist())
+        if not self.repetitions:
+            return timetable, parts
         while len(timetable) < self.les_total:
             next_tt_part = self.get_lessons(self.uniq_combs)
             if next_tt_part:
