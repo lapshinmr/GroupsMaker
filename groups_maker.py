@@ -157,6 +157,13 @@ if __name__ == '__main__':
     # students = ['misha', 'kate', 'serega', 'yula', 'dasha', 'sasha', 'dima', 'stas', 'masha', 'kolya']
     # students = [str(item) for item in list(range(10))]
 
+    students = list(range(24))
+    g = GroupsMaker(students, les_total=10, size_group=2)
+    tt, parts = g.get_timetable()
+    print(len(g.uniq_combs))
+    for les in tt:
+        print(les)
+
     """
     # Montecarlo test
     students = list(range(4))

@@ -4,7 +4,7 @@ from groups_maker import GroupsMaker
 from studentlists import *
 from interface_functions import *
 from gm_exceptions import *
-from widgets import EntryPM, TipButton
+from widgets import EntryPM, TipButton, TipCheckbutton
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 from tkinter.messagebox import *
 from imglib import ImageHandler
@@ -66,7 +66,7 @@ class University(Frame):
         TipButton(but_frame, image=self.save_tt, tip='Save timetable', command=self.save_calendar_as_plain_text).pack(side=LEFT)
         TipButton(but_frame, image=self.quit_img, tip='Quit', command=self.quit).pack(side=RIGHT)
         self.repeat.set(False)
-        Checkbutton(but_frame, text='Repeats', variable=self.repeat, command=self.show_seps).pack(side=LEFT)
+        TipCheckbutton(but_frame, image=self.add_img, tip='Repeat combs', variable=self.repeat, command=self.show_seps).pack(side=LEFT)
         self.size_group = EntryPM(
             but_frame, 'size', self.imghand.get('minus', img_size=24), self.imghand.get('plus', img_size=24))
         self.size_group.pack(side=RIGHT)
