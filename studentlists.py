@@ -45,6 +45,8 @@ class ListsEditor(Frame):
             if name != self.name.get():
                 listbox.insert(END, name)
         self.listbox = listbox
+        self.listbox.bind('<Double-1>', lambda event: self.append_exclist(self.whitelist, 0))
+        self.listbox.bind('<Double-3>', lambda event: self.append_exclist(self.blacklist, 1))
 
     def add_exclists(self):
         but_fr = Frame(self)
