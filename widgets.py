@@ -96,7 +96,7 @@ class Tip:
         if not self.tip_win and self.tip_text:
             self.tip_win = Toplevel(self)
             self.tip_win.wm_overrideredirect(True)
-            label = Label(self.tip_win, text=self.tip_text, justify=LEFT, background="#ffffe0", relief=SOLID,
+            label = Message(self.tip_win, text=self.tip_text, justify=LEFT, background="#ffffe0", relief=SOLID,
                           borderwidth=1, font=("tahoma", "8", "normal"))
             label.pack(ipadx=1)
         self.tip_win.wm_geometry("+%d+%d" % (self.x, self.y))
@@ -116,6 +116,12 @@ class TipButton(Button, Tip):
 class TipCheckbutton(Checkbutton, Tip):
     def __init__(self, parent, tip=None, **kwargs):
         Checkbutton.__init__(self, parent, **kwargs)
+        Tip.__init__(self, parent, tip)
+
+
+class TipLabel(Label, Tip):
+    def __init__(self, parent, tip=None, **kwargs):
+        Label.__init__(self, parent, **kwargs)
         Tip.__init__(self, parent, tip)
 
 
