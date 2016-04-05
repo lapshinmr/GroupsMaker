@@ -468,7 +468,7 @@ class Student:
                 ListsEditor.__init__(self, parent, name, names, whitelist, blacklist)
                 self.dean = dean
 
-            def accept_command(self):
+            def accept(self):
                 self.dean.pull_whitelist(self.get_whitelist_combs())
                 self.dean.pull_blacklist(self.get_blacklist_combs())
                 self.parent.destroy()
