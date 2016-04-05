@@ -23,9 +23,10 @@ class NamesBox(Frame):
         self.listbox.pack(side=LEFT, expand=YES, fill=BOTH)
         but_frame = Frame(self)
         but_frame.pack(side=TOP, expand=YES, fill=X)
-        #tip = 'Add selected name to the %s. Or left double click on the selected name.' % self.exclist_name
-        TipButton(but_frame, text='white', command=lambda: self.pop(0)).pack(side=LEFT, expand=YES, fill=X)
-        TipButton(but_frame, text='black', command=lambda: self.pop(1)).pack(side=RIGHT, expand=YES, fill=X)
+        tip_white = 'Add selected name to the %s. Or left double click on the selected name.' % 'white'
+        tip_black = 'Add selected name to the %s. Or left double click on the selected name.' % 'black'
+        TipButton(but_frame, text='white', command=lambda: self.pop(0), tip=tip_white).pack(side=LEFT, expand=YES, fill=X)
+        TipButton(but_frame, text='black', command=lambda: self.pop(1), tip=tip_black).pack(side=RIGHT, expand=YES, fill=X)
         self.listbox.bind('<Double-1>', lambda event: self.pop(0))
         self.listbox.bind('<Double-3>', lambda event: self.pop(1))
         self.fill()
@@ -124,5 +125,6 @@ class ListsEditor(Frame):
 
 
 if __name__ == '__main__':
-    ListsEditor(None, 'misha',('kate', 'yula', 'dasha'), ('serega',), ('sasha',)).mainloop()
+    # ListsEditor(None, 'misha', ('kate', 'yula', 'dasha'), ('serega',), ('sasha',)).mainloop()
+    ListsEditor(None, 'misha', ('kate', 'yula', 'dasha')).mainloop()
 
