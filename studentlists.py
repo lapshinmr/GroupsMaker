@@ -1,13 +1,12 @@
 from tkinter import *
-from widgets import TipButton
 
 
 class NamesBox(Frame):
     def __init__(self, parent, names, consumer=None):
         Frame.__init__(self, parent)
         self.names = list(names)
-        self.listbox = None
         self.consumer = consumer
+        self.listbox = None
         self.show()
 
     def connect(self, consumer):
@@ -37,28 +36,25 @@ class NamesBox(Frame):
         except TclError as e:
             print('Listbox is empty (%s)' % e.__class__.__name__)
         else:
-            self.consumer.names.append(name)
-            self.consumer.fill()
+            if self.consumer:
+                self.consumer.names.append(name)
+                self.consumer.fill()
 
 
 class ListsEditor(Frame):
     def __init__(self, parent=None, name='', names=(), whitelist=(), blacklist=()):
         Frame.__init__(self, parent)
-        self.pack()
         self.parent = parent
+        self.pack(side=TOP, expand=YES, fill=BOTH)
         self.name = name
         self.names = names.remove(name) if name in names else names
         self.whitelist = whitelist
         self.blacklist = blacklist
-        self.exclist_selector = BooleanVar()
-        self.exclist_selector.set(0)
+        self.selector = BooleanVar()
         self.main_listbox = None
         self.white_listbox = None
         self.black_listbox = None
         self.listbox = None
-        self.name_fr = None
-        self.names_fr = None
-        self.exclists_fr = None
         self.make_widgets()
 
     def make_widgets(self):
@@ -69,51 +65,41 @@ class ListsEditor(Frame):
         self.show_accept()
 
     def show_name(self):
-        name_fr = Frame(self)
-        name_fr.pack(side=TOP, expand=YES, fill=X)
-        Label(name_fr, text=self.name).pack(side=TOP, expand=YES, fill=X)
+        Label(self, text=self.name).pack(side=TOP, fill=X)
 
     def show_names(self):
-        names_fr = Frame(self)
-        names_fr.pack(side=TOP, expand=YES, fill=BOTH)
-        self.main_listbox = NamesBox(names_fr, self.names)
+        self.main_listbox = NamesBox(self, self.names)
         self.main_listbox.pack(side=TOP, expand=YES, fill=BOTH)
 
     def show_lists_buttons(self):
         lists_buttons_fr = Frame(self)
-        lists_buttons_fr.pack(side=TOP, expand=YES, fill=X)
-        Radiobutton(
-            lists_buttons_fr, text='white', command=self.connect_to_exclist, variable=self.exclist_selector, value=0
-        ).pack(side=LEFT, expand=YES, fill=X)
-        Radiobutton(
-            lists_buttons_fr, text='black', command=self.connect_to_exclist, variable=self.exclist_selector, value=1
-        ).pack(side=RIGHT, expand=YES, fill=X)
+        lists_buttons_fr.pack(side=TOP, fill=X)
+        Radiobutton(lists_buttons_fr, text='white', command=self.connect_to_exclist, variable=self.selector, value=0
+                    ).pack(side=LEFT, expand=YES, fill=X)
+        Radiobutton(lists_buttons_fr, text='black', command=self.connect_to_exclist, variable=self.selector, value=1
+                    ).pack(side=RIGHT, expand=YES, fill=X)
 
     def show_exclists(self):
         exclists_fr = Frame(self)
         exclists_fr.pack(side=TOP, expand=YES, fill=BOTH)
         self.white_listbox = NamesBox(exclists_fr, self.whitelist, self.main_listbox)
         self.white_listbox.pack(side=LEFT, expand=YES, fill=BOTH)
-        self.main_listbox.connect(self.white_listbox)
         self.black_listbox = NamesBox(exclists_fr, self.blacklist, self.main_listbox)
         self.black_listbox.pack(side=LEFT, expand=YES, fill=BOTH)
+        self.selector.set(0)
+        self.main_listbox.connect(self.white_listbox)
 
     def show_accept(self):
-        accept_fr = Frame(self)
-        accept_fr.pack(side=BOTTOM, expand=YES, fill=X)
-        Button(accept_fr, text='Accept', command=self.accept).pack(side=BOTTOM, expand=YES, fill=X)
+        Button(self, text='Accept', command=self.accept).pack(side=BOTTOM, fill=X)
 
     def connect_to_exclist(self):
-        if self.exclist_selector.get():
+        if self.selector.get() == 1:
             self.main_listbox.connect(self.black_listbox)
         else:
             self.main_listbox.connect(self.white_listbox)
 
     def accept(self):
-        if self.parent is None:
-            self.quit()
-        else:
-            self.parent.destroy()
+        self.parent.destroy() if self.parent else self.quit()
 
 
 if __name__ == '__main__':
