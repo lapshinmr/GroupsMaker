@@ -469,8 +469,8 @@ class Student:
                 self.dean = dean
 
             def accept(self):
-                self.dean.pull_whitelist(self.get_whitelist_combs())
-                self.dean.pull_blacklist(self.get_blacklist_combs())
+                self.dean.pull_whitelist([(self.name, stud) for stud in self.get_whitelist()])
+                self.dean.pull_blacklist([(self.name, stud) for stud in self.get_blacklist()])
                 self.parent.destroy()
 
         editor_win = Toplevel()

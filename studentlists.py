@@ -9,6 +9,9 @@ class NamesBox(Frame):
         self.listbox = None
         self.show()
 
+    def get_names(self):
+        return self.names
+
     def connect(self, consumer):
         self.consumer = consumer
 
@@ -47,9 +50,10 @@ class ListsEditor(Frame):
         self.parent = parent
         self.pack(side=TOP, expand=YES, fill=BOTH)
         self.name = name
-        self.names = names.remove(name) if name in names else names
-        self.whitelist = whitelist
-        self.blacklist = blacklist
+        self.names = list(names)
+        self.names.remove(self.name) if self.name in self.names else self.names
+        self.whitelist = list(whitelist)
+        self.blacklist = list(blacklist)
         self.selector = BooleanVar()
         self.main_listbox = None
         self.white_listbox = None
@@ -101,7 +105,12 @@ class ListsEditor(Frame):
     def accept(self):
         self.parent.destroy() if self.parent else self.quit()
 
+    def get_whitelist(self):
+        return self.white_listbox.get_names()
+
+    def get_blacklist(self):
+        return self.black_listbox.get_names()
 
 if __name__ == '__main__':
-    ListsEditor(None, 'misha', ('kate', 'yula', 'dasha'), ('serega',), ('sasha',)).mainloop()
+    ListsEditor(None, 'misha', ('misha', 'kate', 'yula', 'dasha'), ('serega',), ('sasha',)).mainloop()
 
