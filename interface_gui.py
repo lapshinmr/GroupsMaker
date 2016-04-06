@@ -365,7 +365,7 @@ class Dean:
             else:
                 student.set_font_color('black')
 
-    def push_whitelist(self, name):
+    def get_whitelist(self, name):
         whitelist = []
         for comb in self.whitelist:
             if name in comb:
@@ -374,7 +374,7 @@ class Dean:
                 whitelist.extend(comb)
         return whitelist
 
-    def push_blacklist(self, name):
+    def get_blacklist(self, name):
         blacklist = []
         for comb in self.blacklist:
             if name in comb:
@@ -383,18 +383,26 @@ class Dean:
                 blacklist.extend(comb)
         return blacklist
 
-    def pull_whitelist(self, combs):
+    def set_whitelist(self, combs, other_combs):
         for comb in combs:
             comb = sorted(comb)
             if tuple(comb) not in self.whitelist:
                 self.whitelist.extend(combs)
+        for comb in other_combs:
+            comb = tuple(sorted(comb))
+            if comb in self.whitelist:
+                self.whitelist.remove(comb)
         print('Whitelist in dean %s' % self.whitelist)
 
-    def pull_blacklist(self, combs):
+    def set_blacklist(self, combs, other_combs):
         for comb in combs:
             comb = sorted(comb)
             if tuple(comb) not in self.blacklist:
                 self.blacklist.extend(combs)
+        for comb in other_combs:
+            comb = tuple(sorted(comb))
+            if comb in self.blacklist:
+                self.blacklist.remove(comb)
         print('Blacklist in dean %s' % self.blacklist)
 
 
@@ -468,16 +476,23 @@ class Student:
                 ListsEditor.__init__(self, parent, name, names, whitelist, blacklist)
                 self.dean = dean
 
+            def gen_combs(self, other_names):
+                return [(self.name, stud) for stud in other_names]
+
             def accept(self):
-                self.dean.pull_whitelist([(self.name, stud) for stud in self.get_whitelist()])
-                self.dean.pull_blacklist([(self.name, stud) for stud in self.get_blacklist()])
+                names_combs = self.gen_combs(self.get_names())
+                whitelist_combs = self.gen_combs(self.get_whitelist())
+                blacklist_combs = self.gen_combs(self.get_blacklist())
+                print(names_combs, whitelist_combs, blacklist_combs)
+                self.dean.set_whitelist(whitelist_combs, names_combs)
+                self.dean.set_blacklist(blacklist_combs, names_combs)
                 self.parent.destroy()
 
         editor_win = Toplevel()
         editor_win.title('Lists editor')
         names = self.dean.get_students_names()
-        whitelist = self.dean.push_whitelist(self.name.get())
-        blacklist = self.dean.push_blacklist(self.name.get())
+        whitelist = self.dean.get_whitelist(self.name.get())
+        blacklist = self.dean.get_blacklist(self.name.get())
         for name in whitelist + blacklist:
             names.remove(name)
         editor = StLists(self.dean, editor_win, name=self.name.get(), names=names, whitelist=whitelist, blacklist=blacklist)

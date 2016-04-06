@@ -105,6 +105,9 @@ class ListsEditor(Frame):
     def accept(self):
         self.parent.destroy() if self.parent else self.quit()
 
+    def get_names(self):
+        return self.main_listbox.get_names()
+
     def get_whitelist(self):
         return self.white_listbox.get_names()
 
