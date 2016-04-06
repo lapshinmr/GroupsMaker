@@ -6,29 +6,22 @@ class NamesBox(Frame):
     def __init__(self, parent, names):
         Frame.__init__(self, parent)
         self.names = list(names)
+        self.other_names_box = None
+        self.listbox = None
         self.show()
-        self.exclist_objs = None
 
-    def connect(self, exclist_objs):
-        self.exclist_objs = exclist_objs
+    def connect(self, other_names_box):
+        self.other_names_box = other_names_box
 
     def show(self):
-        names_fr = Frame(self, bd=2, relief=RIDGE)
-        names_fr.pack(side=TOP, expand=YES, fill=BOTH)
-        self.listbox = Listbox(names_fr)
-        sbar = Scrollbar(names_fr)
+        self.listbox = Listbox(self)
+        sbar = Scrollbar(self)
         sbar.config(command=self.listbox.yview)
         sbar.pack(side=RIGHT, fill=Y)
         self.listbox.config(yscrollcommand=sbar.set)
         self.listbox.pack(side=LEFT, expand=YES, fill=BOTH)
-        but_frame = Frame(self)
-        but_frame.pack(side=TOP, expand=YES, fill=X)
-        tip_white = 'Add selected name to the %s. Or left double click on the selected name.' % 'white'
-        tip_black = 'Add selected name to the %s. Or left double click on the selected name.' % 'black'
-        TipButton(but_frame, text='white', command=lambda: self.pop(0), tip=tip_white).pack(side=LEFT, expand=YES, fill=X)
-        TipButton(but_frame, text='black', command=lambda: self.pop(1), tip=tip_black).pack(side=RIGHT, expand=YES, fill=X)
-        self.listbox.bind('<Double-1>', lambda event: self.pop(0))
-        self.listbox.bind('<Double-3>', lambda event: self.pop(1))
+        self.listbox.bind('<Double-1>', self.pop)
+        self.listbox.bind('<Double-3>', self.pop)
         self.fill()
 
     def fill(self):
@@ -40,48 +33,16 @@ class NamesBox(Frame):
         self.names.append(name)
         self.fill()
 
-    def pop(self, exclist_type):
+    def pop(self):
         try:
             select_idx = self.listbox.curselection()
             name = self.listbox.get(select_idx)
             self.listbox.delete(select_idx)
             self.names.remove(name)
-            self.exclist_objs[exclist_type].add(name)
         except TclError as e:
             print('Listbox is empty (%s)' % e.__class__.__name__)
-
-
-class ExcList(Frame):
-    def __init__(self, parent, exclist, names_obj, exclist_name):
-        Frame.__init__(self, parent)
-        self.exclist = list(exclist)
-        self.names_obj = names_obj
-        self.exclist_name = exclist_name
-        self.frame = Frame(self)
-        self.frame.pack(side=TOP, expand=YES, fill=BOTH)
-        self.show()
-
-    def add(self, name):
-        self.exclist.append(name)
-        self.show()
-
-    def clean_frame(self):
-        label_ids = list(self.frame.children.keys())
-        for label_id in label_ids:
-            self.frame.children[label_id].destroy()
-
-    def show(self):
-        self.clean_frame()
-        for name in self.exclist:
-            lab = Label(self.frame, text=name)
-            lab.pack(side=TOP, fill=X)
-            lab.bind('<Double-1>', self.pop)
-
-    def pop(self, event):
-        name = event.widget.cget('text')
-        self.exclist.remove(name)
-        event.widget.destroy()
-        self.names_obj.add(name)
+        else:
+            return name
 
 
 class ListsEditor(Frame):
@@ -105,17 +66,39 @@ class ListsEditor(Frame):
         self.make_widgets()
 
     def make_widgets(self):
-        Label(self, text=self.name).pack(side=TOP, expand=YES, fill=X)
-        self.names = NamesBox(self, self.names)
+        self.show_name()
+        self.show_names()
+        self.show_lists_buttons()
+        self.show_exclists()
+        self.show_accept()
+
+    def show_name(self):
+        name_fr = Frame(self)
+        name_fr.pack(side=TOP, expand=YES, fill=X)
+        Label(name_fr, text=self.name).pack(side=TOP, expand=YES, fill=X)
+
+    def show_names(self):
+        names_fr = Frame(self)
+        names_fr.pack(side=TOP, expand=YES, fill=BOTH)
+        self.names = NamesBox(names_fr, self.names)
         self.names.pack(side=TOP, expand=YES, fill=BOTH)
-        self.exclists_fr = Frame(self)
-        self.exclists_fr.pack(side=TOP, expand=YES, fill=BOTH)
-        self.whitelist = ExcList(self.exclists_fr, self.whitelist, self.names, 'white')
-        self.blacklist = ExcList(self.exclists_fr, self.blacklist, self.names, 'black')
-        self.names.connect([self.whitelist, self.blacklist])
-        self.whitelist.pack(side=LEFT, expand=YES, fill=BOTH)
-        self.blacklist.pack(side=RIGHT, expand=YES, fill=BOTH)
-        Button(self, text='Accept', command=self.accept).pack(side=BOTTOM, expand=YES, fill=X)
+
+    def show_lists_buttons(self):
+        lists_buttons_fr = Frame(self)
+        lists_buttons_fr.pack(side=TOP, expand=YES, fill=X)
+        Button(lists_buttons_fr, text='white', command=lambda: 0).pack(side=LEFT, expand=YES, fill=X)
+        Button(lists_buttons_fr, text='black', command=lambda: 0).pack(side=RIGHT, expand=YES, fill=X)
+
+    def show_exclists(self):
+        exclists_fr = Frame(self)
+        exclists_fr.pack(side=TOP, expand=YES, fill=BOTH)
+        NamesBox(exclists_fr, self.whitelist).pack(side=LEFT, expand=YES, fill=BOTH)
+        NamesBox(exclists_fr, self.blacklist).pack(side=LEFT, expand=YES, fill=BOTH)
+
+    def show_accept(self):
+        accept_fr = Frame(self)
+        accept_fr.pack(side=BOTTOM, expand=YES, fill=X)
+        Button(accept_fr, text='Accept', command=self.accept).pack(side=BOTTOM, expand=YES, fill=X)
 
     def accept(self):
         if self.parent is None:
@@ -125,6 +108,5 @@ class ListsEditor(Frame):
 
 
 if __name__ == '__main__':
-    # ListsEditor(None, 'misha', ('kate', 'yula', 'dasha'), ('serega',), ('sasha',)).mainloop()
-    ListsEditor(None, 'misha', ('kate', 'yula', 'dasha')).mainloop()
+    ListsEditor(None, 'misha', ('kate', 'yula', 'dasha'), ('serega',), ('sasha',)).mainloop()
 
