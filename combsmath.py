@@ -11,14 +11,16 @@ def molder(combs_list, comb_size=1):
     for comb in combs_list:
         for name in comb:
             unpacked.append(name)
-    return list(zip_longest(*[iter(unpacked)] * comb_size))
+    return list(zip_longest(*[iter(unpacked)] * comb_size, fillvalue=None))
 
 
 def unique_sorter(combs_list):
     sorted_combs_list = []
     for comb in combs_list:
-        comb = sorted(list(comb))
-        sorted_combs_list.append(tuple(comb))
+        comb = list(comb)
+        if None in comb:
+            comb.remove(None)
+        sorted_combs_list.append(tuple(sorted(comb)))
     return set(sorted_combs_list)
 
 
@@ -192,8 +194,8 @@ if __name__ == '__main__':
 
     combs9 = {('misha', ), ('kate', ), ('misha', ), ('serega', ), ('dasha', ), ('sasha', )}
     combs10 = {('misha', ), ('kate', ), ('serega', ), ('dasha', ), ('sasha', )}
-    combs11 = {('kate', 'misha'), ('serega', 'yula'), ('dasha', 'sasha')}
-    combs12 = {('kate', 'misha'), ('yula', 'serega'), ('serega', 'yula'), ('dasha', 'sasha')}
+    combs11 = {('kate', 'misha'), ('serega', 'yula'), ('dasha', 'sasha'), ('ruslan', )}
+    combs12 = {('kate', 'misha'), ('yula', 'serega'), ('serega', 'yula'), ('dasha', 'sasha'), ('ruslan', )}
 
     class TestStringMethods(unittest.TestCase):
         def test_molder(self):

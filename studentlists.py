@@ -37,7 +37,7 @@ class NamesBox(Frame):
     def pop(self):
         try:
             select_idx = self.listbox.curselection()
-            comb = tuple(self.listbox.get(select_idx).split(','))
+            comb = tuple(sorted(self.listbox.get(select_idx).split(', ')))
             if self.remove:
                 self.listbox.delete(select_idx)
                 self.names.remove(comb)
@@ -134,10 +134,10 @@ class ListsEditor(Frame):
 if __name__ == '__main__':
     ListsEditor(None,
                 'misha',
-                ['misha', 'kate', 'yula', 'dasha'],
-                [('misha', 'serega', 'yula')],
-                [('misha', 'sasha', 'dasha')],
-                combs_size=3
+                ['misha', 'kate', 'yula', 'dasha', 'sasha', 'serega'],
+                [('misha', 'serega', 'yula'),
+                ('misha', 'sasha', 'dasha')],
+                combs_size=4
                 ).mainloop()
 
 
