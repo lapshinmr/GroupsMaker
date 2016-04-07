@@ -3,6 +3,7 @@ In this module you can find math logic for program.
 """
 import random
 from gm_exceptions import *
+from itertools import zip_longest
 
 
 def molder(combs_list, comb_size=1):
@@ -10,11 +11,7 @@ def molder(combs_list, comb_size=1):
     for comb in combs_list:
         for name in comb:
             unpacked.append(name)
-    packed = []
-    while unpacked:
-        comb, unpacked = unpacked[:comb_size], unpacked[comb_size:]
-        packed.append(tuple(comb))
-    return packed
+    return list(zip_longest(*[iter(unpacked)] * comb_size))
 
 
 def unique_sorter(combs_list):
@@ -190,7 +187,7 @@ if __name__ == '__main__':
     combs4 = [('misha', 'kate'), ('yula', 'serega'), ('dasha', 'sasha')]
     combs5 = [('misha', 'kate'), ('yula', 'serega'), ('dasha', ), ('sasha', )]
     combs6 = [('misha', 'kate'), ('yula', 'serega'), ('dasha', ), ('sasha', ), ('ruslan', )]
-    combs7 = [('misha', 'kate'), ('yula', 'serega'), ('dasha', 'sasha'), ('ruslan', )]
+    combs7 = [('misha', 'kate'), ('yula', 'serega'), ('dasha', 'sasha'), ('ruslan', None)]
     combs8 = [('misha', 'kate'), ('yula', 'serega'), ('dasha', 'sasha', 'ruslan')]
 
     combs9 = {('misha', ), ('kate', ), ('misha', ), ('serega', ), ('dasha', ), ('sasha', )}

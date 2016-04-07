@@ -68,8 +68,7 @@ class ListsEditor(Frame):
 
     def prepare_names(self, names):
         names.remove(self.name)
-        names = [(name, ) for name in names]
-        return names
+        return list(zip(names))
 
     def prepare_exclist(self, exclist):
         out_list = []
