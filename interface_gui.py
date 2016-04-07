@@ -1,6 +1,6 @@
 import os
 import math
-from groups_maker import GroupsMaker
+from combsmath import GroupsMaker
 from studentlists import *
 from interface_functions import *
 from gm_exceptions import *

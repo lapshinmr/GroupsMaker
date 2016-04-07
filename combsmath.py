@@ -17,6 +17,14 @@ def molder(combs_list, comb_size=1):
     return packed
 
 
+def unique_sorter(combs_list):
+    sorted_combs_list = []
+    for comb in combs_list:
+        comb = sorted(list(comb))
+        sorted_combs_list.append(comb)
+    return list(set(sorted_combs_list))
+
+
 class GroupsMaker:
     """
     les - lesson;
