@@ -95,7 +95,7 @@ class University(Frame):
         scroll_bar.config(command=text.yview)
         text.config(yscrollcommand=scroll_bar.set)
         scroll_bar.pack(side=RIGHT, fill=Y)
-        text.insert(1.0, '1, 2, 3, 4')
+        text.insert(1.0, 'misha, kate, yula, serega, ruslan, vika')
         text.pack(side=LEFT, expand=YES, fill=BOTH)
         text.focus()
         self.input_names = text
@@ -365,45 +365,19 @@ class Dean:
             else:
                 student.set_font_color('black')
 
-    def get_whitelist(self, name):
-        whitelist = []
-        for comb in self.whitelist:
-            if name in comb:
-                comb = list(comb)
-                comb.remove(name)
-                whitelist.extend(comb)
-        return whitelist
+    def get_exclist(self, name, exclist='w'):
+        exclist = self.whitelist if exclist == 'w' else self.blacklist
+        st_exclist = [comb for comb in exclist if name in comb]
+        for comb in st_exclist:
+            exclist.remove(comb)
+        return st_exclist
 
-    def get_blacklist(self, name):
-        blacklist = []
-        for comb in self.blacklist:
-            if name in comb:
-                comb = list(comb)
-                comb.remove(name)
-                blacklist.extend(comb)
-        return blacklist
-
-    def set_whitelist(self, combs, other_combs):
+    def set_exclist(self, combs, exclist='w'):
+        exclist = self.whitelist if exclist == 'w' else self.blacklist
         for comb in combs:
-            comb = sorted(comb)
-            if tuple(comb) not in self.whitelist:
-                self.whitelist.extend(combs)
-        for comb in other_combs:
             comb = tuple(sorted(comb))
-            if comb in self.whitelist:
-                self.whitelist.remove(comb)
-        print('Whitelist in dean %s' % self.whitelist)
-
-    def set_blacklist(self, combs, other_combs):
-        for comb in combs:
-            comb = sorted(comb)
-            if tuple(comb) not in self.blacklist:
-                self.blacklist.extend(combs)
-        for comb in other_combs:
-            comb = tuple(sorted(comb))
-            if comb in self.blacklist:
-                self.blacklist.remove(comb)
-        print('Blacklist in dean %s' % self.blacklist)
+            if comb not in exclist:
+                exclist.extend(combs)
 
 
 class Student:
@@ -435,12 +409,6 @@ class Student:
 
     def get_name(self):
         return self.name.get()
-
-    def get_whitelist(self):
-        return self.whitelist
-
-    def get_blacklist(self):
-        return self.blacklist
 
     def place(self, coord):
         stud_fr = Frame(self.parent)
@@ -480,22 +448,19 @@ class Student:
                 return [(self.name, stud) for stud in other_names]
 
             def accept(self):
-                names_combs = self.gen_combs(self.get_names())
                 whitelist_combs = self.gen_combs(self.get_whitelist())
                 blacklist_combs = self.gen_combs(self.get_blacklist())
-                print(names_combs, whitelist_combs, blacklist_combs)
-                self.dean.set_whitelist(whitelist_combs, names_combs)
-                self.dean.set_blacklist(blacklist_combs, names_combs)
+                self.dean.set_exclist(whitelist_combs, 'w')
+                self.dean.set_exclist(blacklist_combs, 'b')
                 self.parent.destroy()
 
         editor_win = Toplevel()
         editor_win.title('Lists editor')
+        name = self.name.get()
         names = self.dean.get_students_names()
-        whitelist = self.dean.get_whitelist(self.name.get())
-        blacklist = self.dean.get_blacklist(self.name.get())
-        for name in whitelist + blacklist:
-            names.remove(name)
-        editor = StLists(self.dean, editor_win, name=self.name.get(), names=names, whitelist=whitelist, blacklist=blacklist)
+        whitelist = self.dean.get_exclist(self.name.get(), 'w')
+        blacklist = self.dean.get_exclist(self.name.get(), 'b')
+        editor = StLists(self.dean, editor_win, name=name, names=names, whitelist=whitelist, blacklist=blacklist)
         editor.pack()
         editor_win.focus_set()
         editor_win.wait_visibility(editor)

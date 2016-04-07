@@ -4,7 +4,7 @@ from tkinter import *
 class NamesBox(Frame):
     def __init__(self, parent, names, consumer=None):
         Frame.__init__(self, parent)
-        self.names = list(names)
+        self.names = names
         self.consumer = consumer
         self.listbox = None
         self.show()
@@ -27,20 +27,20 @@ class NamesBox(Frame):
 
     def fill(self):
         self.listbox.delete(0, END)
-        for name in self.names:
-            self.listbox.insert(END, name)
+        for comb in self.names:
+            self.listbox.insert(END, ', '.join(comb))
 
     def pop(self):
         try:
             select_idx = self.listbox.curselection()
-            name = self.listbox.get(select_idx)
+            comb = tuple(self.listbox.get(select_idx).split(','))
             self.listbox.delete(select_idx)
-            self.names.remove(name)
+            self.names.remove(comb)
         except TclError as e:
             print('Listbox is empty (%s)' % e.__class__.__name__)
         else:
             if self.consumer:
-                self.consumer.names.append(name)
+                self.consumer.names.append(comb)
                 self.consumer.fill()
 
 
@@ -50,16 +50,28 @@ class ListsEditor(Frame):
         self.parent = parent
         self.pack(side=TOP, expand=YES, fill=BOTH)
         self.name = name
-        self.names = list(names)
-        self.names.remove(self.name) if self.name in self.names else self.names
-        self.whitelist = list(whitelist)
-        self.blacklist = list(blacklist)
+        self.names = self.prepare_names(names)
+        self.whitelist = self.prepare_exclist(whitelist)
+        self.blacklist = self.prepare_exclist(blacklist)
         self.selector = BooleanVar()
         self.main_listbox = None
         self.white_listbox = None
         self.black_listbox = None
         self.listbox = None
         self.make_widgets()
+
+    def prepare_names(self, names):
+        names.remove(self.name)
+        names = [(name, ) for name in names]
+        return names
+
+    def prepare_exclist(self, exclist):
+        out_list = []
+        for comb in exclist:
+            comb = list(comb)
+            comb.remove(self.name)
+            out_list.append(tuple(comb))
+        return out_list
 
     def make_widgets(self):
         self.show_name()
@@ -115,5 +127,10 @@ class ListsEditor(Frame):
         return self.black_listbox.get_names()
 
 if __name__ == '__main__':
-    ListsEditor(None, 'misha', ('misha', 'kate', 'yula', 'dasha'), ('serega',), ('sasha',)).mainloop()
+    ListsEditor(None,
+                'misha',
+                ['misha', 'kate', 'yula', 'dasha'],
+                [('misha', 'serega', 'kate')],
+                [('misha', 'sasha', 'dasha')]
+                ).mainloop()
 
