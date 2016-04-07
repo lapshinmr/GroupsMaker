@@ -21,8 +21,8 @@ def unique_sorter(combs_list):
     sorted_combs_list = []
     for comb in combs_list:
         comb = sorted(list(comb))
-        sorted_combs_list.append(comb)
-    return list(set(sorted_combs_list))
+        sorted_combs_list.append(tuple(comb))
+    return set(sorted_combs_list)
 
 
 class GroupsMaker:
@@ -193,8 +193,13 @@ if __name__ == '__main__':
     combs7 = [('misha', 'kate'), ('yula', 'serega'), ('dasha', 'sasha'), ('ruslan', )]
     combs8 = [('misha', 'kate'), ('yula', 'serega'), ('dasha', 'sasha', 'ruslan')]
 
+    combs9 = {('misha', ), ('kate', ), ('misha', ), ('serega', ), ('dasha', ), ('sasha', )}
+    combs10 = {('misha', ), ('kate', ), ('serega', ), ('dasha', ), ('sasha', )}
+    combs11 = {('kate', 'misha'), ('serega', 'yula'), ('dasha', 'sasha')}
+    combs12 = {('kate', 'misha'), ('yula', 'serega'), ('serega', 'yula'), ('dasha', 'sasha')}
+
     class TestStringMethods(unittest.TestCase):
-        def test_upper(self):
+        def test_molder(self):
             self.assertEqual(molder(combs1, 1), combs1)
             self.assertEqual(molder(combs2, 1), combs2)
             self.assertEqual(molder(combs3, 1), combs2)
@@ -203,5 +208,10 @@ if __name__ == '__main__':
             self.assertEqual(molder(combs6, 2), combs7)
             self.assertEqual(molder(combs8, 2), combs7)
 
-    unittest.main('-v')
+        def test_unique_sorter(self):
+            self.assertEqual(unique_sorter(combs1), set())
+            self.assertEqual(unique_sorter(combs9), combs10)
+            self.assertEqual(unique_sorter(combs12), combs11)
+
+    unittest.main()
 

@@ -30,7 +30,7 @@ class NamesBox(Frame):
 
     def fill(self):
         self.listbox.delete(0, END)
-        self.names = unique_sorter(molder(self.names, self.comb_size))
+        self.names = list(unique_sorter(molder(self.names, self.comb_size)))
         for comb in self.names:
             self.listbox.insert(END, ', '.join(comb))
 
@@ -136,9 +136,9 @@ if __name__ == '__main__':
     ListsEditor(None,
                 'misha',
                 ['misha', 'kate', 'yula', 'dasha'],
-                [('misha', 'serega')],
-                [('misha', 'sasha')],
-                combs_size=2
+                [('misha', 'serega', 'yula')],
+                [('misha', 'sasha', 'dasha')],
+                combs_size=3
                 ).mainloop()
 
 
