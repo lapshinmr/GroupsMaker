@@ -166,9 +166,6 @@ class GroupsMaker:
 
 
 if __name__ == '__main__':
-    # students = ['misha', 'kate', 'serega', 'yula', 'dasha', 'sasha', 'dima', 'stas', 'masha', 'kolya']
-    # students = [str(item) for item in list(range(10))]
-
     """
     students = list(range(24))
     g = GroupsMaker(students, les_total=10, size_group=2)
@@ -177,31 +174,26 @@ if __name__ == '__main__':
     for les in tt:
         print(les)
     """
+    import unittest
 
-    """
-    # Montecarlo test
-    students = list(range(4))
-    whitelist = ()
-    blacklist = ((1, 2), (1, 3))
+    combs1 = []
+    combs2 = [('misha', ), ('kate', ), ('yula', ), ('serega', ), ('dasha', ), ('sasha', )]
+    combs3 = [('misha', ), ('kate', ), ('yula', ), ('serega', ), ('dasha', 'sasha')]
+    combs4 = [('misha', 'kate'), ('yula', 'serega'), ('dasha', 'sasha')]
+    combs5 = [('misha', 'kate'), ('yula', 'serega'), ('dasha', ), ('sasha', )]
+    combs6 = [('misha', 'kate'), ('yula', 'serega'), ('dasha', ), ('sasha', ), ('ruslan', )]
+    combs7 = [('misha', 'kate'), ('yula', 'serega'), ('dasha', 'sasha'), ('ruslan', )]
+    combs8 = [('misha', 'kate'), ('yula', 'serega'), ('dasha', 'sasha', 'ruslan')]
 
-    les_total = 10
-    attempt_factors = []
-    loops_total = 10000
-    limit = 10
-    fails = 0
-    for dummy in range(loops_total):
-        g = GroupsMaker(students, les_total=les_total, size_group=2, blacklist=blacklist, whitelist=whitelist,
-                        attempts_factor=limit)
-        try:
-            timetable, parts = g.get_timetable()
-        except NotEnoughStudents:
-            fails += 1
-        else:
-            attempt_factors.append(g.get_attempts() / les_total)
-    print('Avarage: %s' % (sum(attempt_factors) / loops_total))
-    print('Max: %s' % max(attempt_factors))
-    print('Min: %s' % min(attempt_factors))
-    print('Factors > %s: %s' % (limit, round(fails / loops_total * 100, 2)) + r'%')
-    """
+    class TestStringMethods(unittest.TestCase):
+        def test_upper(self):
+            self.assertEqual(molder(combs1, 1), combs1)
+            self.assertEqual(molder(combs2, 1), combs2)
+            self.assertEqual(molder(combs3, 1), combs2)
+            self.assertEqual(molder(combs4, 2), combs4)
+            self.assertEqual(molder(combs5, 2), combs4)
+            self.assertEqual(molder(combs6, 2), combs7)
+            self.assertEqual(molder(combs8, 2), combs7)
 
-    print(molder([(1, 2), (3, 4), (7, ), (8, )], 2))
+    unittest.main('-v')
+
