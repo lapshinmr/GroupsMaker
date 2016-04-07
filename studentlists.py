@@ -2,11 +2,13 @@ from tkinter import *
 
 
 class NamesBox(Frame):
-    def __init__(self, parent, names, consumer=None):
+    def __init__(self, names, parent=None, consumer=None, remove=True, comb_size=1):
         Frame.__init__(self, parent)
         self.names = names
         self.consumer = consumer
         self.listbox = None
+        self.remove = remove
+        self.comb_size = comb_size
         self.show()
 
     def get_names(self):
@@ -34,8 +36,9 @@ class NamesBox(Frame):
         try:
             select_idx = self.listbox.curselection()
             comb = tuple(self.listbox.get(select_idx).split(','))
-            self.listbox.delete(select_idx)
-            self.names.remove(comb)
+            if self.remove:
+                self.listbox.delete(select_idx)
+                self.names.remove(comb)
         except TclError as e:
             print('Listbox is empty (%s)' % e.__class__.__name__)
         else:
@@ -84,7 +87,7 @@ class ListsEditor(Frame):
         Label(self, text=self.name).pack(side=TOP, fill=X)
 
     def show_names(self):
-        self.main_listbox = NamesBox(self, self.names)
+        self.main_listbox = NamesBox(self, self.names, remove=False)
         self.main_listbox.pack(side=TOP, expand=YES, fill=BOTH)
 
     def show_lists_buttons(self):
@@ -127,10 +130,15 @@ class ListsEditor(Frame):
         return self.black_listbox.get_names()
 
 if __name__ == '__main__':
+    """
     ListsEditor(None,
                 'misha',
                 ['misha', 'kate', 'yula', 'dasha'],
                 [('misha', 'serega', 'kate')],
                 [('misha', 'sasha', 'dasha')]
                 ).mainloop()
+    """
+
+    box = NamesBox([('misha', 'kate'), ('yula', 'serega'), ('dasha', 'sasha', 'ruslan'), ('vika', )], comb_size=3)
+    print(box.pack_names())
 

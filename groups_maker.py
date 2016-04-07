@@ -5,6 +5,18 @@ import random
 from gm_exceptions import *
 
 
+def molder(combs_list, comb_size=1):
+    unpacked = []
+    for comb in combs_list:
+        for name in comb:
+            unpacked.append(name)
+    packed = []
+    while unpacked:
+        comb, unpacked = unpacked[:comb_size], unpacked[comb_size:]
+        packed.append(tuple(comb))
+    return packed
+
+
 class GroupsMaker:
     """
     les - lesson;
@@ -157,12 +169,14 @@ if __name__ == '__main__':
     # students = ['misha', 'kate', 'serega', 'yula', 'dasha', 'sasha', 'dima', 'stas', 'masha', 'kolya']
     # students = [str(item) for item in list(range(10))]
 
+    """
     students = list(range(24))
     g = GroupsMaker(students, les_total=10, size_group=2)
     tt, parts = g.get_timetable()
     print(len(g.uniq_combs))
     for les in tt:
         print(les)
+    """
 
     """
     # Montecarlo test
@@ -190,4 +204,4 @@ if __name__ == '__main__':
     print('Factors > %s: %s' % (limit, round(fails / loops_total * 100, 2)) + r'%')
     """
 
-
+    print(molder([(1, 2), (3, 4), (7, ), (8, )], 2))
