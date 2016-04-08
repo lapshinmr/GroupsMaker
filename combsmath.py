@@ -75,7 +75,8 @@ class GroupsMaker:
         self.repetitions = repetitions
         self.wrong_whitelist = None
         self.wrong_blacklist = None
-        self.uniq_combs, self.wrong_blacklist = self.subtract_exclist(self.make_uniq_combs(), self.blacklist)
+        self.uniq_combs = gen_sorted_combs(self.st_names, size_group, True)
+        self.uniq_combs, self.wrong_blacklist = self.subtract_exclist(self.uniq_combs, self.blacklist)
         self.uniq_combs_total = len(self.uniq_combs)
         self.st_total = len(self.st_names)
         self.les_groups_total = self.st_total // self.size_group
@@ -234,7 +235,10 @@ if __name__ == '__main__':
     unique_combs_case = [
         ((), 1, 0),
         ((1, 2), 1, 2),
-        ((1, 2), 2, 4)
+        ((1, 2), 2, 1),
+        ((1, 2, 3), 2, 3),
+        ((1, 2, 3), 3, 1),
+        ((1, 2, 3, 4), 2, 6),
     ]
 
     class TestStringMethods(unittest.TestCase):
@@ -254,16 +258,13 @@ if __name__ == '__main__':
             for value, opt, res in all_combs_case:
                 self.assertEqual(len(gen_combs(value, opt)), res)
 
-        """
         def test_gen_uniq_combs(self):
             for value, opt, res in unique_combs_case:
-                self.assertEqual(len(gen_uniq_combs(value, opt)), res)
-        """
+                self.assertEqual(len(gen_sorted_combs(value, opt, True)), res)
 
     permissions = gen_combs(list(range(3)), 2, True)
-    print(permissions)
-    uniq = gen_sorted_combs(list(range(3)), 2, True)
-    print(uniq)
+    uniq = gen_sorted_combs(list(range(2)), 2, True)
+    print(len(uniq))
 
     unittest.main()
 
