@@ -5,12 +5,30 @@ import random
 from gm_exceptions import *
 
 
-def dups_checker(comb):
+def check_dups(comb):
     return True if len(set(comb)) < len(comb) else False
 
 
-def comb_sorter(comb):
+def sort_comb(comb):
     return tuple(sorted(list(comb)))
+
+
+def sort_combs_list(combs_list):
+    return list(set([sort_comb(comb) for comb in combs_list]))
+
+
+def subtract_combs(combs_list, exclist):
+    uniq_combs = combs_list[:]
+    for comb in exclist:
+        try:
+            uniq_combs.remove(comb)
+        except ValueError:
+            print('No such comb %s in unique combs' % str(comb))
+    return uniq_combs
+
+
+def find_combs_by_item(combs, item):
+    return [comb for comb in combs if item in comb]
 
 
 def molder(combs_list, comb_size=1):
@@ -28,9 +46,9 @@ def molder(combs_list, comb_size=1):
 def unique_sorter(combs_list, comb_size=1):
     sorted_combs_list = []
     for comb in combs_list:
-        if dups_checker(comb) and len(comb) == comb_size:
+        if check_dups(comb) and len(comb) == comb_size:
             continue
-        sorted_combs_list.append(comb_sorter(comb))
+        sorted_combs_list.append(sort_comb(comb))
     unique_list = []
     while sorted_combs_list:
         comb, *sorted_combs_list = sorted_combs_list
@@ -70,13 +88,11 @@ class GroupsMaker:
         self.st_names = st_names
         self.les_total = les_total
         self.size_group = size_group
-        self.whitelist = self.sort_exclist(whitelist)
-        self.blacklist = self.sort_exclist(blacklist)
+        self.whitelist = sort_combs_list(whitelist)
+        self.blacklist = sort_combs_list(blacklist)
         self.repetitions = repetitions
-        self.wrong_whitelist = None
-        self.wrong_blacklist = None
-        self.uniq_combs = gen_sorted_combs(self.st_names, size_group, True)
-        self.uniq_combs, self.wrong_blacklist = self.subtract_exclist(self.uniq_combs, self.blacklist)
+        self.uniq_combs = gen_sorted_combs(self.st_names, size_group, uniq=True)
+        self.uniq_combs = subtract_combs(self.uniq_combs, self.blacklist)
         self.uniq_combs_total = len(self.uniq_combs)
         self.st_total = len(self.st_names)
         self.les_groups_total = self.st_total // self.size_group
@@ -85,32 +101,6 @@ class GroupsMaker:
         self.last_ttpart_total = 0
         self.attempts = 0
         self.limit_attempts = self.les_total * attempts_factor
-
-    @staticmethod
-    def sort_exclist(exclist):
-        return list(set([tuple(sorted(comb)) for comb in exclist]))
-
-    @staticmethod
-    def subtract_exclist(uniq_combs, exclist):
-        wrong_exclist = []
-        uniq_combs = uniq_combs[:]
-        for comb in exclist:
-            try:
-                uniq_combs.remove(comb)
-            except ValueError:
-                print('No such comb %s in unique combs' % str(comb))
-                wrong_exclist.append(comb)
-        return uniq_combs, wrong_exclist
-
-    @staticmethod
-    def get_combs_with_name(name, combs):
-        """
-        This method gets all combinations with input name from input set of combinations
-        :param name: string with name
-        :param combs: list, tuple or set of combs
-        :return:
-        """
-        return [comb for comb in combs if name in comb]
 
     def get_module(self):
         return self.st_total - (self.st_total // self.size_group) * self.size_group
@@ -129,7 +119,7 @@ class GroupsMaker:
             combs_to_del = set()
             # delete all combs with names that already chosen by getting random combination
             for name in random_comb:
-                for comb in self.get_combs_with_name(name, unique_combs):
+                for comb in find_combs_by_item(name, unique_combs):
                     if comb not in combs_to_del:
                         combs_to_del.add(comb)
                 names.remove(name)
@@ -158,7 +148,7 @@ class GroupsMaker:
         return calendar
 
     def get_part_without_whitelist(self):
-        uniq_combs, self.wrong_whitelist = self.subtract_exclist(self.uniq_combs, self.whitelist)
+        uniq_combs = subtract_combs(self.uniq_combs, self.whitelist)
         return self.get_lessons(uniq_combs)
 
     def get_timetable(self):
@@ -181,12 +171,6 @@ class GroupsMaker:
             if extra_ttlen:
                 timetable = timetable[:-extra_ttlen]
         return timetable, parts
-
-    def get_wrong_whitelist(self):
-        return self.wrong_whitelist
-
-    def get_wrong_blacklist(self):
-        return self.wrong_blacklist
 
     def get_attempts(self):
         return self.attempts
@@ -252,7 +236,7 @@ if __name__ == '__main__':
 
         def test_dups_checker(self):
             for value, res in dups_case:
-                self.assertEqual(dups_checker(value), res)
+                self.assertEqual(check_dups(value), res)
 
         def test_gen_posib_combs(self):
             for value, opt, res in all_combs_case:
@@ -261,10 +245,6 @@ if __name__ == '__main__':
         def test_gen_uniq_combs(self):
             for value, opt, res in unique_combs_case:
                 self.assertEqual(len(gen_sorted_combs(value, opt, True)), res)
-
-    permissions = gen_combs(list(range(3)), 2, True)
-    uniq = gen_sorted_combs(list(range(2)), 2, True)
-    print(len(uniq))
 
     unittest.main()
 
