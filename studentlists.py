@@ -1,15 +1,15 @@
 from tkinter import *
-from combsmath import molder, unique_sorter
+from combsmath import molder, unique_sorter, find_combs_by_item, gen_sorted_combs
 
 
 class NamesBox(Frame):
-    def __init__(self, parent=None, names=(), consumer=None, remove=True, comb_size=1):
+    def __init__(self, parent=None, names=(), consumer=None, comb_size=1, role='consumer'):
         Frame.__init__(self, parent)
         self.names = names
         self.consumer = consumer
-        self.listbox = None
-        self.remove = remove
+        self.role = role
         self.comb_size = comb_size
+        self.listbox = None
         self.show()
 
     def get_names(self):
@@ -40,14 +40,19 @@ class NamesBox(Frame):
         try:
             select_idx = self.listbox.curselection()
             comb = tuple(self.listbox.get(select_idx).split(', '))
-            if self.remove:
+            if self.role == 'consumer':
                 self.listbox.delete(select_idx)
                 self.names.remove(comb)
+            else:
+                cur_combs = self.consumer.names
+                avail_combs = gen_sorted_combs([name[0] for name in self.names], self.consumer.comb_size, True)
+                avail_combs_with_name = find_combs_by_item(avail_combs, comb[0])
+                if len(cur_combs) == len(avail_combs_with_name):
+                    self.listbox.delete(select_idx)
+                    self.names.remove(comb)
         except TclError as e:
             print('Listbox is empty (%s)' % e.__class__.__name__)
         else:
-            if not self.consumer:
-                return
             self.consumer.names.append(comb)
             self.consumer.fill()
 
@@ -92,7 +97,7 @@ class ListsEditor(Frame):
         Label(self, text=self.name).pack(side=TOP, fill=X)
 
     def show_names(self):
-        self.main_listbox = NamesBox(self, self.names, remove=False)
+        self.main_listbox = NamesBox(self, self.names, role='producer')
         self.main_listbox.pack(side=TOP, expand=YES, fill=BOTH)
 
     def show_lists_buttons(self):
