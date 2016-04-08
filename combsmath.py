@@ -3,7 +3,14 @@ In this module you can find math logic for program.
 """
 import random
 from gm_exceptions import *
-from itertools import zip_longest
+
+
+def dups_checker(comb):
+    return True if len(set(comb)) < len(comb) else False
+
+
+def comb_sorter(comb):
+    return tuple(sorted(list(comb)))
 
 
 def molder(combs_list, comb_size=1):
@@ -11,17 +18,26 @@ def molder(combs_list, comb_size=1):
     for comb in combs_list:
         for name in comb:
             unpacked.append(name)
-    return list(zip_longest(*[iter(unpacked)] * comb_size, fillvalue=None))
+    packed = []
+    while unpacked:
+        comb, unpacked = unpacked[:comb_size], unpacked[comb_size:]
+        packed.append(tuple(comb))
+    return packed
 
 
-def unique_sorter(combs_list):
+def unique_sorter(combs_list, comb_size=1):
     sorted_combs_list = []
     for comb in combs_list:
-        comb = list(comb)
-        if None in comb:
-            comb.remove(None)
-        sorted_combs_list.append(tuple(sorted(comb)))
-    return set(sorted_combs_list)
+        if dups_checker(comb) and len(comb) == comb_size:
+            continue
+        sorted_combs_list.append(comb_sorter(comb))
+    unique_list = []
+    while sorted_combs_list:
+        comb, *sorted_combs_list = sorted_combs_list
+        while comb in sorted_combs_list:
+            sorted_combs_list.remove(comb)
+        unique_list.append(comb)
+    return unique_list
 
 
 class GroupsMaker:
@@ -173,14 +189,6 @@ class GroupsMaker:
 
 
 if __name__ == '__main__':
-    """
-    students = list(range(24))
-    g = GroupsMaker(students, les_total=10, size_group=2)
-    tt, parts = g.get_timetable()
-    print(len(g.uniq_combs))
-    for les in tt:
-        print(les)
-    """
     import unittest
 
     molder_case = [
@@ -189,14 +197,26 @@ if __name__ == '__main__':
         ([('misha', ), ('dasha', 'sasha')], 1, [('misha', ), ('dasha', ), ('sasha', )]),
         ([('misha', 'kate'), ('dasha', 'sasha')], 2, [('misha', 'kate'), ('dasha', 'sasha')]),
         ([('misha', 'kate'), ('dasha', ), ('sasha', )], 2, [('misha', 'kate'), ('dasha', 'sasha')]),
-        ([('dasha', ), ('sasha', ), ('ruslan', )], 2, [('dasha', 'sasha'), ('ruslan', None)]),
-        ([('dasha', 'sasha', 'ruslan')], 2, [('dasha', 'sasha'), ('ruslan', None)]),
+        ([('dasha', ), ('sasha', ), ('ruslan', )], 2, [('dasha', 'sasha'), ('ruslan', )]),
+        ([('dasha', 'sasha', 'ruslan')], 2, [('dasha', 'sasha'), ('ruslan', )]),
+        ([('dasha', 'kate'), ('sasha', ), ('serega', )], 2, [('dasha', 'kate'), ('sasha', 'serega')])
     ]
 
     sorter_case = [
-        ([], set()),
-        ({('misha', ), ('kate', ), ('misha', ), ('serega', )}, {('misha', ), ('kate', ), ('serega', )}),
-        ({('yula', 'serega'), ('serega', 'yula'), ('ruslan', )}, {('serega', 'yula'), ('ruslan', )}),
+        ([], 1, []),
+        ([('misha', ), ('kate', ), ('misha', ), ('serega', )], 1, [('misha', ), ('kate', ), ('serega', )]),
+        ([('misha', ), ('kate', ), ('misha', ), ('serega', ), ('misha', )], 1, [('misha', ), ('kate', ), ('serega', )]),
+        ([('yula', 'serega'), ('serega', 'yula'), ('ruslan', )], 2, [('serega', 'yula'), ('ruslan', )]),
+        ([('yula', 'serega'), ('yula', 'yula'), ('ruslan', )], 2, [('serega', 'yula'), ('ruslan', )]),
+        ([('dasha', 'kate'), ('sasha', 'serega')], 2, [('dasha', 'kate'), ('sasha', 'serega')])
+    ]
+
+    dups_case = [
+        ((), False),
+        ((1, 2, 3), False),
+        ((1, 1, 2), True),
+        ((1, 2, 1), True),
+        ([1, 1, 1], True)
     ]
 
     class TestStringMethods(unittest.TestCase):
@@ -205,8 +225,12 @@ if __name__ == '__main__':
                 self.assertEqual(molder(value, opt), res)
 
         def test_unique_sorter(self):
-            for value, res in sorter_case:
-                self.assertEqual(unique_sorter(value), res)
+            for value, opt, res in sorter_case:
+                self.assertEqual(unique_sorter(value, opt), res)
+
+        def test_dups_checker(self):
+            for value, res in dups_case:
+                self.assertEqual(dups_checker(value), res)
 
     unittest.main()
 

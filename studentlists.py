@@ -30,23 +30,34 @@ class NamesBox(Frame):
 
     def fill(self):
         self.listbox.delete(0, END)
-        self.names = list(unique_sorter(molder(self.names, self.comb_size)))
-        for comb in self.names:
+        packed = molder(self.names, self.comb_size)
+        print(packed)
+        self.names = list(unique_sorter(packed, self.comb_size))
+        print(self.names)
+        for comb in sorted(self.names):
             self.listbox.insert(END, ', '.join(comb))
 
     def pop(self):
         try:
             select_idx = self.listbox.curselection()
-            comb = tuple(sorted(self.listbox.get(select_idx).split(', ')))
+            comb = tuple(self.listbox.get(select_idx).split(', '))
             if self.remove:
                 self.listbox.delete(select_idx)
                 self.names.remove(comb)
         except TclError as e:
             print('Listbox is empty (%s)' % e.__class__.__name__)
         else:
-            if self.consumer:
+            if not self.consumer:
+                return
+            try:
+                last_name = self.consumer.names[-1]
+            except IndexError:
                 self.consumer.names.append(comb)
                 self.consumer.fill()
+            else:
+                if comb not in last_name:
+                    self.consumer.names.append(comb)
+                    self.consumer.fill()
 
 
 class ListsEditor(Frame):
@@ -135,9 +146,7 @@ if __name__ == '__main__':
     ListsEditor(None,
                 'misha',
                 ['misha', 'kate', 'yula', 'dasha', 'sasha', 'serega'],
-                [('misha', 'serega', 'yula'),
-                ('misha', 'sasha', 'dasha')],
-                combs_size=4
+                combs_size=3
                 ).mainloop()
 
 
