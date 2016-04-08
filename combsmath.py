@@ -183,34 +183,30 @@ if __name__ == '__main__':
     """
     import unittest
 
-    combs1 = []
-    combs2 = [('misha', ), ('kate', ), ('yula', ), ('serega', ), ('dasha', ), ('sasha', )]
-    combs3 = [('misha', ), ('kate', ), ('yula', ), ('serega', ), ('dasha', 'sasha')]
-    combs4 = [('misha', 'kate'), ('yula', 'serega'), ('dasha', 'sasha')]
-    combs5 = [('misha', 'kate'), ('yula', 'serega'), ('dasha', ), ('sasha', )]
-    combs6 = [('misha', 'kate'), ('yula', 'serega'), ('dasha', ), ('sasha', ), ('ruslan', )]
-    combs7 = [('misha', 'kate'), ('yula', 'serega'), ('dasha', 'sasha'), ('ruslan', None)]
-    combs8 = [('misha', 'kate'), ('yula', 'serega'), ('dasha', 'sasha', 'ruslan')]
+    molder_case = [
+        ([], 1, []),
+        ([('misha', ), ('dasha', ), ('sasha', )], 1, [('misha', ), ('dasha', ), ('sasha', )]),
+        ([('misha', ), ('dasha', 'sasha')], 1, [('misha', ), ('dasha', ), ('sasha', )]),
+        ([('misha', 'kate'), ('dasha', 'sasha')], 2, [('misha', 'kate'), ('dasha', 'sasha')]),
+        ([('misha', 'kate'), ('dasha', ), ('sasha', )], 2, [('misha', 'kate'), ('dasha', 'sasha')]),
+        ([('dasha', ), ('sasha', ), ('ruslan', )], 2, [('dasha', 'sasha'), ('ruslan', None)]),
+        ([('dasha', 'sasha', 'ruslan')], 2, [('dasha', 'sasha'), ('ruslan', None)]),
+    ]
 
-    combs9 = {('misha', ), ('kate', ), ('misha', ), ('serega', ), ('dasha', ), ('sasha', )}
-    combs10 = {('misha', ), ('kate', ), ('serega', ), ('dasha', ), ('sasha', )}
-    combs11 = {('kate', 'misha'), ('serega', 'yula'), ('dasha', 'sasha'), ('ruslan', )}
-    combs12 = {('kate', 'misha'), ('yula', 'serega'), ('serega', 'yula'), ('dasha', 'sasha'), ('ruslan', )}
+    sorter_case = [
+        ([], set()),
+        ({('misha', ), ('kate', ), ('misha', ), ('serega', )}, {('misha', ), ('kate', ), ('serega', )}),
+        ({('yula', 'serega'), ('serega', 'yula'), ('ruslan', )}, {('serega', 'yula'), ('ruslan', )}),
+    ]
 
     class TestStringMethods(unittest.TestCase):
         def test_molder(self):
-            self.assertEqual(molder(combs1, 1), combs1)
-            self.assertEqual(molder(combs2, 1), combs2)
-            self.assertEqual(molder(combs3, 1), combs2)
-            self.assertEqual(molder(combs4, 2), combs4)
-            self.assertEqual(molder(combs5, 2), combs4)
-            self.assertEqual(molder(combs6, 2), combs7)
-            self.assertEqual(molder(combs8, 2), combs7)
+            for value, opt, res in molder_case:
+                self.assertEqual(molder(value, opt), res)
 
         def test_unique_sorter(self):
-            self.assertEqual(unique_sorter(combs1), set())
-            self.assertEqual(unique_sorter(combs9), combs10)
-            self.assertEqual(unique_sorter(combs12), combs11)
+            for value, res in sorter_case:
+                self.assertEqual(unique_sorter(value), res)
 
     unittest.main()
 
