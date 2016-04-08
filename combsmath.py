@@ -40,6 +40,25 @@ def unique_sorter(combs_list, comb_size=1):
     return unique_list
 
 
+def gen_combs(items_list, comb_size=1, uniq=False):
+    combs = list(zip(items_list))
+    for dummy in range(comb_size - 1):
+        tmp_combs = set()
+        for comb in combs:
+            for item in items_list:
+                if uniq and item in comb:
+                    continue
+                tmp_combs.add(comb + (item, ))
+        combs = tmp_combs
+    return combs
+
+
+def gen_sorted_combs(items_list, comb_size, uniq=False):
+    combs = gen_combs(items_list, comb_size, uniq)
+    sorted_sequences = [tuple(sorted(comb)) for comb in combs]
+    return set(sorted_sequences)
+
+
 class GroupsMaker:
     """
     les - lesson;
@@ -69,22 +88,6 @@ class GroupsMaker:
     @staticmethod
     def sort_exclist(exclist):
         return list(set([tuple(sorted(comb)) for comb in exclist]))
-
-    def make_uniq_combs(self):
-        """
-        Make unique combinations with names
-        """
-        combs = [(name, ) for name in self.st_names]
-        while len(combs[0]) < self.size_group:
-            tmp_combs = []
-            for name in self.st_names:
-                for comb in combs:
-                    if name not in comb:
-                        comb += (name, )
-                        tmp_combs.append(comb)
-            else:
-                combs = tmp_combs[:]
-        return list(set([tuple(sorted(comb)) for comb in combs]))
 
     @staticmethod
     def subtract_exclist(uniq_combs, exclist):
@@ -207,6 +210,7 @@ if __name__ == '__main__':
         ([('misha', ), ('kate', ), ('misha', ), ('serega', )], 1, [('misha', ), ('kate', ), ('serega', )]),
         ([('misha', ), ('kate', ), ('misha', ), ('serega', ), ('misha', )], 1, [('misha', ), ('kate', ), ('serega', )]),
         ([('yula', 'serega'), ('serega', 'yula'), ('ruslan', )], 2, [('serega', 'yula'), ('ruslan', )]),
+        ([('yula', 'serega'), ('serega', 'yula'), ('ruslan', 'ruslan')], 2, [('serega', 'yula')]),
         ([('yula', 'serega'), ('yula', 'yula'), ('ruslan', )], 2, [('serega', 'yula'), ('ruslan', )]),
         ([('dasha', 'kate'), ('sasha', 'serega')], 2, [('dasha', 'kate'), ('sasha', 'serega')])
     ]
@@ -217,6 +221,20 @@ if __name__ == '__main__':
         ((1, 1, 2), True),
         ((1, 2, 1), True),
         ([1, 1, 1], True)
+    ]
+
+    all_combs_case = [
+        ((), 1, 0),
+        ((1, 2), 1, 2),
+        ((1, 2), 2, 4),
+        ((1, 2, 3), 2, 9),
+        ((1, 2, 3), 3, 27)
+    ]
+
+    unique_combs_case = [
+        ((), 1, 0),
+        ((1, 2), 1, 2),
+        ((1, 2), 2, 4)
     ]
 
     class TestStringMethods(unittest.TestCase):
@@ -231,6 +249,21 @@ if __name__ == '__main__':
         def test_dups_checker(self):
             for value, res in dups_case:
                 self.assertEqual(dups_checker(value), res)
+
+        def test_gen_posib_combs(self):
+            for value, opt, res in all_combs_case:
+                self.assertEqual(len(gen_combs(value, opt)), res)
+
+        """
+        def test_gen_uniq_combs(self):
+            for value, opt, res in unique_combs_case:
+                self.assertEqual(len(gen_uniq_combs(value, opt)), res)
+        """
+
+    permissions = gen_combs(list(range(3)), 2, True)
+    print(permissions)
+    uniq = gen_sorted_combs(list(range(3)), 2, True)
+    print(uniq)
 
     unittest.main()
 

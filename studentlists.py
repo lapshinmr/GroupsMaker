@@ -30,11 +30,10 @@ class NamesBox(Frame):
 
     def fill(self):
         self.listbox.delete(0, END)
+        self.names = list(unique_sorter(self.names, self.comb_size))
         packed = molder(self.names, self.comb_size)
-        print(packed)
         self.names = list(unique_sorter(packed, self.comb_size))
-        print(self.names)
-        for comb in sorted(self.names):
+        for comb in self.names:
             self.listbox.insert(END, ', '.join(comb))
 
     def pop(self):
@@ -49,15 +48,8 @@ class NamesBox(Frame):
         else:
             if not self.consumer:
                 return
-            try:
-                last_name = self.consumer.names[-1]
-            except IndexError:
-                self.consumer.names.append(comb)
-                self.consumer.fill()
-            else:
-                if comb not in last_name:
-                    self.consumer.names.append(comb)
-                    self.consumer.fill()
+            self.consumer.names.append(comb)
+            self.consumer.fill()
 
 
 class ListsEditor(Frame):
