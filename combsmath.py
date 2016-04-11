@@ -1,20 +1,5 @@
-"""
-In this module you can find math logic for program.
-"""
 import random
 from gm_exceptions import *
-
-
-def check_dups(comb):
-    return True if len(set(comb)) < len(comb) else False
-
-
-def sort_comb(comb):
-    return tuple(sorted(list(comb)))
-
-
-def sort_combs_list(combs_list):
-    return list(set([sort_comb(comb) for comb in combs_list]))
 
 
 def subtract_combs(combs_list, exclist):
@@ -25,10 +10,6 @@ def subtract_combs(combs_list, exclist):
         except ValueError:
             print('No such comb %s in unique combs' % str(comb))
     return uniq_combs
-
-
-def find_combs_by_item(combs, item):
-    return [comb for comb in combs if item in comb]
 
 
 def unpack(combs_list):
@@ -53,17 +34,23 @@ def molder(combs_list, comb_size=1):
     return packed
 
 
-def unique_sorter(combs_list, comb_size=1):
-    sorted_combs_list = []
-    for comb in combs_list:
-        if check_dups(comb) and len(comb) == comb_size:
-            continue
-        sorted_combs_list.append(sort_comb(comb))
+def sort_comb(comb, dups=True):
+    comb = list(comb)
+    if not dups:
+        comb = list(set(comb))
+    return tuple(sorted(comb))
+
+
+def sort_combs_in_list(combs_list, dups=True):
+    return [sort_comb(comb, dups) for comb in combs_list]
+
+
+def remove_dup_combs(combs_list):
     unique_list = []
-    while sorted_combs_list:
-        comb, *sorted_combs_list = sorted_combs_list
-        while comb in sorted_combs_list:
-            sorted_combs_list.remove(comb)
+    while combs_list:
+        comb, *combs_list = combs_list
+        while comb in combs_list:
+            combs_list.remove(comb)
         unique_list.append(comb)
     return unique_list
 
@@ -83,15 +70,15 @@ def gen_combs(items_list, comb_size=1, uniq=False):
 
 def gen_sorted_combs(items_list, comb_size, uniq=False):
     combs = gen_combs(items_list, comb_size, uniq)
-    sorted_sequences = [tuple(sorted(comb)) for comb in combs]
-    return set(sorted_sequences)
+    return set(sort_combs_in_list(combs))
 
 
-def get_used_items(all_items, combs, comb_size):
-    posib_combs = gen_sorted_combs(all_items, comb_size, uniq=True)
-    unused_combs = set(posib_combs) - set(combs)
-    unused_names = set(unpack(unused_combs))
-    return sorted(list(set(all_items) - unused_names))
+def get_used_items(items, combs, comb_size):
+    possible_combs = gen_sorted_combs(items, comb_size, uniq=True)
+    sorted_combs = sort_combs_in_list(combs)
+    unused_combs = set(possible_combs) - set(sorted_combs)
+    unused_items = set(unpack(unused_combs))
+    return sorted(list(set(items) - unused_items))
 
 
 class GroupsMaker:
@@ -209,39 +196,52 @@ if __name__ == '__main__':
     unpack_case = [
         ([], []),
         ([('1', )], ['1']),
-        ([('misha', ), ('kate', ), ('yula', ), ('serega', )], ['misha', 'kate', 'yula', 'serega']),
-        ([('misha', 'kate'), ('yula', 'serega'), ('sasha', 'dasha')], ['misha', 'kate', 'yula', 'serega', 'sasha', 'dasha']),
-        ([('misha', 'kate', 'yula'), ('serega', 'sasha', 'dasha')], ['misha', 'kate', 'yula', 'serega', 'sasha', 'dasha']),
-        ([('misha', 'kate'), ('yula', ), ('serega', 'sasha', 'dasha')], ['misha', 'kate', 'yula', 'serega', 'sasha', 'dasha'])
+        ([('1', ), ('2', ), ('3', ), ('4', )], ['1', '2', '3', '4']),
+        ([('1', '2'), ('3', '4'), ('5', '6')], ['1', '2', '3', '4', '5', '6']),
+        ([('1', '2', '3'), ('4', '5', '6')], ['1', '2', '3', '4', '5', '6']),
+        ([('1', '2'), ('3', ), ('4', '5', '6')], ['1', '2', '3', '4', '5', '6'])
     ]
 
     molder_case = [
         ([], 1, []),
-        ([('misha', ), ('dasha', ), ('sasha', )], 1, [('misha', ), ('dasha', ), ('sasha', )]),
-        ([('misha', ), ('dasha', 'sasha')], 1, [('misha', ), ('dasha', ), ('sasha', )]),
-        ([('misha', 'kate'), ('dasha', 'sasha')], 2, [('misha', 'kate'), ('dasha', 'sasha')]),
-        ([('misha', 'kate'), ('dasha', ), ('sasha', )], 2, [('misha', 'kate'), ('dasha', 'sasha')]),
-        ([('dasha', ), ('sasha', ), ('ruslan', )], 2, [('dasha', 'sasha'), ('ruslan', )]),
-        ([('dasha', 'sasha', 'ruslan')], 2, [('dasha', 'sasha'), ('ruslan', )]),
-        ([('dasha', 'kate'), ('sasha', ), ('serega', )], 2, [('dasha', 'kate'), ('sasha', 'serega')])
+        ([('1', ), ('2', ), ('3', )], 1, [('1', ), ('2', ), ('3', )]),
+        ([('1', ), ('2', '3')], 1, [('1', ), ('2', ), ('3', )]),
+        ([('1', '2'), ('3', '4')], 2, [('1', '2'), ('3', '4')]),
+        ([('1', '2'), ('3', ), ('4', )], 2, [('1', '2'), ('3', '4')]),
+        ([('1', ), ('2', ), ('3', )], 2, [('1', '2'), ('3', )]),
+        ([('1', '2', '3')], 2, [('1', '2'), ('3', )]),
+        ([('1', '2'), ('3', ), ('4', )], 2, [('1', '2'), ('3', '4')])
     ]
 
-    sorter_case = [
-        ([], 1, []),
-        ([('misha', ), ('kate', ), ('misha', ), ('serega', )], 1, [('misha', ), ('kate', ), ('serega', )]),
-        ([('misha', ), ('kate', ), ('misha', ), ('serega', ), ('misha', )], 1, [('misha', ), ('kate', ), ('serega', )]),
-        ([('yula', 'serega'), ('serega', 'yula'), ('ruslan', )], 2, [('serega', 'yula'), ('ruslan', )]),
-        ([('yula', 'serega'), ('serega', 'yula'), ('ruslan', 'ruslan')], 2, [('serega', 'yula')]),
-        ([('yula', 'serega'), ('yula', 'yula'), ('ruslan', )], 2, [('serega', 'yula'), ('ruslan', )]),
-        ([('dasha', 'kate'), ('sasha', 'serega')], 2, [('dasha', 'kate'), ('sasha', 'serega')])
+    sort_comb_case = [
+        ([], True, ()),
+        ((), True, ()),
+        ([], False, ()),
+        (('1', '2'), True, ('1', '2')),
+        (('2', '1'), True, ('1', '2')),
+        (('2', '1', '1'), True, ('1', '1', '2')),
+        (('2', '1', '1'), False, ('1', '2'))
+    ]
+
+    sort_combs_in_list_case = [
+        ([], True, []),
+        ([], False, []),
+        ([('1', ), ('2', ), ('3', ), ('4', )], True, [('1', ), ('2', ), ('3', ), ('4', )]),
+        ([('1', ), ('2', ), ('3', ), ('4', ), ('1', )], True, [('1', ), ('2', ), ('3', ), ('4', ), ('1', )]),
+        ([('1', ), ('2', ), ('3', ), ('4', ), ('1', )], False, [('1', ), ('2', ), ('3', ), ('4', ), ('1', )]),
+        ([('1', '2'), ('3', '4')], True, [('1', '2'), ('3', '4')]),
+        ([('1', '2', '1'), ('3', '3', '4')], True, [('1', '1', '2'), ('3', '3', '4')]),
+        ([('1', '2', '1'), ('3', '3', '4')], False, [('1', '2'), ('3', '4')]),
+        ([('1', '2'), ('4', '3'), ('5', )], True, [('1', '2'), ('3', '4'), ('5', )]),
+        ([('1', '2'), ('4', '3'), ('5', )], False, [('1', '2'), ('3', '4'), ('5', )])
     ]
 
     dups_case = [
-        ((), False),
-        ((1, 2, 3), False),
-        ((1, 1, 2), True),
-        ((1, 2, 1), True),
-        ([1, 1, 1], True)
+        ([], []),
+        ([('1', ), ('2', ), ('1', ), ('3', )], [('1', ), ('2', ), ('3', )]),
+        ([('1', ), ('2', ), ('1', ), ('3', ), ('1', )], [('1', ), ('2', ), ('3', )]),
+        ([('1', '2'), ('1', '2'), ('3', )], [('1', '2'), ('3', )]),
+        ([('1', '2'), ('1', '2'), ('3', '3')], [('1', '2'), ('3', '3')]),
     ]
 
     all_combs_case = [
@@ -269,9 +269,8 @@ if __name__ == '__main__':
         (['1', '2', '3', '4'], [('1', '2'), ('1', '3'), ('2', '3'), ('2', '4'), ('3', '4')], 3, []),
         (['1', '2', '4'], [('1', '2'), ('1', '3'), ('2', '3'), ('2', '4'), ('3', '4')], 2, ['2']),
         (['1', '2', '3', '4'], [], 2, []),
-        (['kate', 'yula', 'dasha', 'sasha', 'serega'], [], 2, []),
-        (['kate', 'yula', 'dasha', 'sasha', 'serega'],
-         [('kate', 'yula'), ('dasha', 'kate'), ('kate', 'sasha'), ('kate', 'serega'), ('dasha', 'yula'), ('sasha', 'yula')], 2, ['kate'])
+        (['1', '2', '3', '4', '5'], [], 2, []),
+        (['2', '3', '4', '5', '6'], [('2', '3'), ('2', '4'), ('5', '2'), ('2', '6'), ('5', '3'), ('6', '3')], 2, ['2'])
     ]
 
     class TestStringMethods(unittest.TestCase):
@@ -287,13 +286,17 @@ if __name__ == '__main__':
             for value, opt, res in molder_case:
                 self.assertEqual(molder(value, opt), res)
 
-        def test_unique_sorter(self):
-            for value, opt, res in sorter_case:
-                self.assertEqual(unique_sorter(value, opt), res)
+        def test_sort_comb(self):
+            for value, dups_flag, res in sort_comb_case:
+                self.assertEqual(sort_comb(value, dups_flag), res)
 
-        def test_dups_checker(self):
+        def test_sort_combs_in_list(self):
+            for value, dups_flag, res in sort_combs_in_list_case:
+                self.assertEqual(sort_combs_in_list(value, dups_flag), res)
+
+        def test_remove_dups(self):
             for value, res in dups_case:
-                self.assertEqual(check_dups(value), res)
+                self.assertEqual(remove_dup_combs(value), res)
 
         def test_gen_posib_combs(self):
             for value, opt, res in all_combs_case:

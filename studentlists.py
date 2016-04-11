@@ -3,9 +3,9 @@ from combsmath import *
 
 
 class NamesBox(Frame):
-    def __init__(self, parent=None, names=(), consumer=None, comb_size=1, role='consumer'):
+    def __init__(self, parent=None, combs=(), consumer=None, comb_size=1, role='consumer'):
         Frame.__init__(self, parent)
-        self.names = names
+        self.combs = combs
         self.consumer = consumer
         self.consumers = [consumer]
         self.role = role
@@ -13,8 +13,8 @@ class NamesBox(Frame):
         self.listbox = None
         self.show()
 
-    def get_names(self):
-        return self.names
+    def get_combs(self):
+        return self.combs
 
     def connect(self, consumer):
         self.consumer = consumer
@@ -34,37 +34,37 @@ class NamesBox(Frame):
 
     def fill(self):
         self.listbox.delete(0, END)
-        self.names = list(unique_sorter(self.names, self.comb_size))
-        packed = molder(self.names, self.comb_size)
-        self.names = list(unique_sorter(packed, self.comb_size))
-        for comb in self.names:
+        self.combs = molder(self.combs, self.comb_size)
+        self.combs = sort_combs_in_list(self.combs, dups=False)
+        self.combs = remove_dup_combs(self.combs)
+        for comb in self.combs:
             self.listbox.insert(END, ', '.join(comb))
 
     def pop(self):
         try:
             select_idx = self.listbox.curselection()
             comb = tuple(self.listbox.get(select_idx).split(', '))
-            self.consumer.names.append(comb)
+            self.consumer.combs.append(comb)
             self.consumer.fill()
         except TclError as e:
             print('Listbox is empty (%s)' % e.__class__.__name__)
         else:
             if self.role == 'consumer':
                 self.listbox.delete(select_idx)
-                self.names.remove(comb)
+                self.combs.remove(comb)
             else:
-                names = unpack(self.names)
-                consumers_names = []
+                names = unpack(self.combs)
+                consumers_combs = []
                 for consumer in self.consumers:
-                    consumers_names.extend(consumer.names)
-                used_names = get_used_items(names, consumers_names, self.consumer.comb_size)
+                    consumers_combs.extend(consumer.combs)
+                used_names = get_used_items(names, consumers_combs, self.consumer.comb_size)
                 while used_names:
                     name, *used_names = used_names
                     listbox_elements = self.listbox.get(0, END)
                     if name in listbox_elements:
                         name_idx = listbox_elements.index(name)
                         self.listbox.delete(name_idx)
-                        self.names.remove((name, ))
+                        self.combs.remove((name,))
 
 
 class ListsEditor(Frame):
