@@ -1,5 +1,5 @@
 from tkinter import *
-from combsmath import molder, unique_sorter, find_combs_by_item, gen_sorted_combs
+from combsmath import *
 
 
 class NamesBox(Frame):
@@ -45,10 +45,6 @@ class NamesBox(Frame):
                 self.names.remove(comb)
             else:
                 cur_combs = self.consumer.names
-                posib_combs = gen_sorted_combs([name[0] for name in self.names], self.consumer.comb_size, True)
-                not_used_combs = set(posib_combs) - set(cur_combs)
-                avail_names = set([name for name in comb for comb in not_used_combs])
-                self.names
                 if len(cur_combs) == len(avail_combs_with_name):
                     self.listbox.delete(select_idx)
                     self.names.remove(comb)
