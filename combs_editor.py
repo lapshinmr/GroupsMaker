@@ -1,5 +1,5 @@
 from tkinter import *
-from combsmath import *
+from combs_math import *
 
 
 class NamesBox(Frame):
@@ -29,7 +29,7 @@ class NamesBox(Frame):
         sbar.pack(side=RIGHT, fill=Y)
         self.listbox.config(yscrollcommand=sbar.set)
         self.listbox.pack(side=LEFT, expand=YES, fill=BOTH)
-        self.listbox.bind('<Double-1>', lambda event: self.pop())
+        self.listbox.bind('<Double-1>', lambda event: self.move_item())
         self.update_listbox()
 
     def update_listbox(self):
@@ -42,7 +42,13 @@ class NamesBox(Frame):
         self.combs = sort_combs_in_list(self.combs, dups=False)
         self.combs = remove_dup_combs(self.combs)
 
-    def pop(self):
+    def get_consumers_combs(self):
+        consumers_combs = []
+        for consumer in self.consumers:
+            consumers_combs.extend(consumer.combs)
+        return consumers_combs
+
+    def move_item(self):
         try:
             select_idx = self.listbox.curselection()
             comb = tuple(self.listbox.get(select_idx).split(', '))
@@ -51,23 +57,17 @@ class NamesBox(Frame):
         else:
             self.consumer.combs.append(comb)
             self.consumer.update_combs()
-            self.consumer.update_listbox()
             if self.role == 'consumer':
                 self.listbox.delete(select_idx)
                 self.combs.remove(comb)
-            else:
+            elif self.role == 'producer':
                 names = unpack(self.combs)
-                consumers_combs = []
-                for consumer in self.consumers:
-                    consumers_combs.extend(consumer.combs)
-                used_names = get_used_items(names, consumers_combs, self.consumer.comb_size)
+                used_names = get_used_items(names, self.get_consumers_combs(), self.consumer.comb_size)
                 while used_names:
                     name, *used_names = used_names
-                    listbox_elements = self.listbox.get(0, END)
-                    if name in listbox_elements:
-                        name_idx = listbox_elements.index(name)
-                        self.listbox.delete(name_idx)
-                        self.combs.remove((name,))
+                    self.combs.remove((name,))
+                    self.update_listbox()
+            self.consumer.update_listbox()
 
 
 class ListsEditor(Frame):
