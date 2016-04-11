@@ -7,6 +7,7 @@ class NamesBox(Frame):
         Frame.__init__(self, parent)
         self.names = names
         self.consumer = consumer
+        self.consumers = [consumer]
         self.role = role
         self.comb_size = comb_size
         self.listbox = None
@@ -17,6 +18,9 @@ class NamesBox(Frame):
 
     def connect(self, consumer):
         self.consumer = consumer
+
+    def set_consumers(self, consumer_list):
+        self.consumers = consumer_list
 
     def show(self):
         self.listbox = Listbox(self)
@@ -50,18 +54,15 @@ class NamesBox(Frame):
                 self.names.remove(comb)
             else:
                 names = unpack(self.names)
-                consumer_names = self.consumer.names
-                print('consumer:', consumer_names)
-                print('names:', names)
-                used_names = get_used_items(names, consumer_names, self.consumer.comb_size)
-                print('used:', used_names)
+                consumers_names = []
+                for consumer in self.consumers:
+                    consumers_names.extend(consumer.names)
+                used_names = get_used_items(names, consumers_names, self.consumer.comb_size)
                 while used_names:
                     name, *used_names = used_names
                     listbox_elements = self.listbox.get(0, END)
-                    print('lisbox:', listbox_elements)
                     if name in listbox_elements:
                         name_idx = listbox_elements.index(name)
-                        print(name_idx)
                         self.listbox.delete(name_idx)
                         self.names.remove((name, ))
 
@@ -126,6 +127,7 @@ class ListsEditor(Frame):
         self.black_listbox.pack(side=LEFT, expand=YES, fill=BOTH)
         self.selector.set(0)
         self.main_listbox.connect(self.white_listbox)
+        self.main_listbox.set_consumers([self.white_listbox, self.black_listbox])
 
     def show_accept(self):
         Button(self, text='Accept', command=self.accept).pack(side=BOTTOM, fill=X)
