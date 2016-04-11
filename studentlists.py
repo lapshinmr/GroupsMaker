@@ -32,23 +32,26 @@ class NamesBox(Frame):
         self.listbox.bind('<Double-1>', lambda event: self.pop())
         self.fill()
 
-    def fill(self):
+    def update(self):
         self.listbox.delete(0, END)
+        for comb in self.combs:
+            self.listbox.insert(END, ', '.join(comb))
+
+    def fill(self):
         self.combs = molder(self.combs, self.comb_size)
         self.combs = sort_combs_in_list(self.combs, dups=False)
         self.combs = remove_dup_combs(self.combs)
-        for comb in self.combs:
-            self.listbox.insert(END, ', '.join(comb))
+        self.update()
 
     def pop(self):
         try:
             select_idx = self.listbox.curselection()
             comb = tuple(self.listbox.get(select_idx).split(', '))
-            self.consumer.combs.append(comb)
-            self.consumer.fill()
         except TclError as e:
             print('Listbox is empty (%s)' % e.__class__.__name__)
         else:
+            self.consumer.combs.append(comb)
+            self.consumer.fill()
             if self.role == 'consumer':
                 self.listbox.delete(select_idx)
                 self.combs.remove(comb)
