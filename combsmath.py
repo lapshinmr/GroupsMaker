@@ -31,15 +31,25 @@ def find_combs_by_item(combs, item):
     return [comb for comb in combs if item in comb]
 
 
-def molder(combs_list, comb_size=1):
+def unpack(combs_list):
     unpacked = []
     for comb in combs_list:
         for name in comb:
             unpacked.append(name)
+    return unpacked
+
+
+def pack(names, comb_size):
     packed = []
-    while unpacked:
-        comb, unpacked = unpacked[:comb_size], unpacked[comb_size:]
+    while names:
+        comb, names = names[:comb_size], names[comb_size:]
         packed.append(tuple(comb))
+    return packed
+
+
+def molder(combs_list, comb_size=1):
+    unpacked = unpack(combs_list)
+    packed = pack(unpacked, comb_size)
     return packed
 
 
@@ -179,6 +189,23 @@ class GroupsMaker:
 if __name__ == '__main__':
     import unittest
 
+    pack_case = [
+        ([], 1, []),
+        ([], 0, []),
+        (['misha', 'kate', 'yula', 'serega'], 1, [('misha', ), ('kate', ), ('yula', ), ('serega', )]),
+        (['misha', 'kate', 'yula', 'serega', 'sasha', 'dasha'], 2, [('misha', 'kate'), ('yula', 'serega'), ('sasha', 'dasha')]),
+        (['misha', 'kate', 'yula', 'serega', 'sasha', 'dasha'], 3, [('misha', 'kate', 'yula'), ('serega', 'sasha', 'dasha')]),
+
+    ]
+
+    unpack_case = [
+        ([], []),
+        ([('misha', ), ('kate', ), ('yula', ), ('serega', )], ['misha', 'kate', 'yula', 'serega']),
+        ([('misha', 'kate'), ('yula', 'serega'), ('sasha', 'dasha')], ['misha', 'kate', 'yula', 'serega', 'sasha', 'dasha']),
+        ([('misha', 'kate', 'yula'), ('serega', 'sasha', 'dasha')], ['misha', 'kate', 'yula', 'serega', 'sasha', 'dasha']),
+        ([('misha', 'kate'), ('yula', ), ('serega', 'sasha', 'dasha')], ['misha', 'kate', 'yula', 'serega', 'sasha', 'dasha'])
+    ]
+
     molder_case = [
         ([], 1, []),
         ([('misha', ), ('dasha', ), ('sasha', )], 1, [('misha', ), ('dasha', ), ('sasha', )]),
@@ -226,6 +253,14 @@ if __name__ == '__main__':
     ]
 
     class TestStringMethods(unittest.TestCase):
+        def test_pack(self):
+            for value, opt, res in pack_case:
+                self.assertEqual(pack(value, opt), res)
+
+        def test_unpack(self):
+            for value, res in unpack_case:
+                self.assertEqual(unpack(value), res)
+
         def test_molder(self):
             for value, opt, res in molder_case:
                 self.assertEqual(molder(value, opt), res)
