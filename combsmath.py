@@ -88,7 +88,7 @@ def gen_sorted_combs(items_list, comb_size, uniq=False):
 
 
 def get_used_items(all_items, combs, comb_size):
-    posib_combs = gen_sorted_combs(unpack(all_items), comb_size, uniq=True)
+    posib_combs = gen_sorted_combs(all_items, comb_size, uniq=True)
     unused_combs = set(posib_combs) - set(combs)
     unused_names = set(unpack(unused_combs))
     return sorted(list(set(all_items) - unused_names))
@@ -197,8 +197,9 @@ if __name__ == '__main__':
     import unittest
 
     pack_case = [
-        ([], 1, []),
         ([], 0, []),
+        ([], 1, []),
+        ([], 2, []),
         (['1', '2', '3', '4'], 1, [('1', ), ('2', ), ('3', ), ('4', )]),
         (['1', '2', '3', '4', '5', '6'], 2, [('1', '2'), ('3', '4'), ('5', '6')]),
         (['1', '2', '3', '4', '5', '6'], 3, [('1', '2', '3'), ('4', '5', '6')]),
@@ -207,6 +208,7 @@ if __name__ == '__main__':
 
     unpack_case = [
         ([], []),
+        ([('1', )], ['1']),
         ([('misha', ), ('kate', ), ('yula', ), ('serega', )], ['misha', 'kate', 'yula', 'serega']),
         ([('misha', 'kate'), ('yula', 'serega'), ('sasha', 'dasha')], ['misha', 'kate', 'yula', 'serega', 'sasha', 'dasha']),
         ([('misha', 'kate', 'yula'), ('serega', 'sasha', 'dasha')], ['misha', 'kate', 'yula', 'serega', 'sasha', 'dasha']),
@@ -266,6 +268,10 @@ if __name__ == '__main__':
         (['1', '2', '3', '4'], [('1', '2'), ('1', '3'), ('2', '3'), ('2', '4'), ('3', '4')], 2, ['2', '3']),
         (['1', '2', '3', '4'], [('1', '2'), ('1', '3'), ('2', '3'), ('2', '4'), ('3', '4')], 3, []),
         (['1', '2', '4'], [('1', '2'), ('1', '3'), ('2', '3'), ('2', '4'), ('3', '4')], 2, ['2']),
+        (['1', '2', '3', '4'], [], 2, []),
+        (['kate', 'yula', 'dasha', 'sasha', 'serega'], [], 2, []),
+        (['kate', 'yula', 'dasha', 'sasha', 'serega'],
+         [('kate', 'yula'), ('dasha', 'kate'), ('kate', 'sasha'), ('kate', 'serega'), ('dasha', 'yula'), ('sasha', 'yula')], 2, ['kate'])
     ]
 
     class TestStringMethods(unittest.TestCase):

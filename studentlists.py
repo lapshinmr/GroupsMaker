@@ -40,19 +40,30 @@ class NamesBox(Frame):
         try:
             select_idx = self.listbox.curselection()
             comb = tuple(self.listbox.get(select_idx).split(', '))
+            self.consumer.names.append(comb)
+            self.consumer.fill()
+        except TclError as e:
+            print('Listbox is empty (%s)' % e.__class__.__name__)
+        else:
             if self.role == 'consumer':
                 self.listbox.delete(select_idx)
                 self.names.remove(comb)
             else:
-                cur_combs = self.consumer.names
-                if len(cur_combs) == len(avail_combs_with_name):
-                    self.listbox.delete(select_idx)
-                    self.names.remove(comb)
-        except TclError as e:
-            print('Listbox is empty (%s)' % e.__class__.__name__)
-        else:
-            self.consumer.names.append(comb)
-            self.consumer.fill()
+                names = unpack(self.names)
+                consumer_names = self.consumer.names
+                print('consumer:', consumer_names)
+                print('names:', names)
+                used_names = get_used_items(names, consumer_names, self.consumer.comb_size)
+                print('used:', used_names)
+                while used_names:
+                    name, *used_names = used_names
+                    listbox_elements = self.listbox.get(0, END)
+                    print('lisbox:', listbox_elements)
+                    if name in listbox_elements:
+                        name_idx = listbox_elements.index(name)
+                        print(name_idx)
+                        self.listbox.delete(name_idx)
+                        self.names.remove((name, ))
 
 
 class ListsEditor(Frame):
