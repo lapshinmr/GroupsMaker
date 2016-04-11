@@ -1,7 +1,7 @@
 import os
 import math
-from combsmath import GroupsMaker
-from studentlists import *
+from combs_math import GroupsMaker
+from combs_editor import *
 from interface_functions import *
 from gm_exceptions import *
 from widgets import EntryPM, TipButton, TipCheckbutton

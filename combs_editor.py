@@ -30,18 +30,17 @@ class NamesBox(Frame):
         self.listbox.config(yscrollcommand=sbar.set)
         self.listbox.pack(side=LEFT, expand=YES, fill=BOTH)
         self.listbox.bind('<Double-1>', lambda event: self.pop())
-        self.fill()
+        self.update_listbox()
 
-    def update(self):
+    def update_listbox(self):
         self.listbox.delete(0, END)
         for comb in self.combs:
             self.listbox.insert(END, ', '.join(comb))
 
-    def fill(self):
+    def update_combs(self):
         self.combs = molder(self.combs, self.comb_size)
         self.combs = sort_combs_in_list(self.combs, dups=False)
         self.combs = remove_dup_combs(self.combs)
-        self.update()
 
     def pop(self):
         try:
@@ -51,7 +50,8 @@ class NamesBox(Frame):
             print('Listbox is empty (%s)' % e.__class__.__name__)
         else:
             self.consumer.combs.append(comb)
-            self.consumer.fill()
+            self.consumer.update_combs()
+            self.consumer.update_listbox()
             if self.role == 'consumer':
                 self.listbox.delete(select_idx)
                 self.combs.remove(comb)
