@@ -29,13 +29,22 @@ class NamesBox(Frame):
         sbar.pack(side=RIGHT, fill=Y)
         self.listbox.config(yscrollcommand=sbar.set)
         self.listbox.pack(side=LEFT, expand=YES, fill=BOTH)
-        self.listbox.bind('<Double-1>', lambda event: self.move_item())
+        self.listbox.bind('<Double-1>', lambda event: self.double_click_event())
         self.update_listbox()
 
     def update_listbox(self):
         self.listbox.delete(0, END)
         for comb in self.combs:
             self.listbox.insert(END, ', '.join(comb))
+
+    def remove_last_comb_if_dup(self):
+        try:
+            last_consumer_comb = self.consumer.combs[-1]
+        except IndexError as e:
+            print('Consumer has not any combs (%s)' % e.__class__.__name__)
+        else:
+            if self.get_consumers_combs().count(last_consumer_comb) > 1:
+                self.consumer.combs.pop(-1)
 
     def update_combs(self):
         self.combs = molder(self.combs, self.comb_size)
@@ -48,26 +57,30 @@ class NamesBox(Frame):
             consumers_combs.extend(consumer.combs)
         return consumers_combs
 
-    def move_item(self):
+    def get_selected_item(self):
         try:
             select_idx = self.listbox.curselection()
-            comb = tuple(self.listbox.get(select_idx).split(', '))
+            select_item = self.listbox.get(select_idx)
         except TclError as e:
             print('Listbox is empty (%s)' % e.__class__.__name__)
         else:
-            self.consumer.combs.append(comb)
-            self.consumer.update_combs()
-            if self.role == 'consumer':
-                self.listbox.delete(select_idx)
-                self.combs.remove(comb)
-            elif self.role == 'producer':
-                names = unpack(self.combs)
-                used_names = get_used_items(names, self.get_consumers_combs(), self.consumer.comb_size)
-                while used_names:
-                    name, *used_names = used_names
-                    self.combs.remove((name,))
-                    self.update_listbox()
-            self.consumer.update_listbox()
+            return tuple(select_item.split(', '))
+
+    def double_click_event(self):
+        comb = self.get_selected_item()
+        self.consumer.combs.append(comb)
+        self.consumer.update_combs()
+        self.remove_last_comb_if_dup()
+        if self.role == 'consumer':
+            self.combs.remove(comb)
+        elif self.role == 'producer':
+            names = unpack(self.combs)
+            used_names = get_used_items(names, self.get_consumers_combs(), self.consumer.comb_size)
+            while used_names:
+                name, *used_names = used_names
+                self.combs.remove((name,))
+        self.update_listbox()
+        self.consumer.update_listbox()
 
 
 class ListsEditor(Frame):
@@ -154,10 +167,6 @@ class ListsEditor(Frame):
         return self.black_listbox.get_names()
 
 if __name__ == '__main__':
-    ListsEditor(None,
-                'misha',
-                ['misha', 'kate', 'yula', 'dasha', 'sasha', 'serega'],
-                combs_size=3
-                ).mainloop()
+    ListsEditor(None, 'misha', ['misha', 'kate', 'yula', 'dasha', 'sasha', 'serega'], combs_size=3).mainloop()
 
 
