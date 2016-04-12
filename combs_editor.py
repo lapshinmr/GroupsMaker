@@ -68,23 +68,24 @@ class NamesBox(Frame):
 
     def double_click_event(self):
         comb = self.get_selected_item()
-        self.consumer.combs.append(comb)
-        self.consumer.update_combs()
-        self.remove_last_comb_if_dup()
-        if self.role == 'consumer':
-            self.combs.remove(comb)
-        elif self.role == 'producer':
-            names = unpack(self.combs)
-            used_names = get_used_items(names, self.get_consumers_combs(), self.consumer.comb_size)
-            while used_names:
-                name, *used_names = used_names
-                self.combs.remove((name,))
-        self.update_listbox()
-        self.consumer.update_listbox()
+        if comb:
+            self.consumer.combs.append(comb)
+            self.consumer.update_combs()
+            self.remove_last_comb_if_dup()
+            if self.role == 'consumer':
+                self.combs.remove(comb)
+            elif self.role == 'producer':
+                names = unpack(self.combs)
+                used_names = get_used_items(names, self.get_consumers_combs(), self.consumer.comb_size)
+                while used_names:
+                    name, *used_names = used_names
+                    self.combs.remove((name,))
+            self.update_listbox()
+            self.consumer.update_listbox()
 
 
 class ListsEditor(Frame):
-    def __init__(self, parent=None, name='', names=(), whitelist=(), blacklist=(), combs_size=1):
+    def __init__(self, parent=None, name='', names=(), whitelist=(), blacklist=(), comb_size=1):
         Frame.__init__(self, parent)
         self.parent = parent
         self.pack(side=TOP, expand=YES, fill=BOTH)
@@ -93,7 +94,7 @@ class ListsEditor(Frame):
         self.whitelist = self.prepare_exclist(whitelist)
         self.blacklist = self.prepare_exclist(blacklist)
         self.compare_exclists()
-        self.combs_size = combs_size
+        self.comb_size = comb_size
         self.selector = BooleanVar()
         self.main_listbox = None
         self.white_listbox = None
@@ -143,9 +144,9 @@ class ListsEditor(Frame):
     def show_exclists(self):
         exclists_fr = Frame(self)
         exclists_fr.pack(side=TOP, expand=YES, fill=BOTH)
-        self.white_listbox = NamesBox(exclists_fr, self.whitelist, self.main_listbox, comb_size=self.combs_size - 1)
+        self.white_listbox = NamesBox(exclists_fr, self.whitelist, self.main_listbox, comb_size=self.comb_size - 1)
         self.white_listbox.pack(side=LEFT, expand=YES, fill=BOTH)
-        self.black_listbox = NamesBox(exclists_fr, self.blacklist, self.main_listbox, comb_size=self.combs_size - 1)
+        self.black_listbox = NamesBox(exclists_fr, self.blacklist, self.main_listbox, comb_size=self.comb_size - 1)
         self.black_listbox.pack(side=LEFT, expand=YES, fill=BOTH)
         self.selector.set(0)
         self.main_listbox.connect(self.white_listbox)
@@ -161,9 +162,6 @@ class ListsEditor(Frame):
             self.main_listbox.connect(self.white_listbox)
 
     def accept(self):
-        print(self.get_names())
-        print(self.get_whitelist())
-        print(self.get_blacklist())
         self.parent.destroy() if self.parent else self.quit()
 
     def add_name(self, combs):
@@ -180,8 +178,6 @@ class ListsEditor(Frame):
 
 if __name__ == '__main__':
     ListsEditor(None, 'misha', ['misha', 'kate', 'yula', 'dasha', 'sasha', 'serega'],
-                whitelist=[],
-                blacklist=[],
-                combs_size=2).mainloop()
+                whitelist=[], blacklist=[], comb_size=2).mainloop()
 
 

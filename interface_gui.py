@@ -20,7 +20,7 @@ class University(Frame):
         Frame.__init__(self, parent)
         self.parent = parent
         self.duration = None
-        self.size_group = IntVar()
+        self.size_group = None
         self.input_names = None
         self.stcanv = None
         self.tt = None
@@ -69,6 +69,7 @@ class University(Frame):
         TipCheckbutton(but_frame, text='R', tip='Repeat combs', variable=self.repeat, command=self.show_seps).pack(side=LEFT)
         self.size_group = EntryPM(
             but_frame, 'size', self.imghand.get('minus', img_size=24), self.imghand.get('plus', img_size=24))
+        self.dean.set_size_group(self.size_group)
         self.size_group.pack(side=RIGHT)
         self.duration = EntryPM(
             but_frame, 'lessons', self.imghand.get('minus', img_size=24), self.imghand.get('plus', img_size=24))
@@ -289,6 +290,10 @@ class Dean:
         self.canvas = None
         self.whitelist = []
         self.blacklist = []
+        self.size_group = None
+
+    def set_size_group(self, size_group):
+        self.size_group = size_group
 
     def set_canvas(self, canvas):
         self.canvas = canvas
@@ -440,25 +445,32 @@ class Student:
 
     def edit_exclist(self):
         class StLists(ListsEditor):
-            def __init__(self, dean, parent=None, name='', names=(), whitelist=(), blacklist=()):
-                ListsEditor.__init__(self, parent, name, names, whitelist, blacklist)
+            def __init__(self, dean, parent, name, names, whitelist, blacklist, comb_size):
+                ListsEditor.__init__(self, parent, name, names, whitelist, blacklist, comb_size)
                 self.dean = dean
 
             def accept(self):
-                self.dean.set_exclist(self.get_whitelist(), 'w')
-                self.dean.set_exclist(self.get_blacklist(), 'b')
+                whitelist = self.get_whitelist()
+                blacklist = self.get_blacklist()
+                print('set', whitelist, blacklist)
+                self.dean.set_exclist(whitelist, 'w')
+                self.dean.set_exclist(blacklist, 'b')
                 self.parent.destroy()
 
         editor_win = Toplevel()
         editor_win.title('Lists editor')
+        editor_win.wm_overrideredirect(True)
+        x, y = editor_win.winfo_pointerx(), editor_win.winfo_pointery()
+        editor_win.wm_geometry("+%d+%d" % (x, y))
         name = self.name.get()
         names = self.dean.get_students_names()
         whitelist = self.dean.get_exclist(name, 'w')
         blacklist = self.dean.get_exclist(name, 'b')
-        print(name, names, whitelist, blacklist)
-        """
-        editor = StLists(self.dean, editor_win, name=name, names=names, whitelist=whitelist, blacklist=blacklist)
+        print('get', whitelist, blacklist)
+        comb_size = int(self.dean.size_group.get())
+        editor = StLists(self.dean, editor_win, name, names, whitelist, blacklist, comb_size)
         editor.pack()
+        """
         editor_win.focus_set()
         editor_win.wait_visibility(editor)
         editor_win.grab_set()

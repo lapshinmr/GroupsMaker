@@ -22,6 +22,8 @@ def unpack(combs_list):
 
 def pack(names, comb_size):
     packed = []
+    if comb_size < 1:
+        return []
     while names:
         comb, names = names[:comb_size], names[comb_size:]
         packed.append(tuple(comb))
