@@ -92,6 +92,7 @@ class ListsEditor(Frame):
         self.names = self.prepare_names(names)
         self.whitelist = self.prepare_exclist(whitelist)
         self.blacklist = self.prepare_exclist(blacklist)
+        self.compare_exclists()
         self.combs_size = combs_size
         self.selector = BooleanVar()
         self.main_listbox = None
@@ -111,6 +112,11 @@ class ListsEditor(Frame):
             comb.remove(self.name)
             out_list.append(tuple(comb))
         return out_list
+
+    def compare_exclists(self):
+        for comb in self.blacklist:
+            if comb in self.whitelist:
+                self.whitelist.remove(comb)
 
     def make_widgets(self):
         self.show_name()
@@ -155,18 +161,27 @@ class ListsEditor(Frame):
             self.main_listbox.connect(self.white_listbox)
 
     def accept(self):
+        print(self.get_names())
+        print(self.get_whitelist())
+        print(self.get_blacklist())
         self.parent.destroy() if self.parent else self.quit()
 
+    def add_name(self, combs):
+        return [((self.name,) + comb) for comb in combs]
+
     def get_names(self):
-        return self.main_listbox.get_names()
+        return self.add_name(self.main_listbox.get_combs())
 
     def get_whitelist(self):
-        return self.white_listbox.get_names()
+        return self.add_name(self.white_listbox.get_combs())
 
     def get_blacklist(self):
-        return self.black_listbox.get_names()
+        return self.add_name(self.black_listbox.get_combs())
 
 if __name__ == '__main__':
-    ListsEditor(None, 'misha', ['misha', 'kate', 'yula', 'dasha', 'sasha', 'serega'], combs_size=3).mainloop()
+    ListsEditor(None, 'misha', ['misha', 'kate', 'yula', 'dasha', 'sasha', 'serega'],
+                whitelist=[],
+                blacklist=[],
+                combs_size=2).mainloop()
 
 

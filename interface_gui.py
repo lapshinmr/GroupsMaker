@@ -444,28 +444,26 @@ class Student:
                 ListsEditor.__init__(self, parent, name, names, whitelist, blacklist)
                 self.dean = dean
 
-            def gen_combs(self, other_names):
-                return [(self.name, stud) for stud in other_names]
-
             def accept(self):
-                whitelist_combs = self.gen_combs(self.get_whitelist())
-                blacklist_combs = self.gen_combs(self.get_blacklist())
-                self.dean.set_exclist(whitelist_combs, 'w')
-                self.dean.set_exclist(blacklist_combs, 'b')
+                self.dean.set_exclist(self.get_whitelist(), 'w')
+                self.dean.set_exclist(self.get_blacklist(), 'b')
                 self.parent.destroy()
 
         editor_win = Toplevel()
         editor_win.title('Lists editor')
         name = self.name.get()
         names = self.dean.get_students_names()
-        whitelist = self.dean.get_exclist(self.name.get(), 'w')
-        blacklist = self.dean.get_exclist(self.name.get(), 'b')
+        whitelist = self.dean.get_exclist(name, 'w')
+        blacklist = self.dean.get_exclist(name, 'b')
+        print(name, names, whitelist, blacklist)
+        """
         editor = StLists(self.dean, editor_win, name=name, names=names, whitelist=whitelist, blacklist=blacklist)
         editor.pack()
         editor_win.focus_set()
         editor_win.wait_visibility(editor)
         editor_win.grab_set()
         editor_win.wait_window()
+        """
 
 
 if __name__ == '__main__':
