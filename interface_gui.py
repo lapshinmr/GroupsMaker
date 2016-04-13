@@ -450,11 +450,8 @@ class Student:
                 self.dean = dean
 
             def accept(self):
-                whitelist = self.get_whitelist()
-                blacklist = self.get_blacklist()
-                print('set', whitelist, blacklist)
-                self.dean.set_exclist(whitelist, 'w')
-                self.dean.set_exclist(blacklist, 'b')
+                self.dean.set_exclist(self.get_whitelist(), 'w')
+                self.dean.set_exclist(self.get_blacklist(), 'b')
                 self.parent.destroy()
 
         editor_win = Toplevel()
@@ -466,16 +463,10 @@ class Student:
         names = self.dean.get_students_names()
         whitelist = self.dean.get_exclist(name, 'w')
         blacklist = self.dean.get_exclist(name, 'b')
-        print('get', whitelist, blacklist)
         comb_size = int(self.dean.size_group.get())
         editor = StLists(self.dean, editor_win, name, names, whitelist, blacklist, comb_size)
+        editor.config(bd=3, relief=RAISED)
         editor.pack()
-        """
-        editor_win.focus_set()
-        editor_win.wait_visibility(editor)
-        editor_win.grab_set()
-        editor_win.wait_window()
-        """
 
 
 if __name__ == '__main__':

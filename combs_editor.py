@@ -75,11 +75,8 @@ class NamesBox(Frame):
             if self.role == 'consumer':
                 self.combs.remove(comb)
             elif self.role == 'producer':
-                names = unpack(self.combs)
-                used_names = get_used_items(names, self.get_consumers_combs(), self.consumer.comb_size)
-                while used_names:
-                    name, *used_names = used_names
-                    self.combs.remove((name,))
+                names = get_remaining_items(unpack(self.combs), self.get_consumers_combs(), self.consumer.comb_size)
+                self.combs = pack(names, comb_size=1)
             self.update_listbox()
             self.consumer.update_listbox()
 
@@ -90,9 +87,9 @@ class ListsEditor(Frame):
         self.parent = parent
         self.pack(side=TOP, expand=YES, fill=BOTH)
         self.name = name
-        self.names = self.prepare_names(names)
         self.whitelist = self.prepare_exclist(whitelist)
         self.blacklist = self.prepare_exclist(blacklist)
+        self.names = self.prepare_names(names, comb_size - 1)
         self.compare_exclists()
         self.comb_size = comb_size
         self.selector = BooleanVar()
@@ -102,8 +99,9 @@ class ListsEditor(Frame):
         self.listbox = None
         self.make_widgets()
 
-    def prepare_names(self, names):
+    def prepare_names(self, names, comb_size):
         names.remove(self.name)
+        names = get_remaining_items(names, self.whitelist + self.blacklist, comb_size)
         return list(zip(names))
 
     def prepare_exclist(self, exclist):
@@ -178,6 +176,6 @@ class ListsEditor(Frame):
 
 if __name__ == '__main__':
     ListsEditor(None, 'misha', ['misha', 'kate', 'yula', 'dasha', 'sasha', 'serega'],
-                whitelist=[], blacklist=[], comb_size=2).mainloop()
+                whitelist=[('misha', 'kate'), ('misha', 'yula')], blacklist=[('misha', 'dasha')], comb_size=2).mainloop()
 
 

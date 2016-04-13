@@ -78,10 +78,17 @@ def gen_sorted_combs(items_list, comb_size, uniq=False):
 def get_used_items(items, combs, comb_size):
     possible_combs = gen_sorted_combs(items, comb_size, uniq=True)
     sorted_combs = sort_combs_in_list(combs)
-    unused_combs = set(possible_combs) - set(sorted_combs)
-    unused_items = set(unpack(unused_combs))
-    return sorted(list(set(items) - unused_items))
+    remaining_combs = set(possible_combs) - set(sorted_combs)
+    remaining_items = set(unpack(remaining_combs))
+    return sorted(list(set(items) - remaining_items))
 
+
+def get_remaining_items(items, combs, comb_size):
+    print(items, combs, comb_size)
+    possible_combs = gen_sorted_combs(items, comb_size, uniq=True)
+    sorted_combs = sort_combs_in_list(combs)
+    remaining_combs = set(possible_combs) - set(sorted_combs)
+    return sorted(list(set(unpack(remaining_combs))))
 
 class GroupsMaker:
     """

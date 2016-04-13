@@ -19,7 +19,6 @@ class EntryPM(Frame):
         self.path_dec = path_dec
         self.path_inc = path_inc
         self.count = IntVar()
-        self.count.trace('w', self.trace_func)
         self.count.set(self.start_count)
         self.add_widgets()
 
@@ -77,9 +76,6 @@ class EntryPM(Frame):
         if not isinstance(cur_count, int):
             cur_count = 1
         return cur_count
-
-    def trace_func(self, *args):
-        pass
 
 
 class Tip:
