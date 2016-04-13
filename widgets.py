@@ -96,7 +96,7 @@ class Tip:
         if not self.tip_win and self.tip_text:
             self.tip_win = Toplevel(self)
             self.tip_win.wm_overrideredirect(True)
-            label = Message(self.tip_win, text=self.tip_text, justify=LEFT, background="#ffffe0", relief=SOLID,
+            label = Label(self.tip_win, text=self.tip_text, justify=LEFT, background="#ffffe0", relief=SOLID,
                           borderwidth=1, font=("tahoma", "8", "normal"))
             label.pack(ipadx=1)
         self.tip_win.wm_geometry("+%d+%d" % (self.x, self.y))

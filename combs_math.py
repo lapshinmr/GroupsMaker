@@ -84,11 +84,11 @@ def get_used_items(items, combs, comb_size):
 
 
 def get_remaining_items(items, combs, comb_size):
-    print(items, combs, comb_size)
     possible_combs = gen_sorted_combs(items, comb_size, uniq=True)
     sorted_combs = sort_combs_in_list(combs)
     remaining_combs = set(possible_combs) - set(sorted_combs)
     return sorted(list(set(unpack(remaining_combs))))
+
 
 class GroupsMaker:
     """

@@ -382,7 +382,7 @@ class Dean:
         for comb in combs:
             comb = tuple(sorted(comb))
             if comb not in exclist:
-                exclist.extend(combs)
+                exclist.append(comb)
 
 
 class Student:
