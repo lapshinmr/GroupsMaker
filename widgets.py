@@ -4,9 +4,7 @@ from PIL import Image, ImageTk
 
 
 class EntryPM(Frame):
-    start_count = 1
-
-    def __init__(self, parent=None, labeltext='', path_dec=None, path_inc=None):
+    def __init__(self, parent=None, labeltext='', start_count=1, path_dec=None, path_inc=None):
         """
         :param parent:
         :param path_inc: path to image for button that increment count
@@ -18,6 +16,7 @@ class EntryPM(Frame):
         self.ent = None
         self.path_dec = path_dec
         self.path_inc = path_inc
+        self.start_count = start_count
         self.count = IntVar()
         self.count.set(self.start_count)
         self.add_widgets()

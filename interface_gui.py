@@ -69,11 +69,11 @@ class University(Frame):
         self.repeat.set(False)
         TipCheckbutton(but_frame, text='R', tip='Repeat combs', variable=self.repeat, command=self.show_seps).pack(side=LEFT)
         self.size_group = EntryPM(
-            but_frame, 'size', self.imghand.get('minus', img_size=24), self.imghand.get('plus', img_size=24))
+            but_frame, 'size', 2, self.imghand.get('minus', img_size=24), self.imghand.get('plus', img_size=24))
         self.dean.set_size_group(self.size_group)
         self.size_group.pack(side=RIGHT)
         self.duration = EntryPM(
-            but_frame, 'lessons', self.imghand.get('minus', img_size=24), self.imghand.get('plus', img_size=24))
+            but_frame, 'lessons', 1, self.imghand.get('minus', img_size=24), self.imghand.get('plus', img_size=24))
         self.duration.pack(side=RIGHT)
         self.but_frame = but_frame
 
@@ -156,8 +156,10 @@ class University(Frame):
             self.input_names.delete(1.0, END)
             text = read_names(filename)
             names = get_names(text)
-            whitelist = get_whitelist(text)
-            blacklist = get_blacklist(text)
+            whitelist = get_exclist(text, 'whitelist')
+            blacklist = get_exclist(text, 'blacklist')
+            self.dean.set_exclist(whitelist, 'w')
+            self.dean.set_exclist(blacklist, 'b')
             self.input_names.insert(1.0, names)
 
     def save_names_as_text(self):
