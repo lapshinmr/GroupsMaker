@@ -100,5 +100,16 @@ class TestStringMethods(unittest.TestCase):
         for input, output in split_case:
             self.assertEqual(split_names(input), output)
 
+    def test_exclist_to_string(self):
+        exclist_to_string_case = [
+            ([], 2, 'whitelist', ''),
+            ([('1', '2'), ('3', '4')], '2', 'whitelist', 'whitelist: (1, 2), (3, 4)'),
+            ([('1', '2', '3'), ('2', '3', '4')], 3, 'whitelist', 'whitelist: (1, 2, 3), (2, 3, 4)'),
+            ([('misha', 'sasha', 'dasha'), ('kate', 'ruslan', 'vika')], '3', 'whitelist',
+             'whitelist: (misha, sasha, dasha), (kate, ruslan, vika)'),
+        ]
+        for input, size, exclist, output in exclist_to_string_case:
+            self.assertEqual(output, exclist_to_string(input, size, exclist))
+
 if __name__ == '__main__':
     unittest.main()

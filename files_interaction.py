@@ -44,6 +44,15 @@ def get_exclist(text, exclist_name='whitelist'):
     return exclist
 
 
+def exclist_to_string(exclist, comb_size, exclist_name):
+    output_string = ''
+    if exclist:
+        form = '(' + ', '.join(['%s'] * int(comb_size)) + ')'
+        output = [form % comb for comb in exclist]
+        output_string = '%s: %s' % (exclist_name, ', '.join(output))
+    return output_string
+
+
 if __name__ == '__main__':
     filename = 'names.txt'
 
@@ -53,5 +62,5 @@ if __name__ == '__main__':
     blacklist: (1, 5), (3, 5)
     """
     string = '(1, 5), (3, 5)'
-    print(get_whitelist(correct_text(text1)))
+    print(get_exclist(correct_text(text1), 'whitelist'))
 
