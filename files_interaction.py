@@ -4,37 +4,43 @@ import re
 def data_reader(filename):
     text = open(filename).read()
     text = correct_text(text)
-    print(text)
-    print(get_names(text))
-    print(get_whitelist(text))
-    print(get_blacklist(text))
+    return text
 
 
 def correct_text(text):
+    text = text.replace('\n', ' ')
+    text = text.strip()
     while True:
         res = re.search('[ ]{2,}', text)
         if res:
-            text = text.replace('\n', ' ').replace(res.group(), ' ')
+            text = text.replace(res.group(), ' ')
         else:
             break
     return text
 
 
 def get_names(text):
-    names = re.search('names: ([ ,a-zA-Z]*) whitelist', text)
+    names = re.search('names: ([ ,_\w\d]*) whitelist', text)
     return names.group(1)
 
 
 def get_whitelist(text):
-    whitelist = re.search('whitelist: ([ ,a-zA-Z()]*) blacklist', text)
+    whitelist = re.search('whitelist: ([ ,_\w\d()]*) blacklist', text)
     return whitelist.group(1)
 
 
 def get_blacklist(text):
-    blacklist = re.search('blacklist: ([ ,a-zA-Z()]*)', text)
+    blacklist = re.search('blacklist: ([ ,_\w\d()]*)', text)
     return blacklist.group(1)
 
 
 if __name__ == '__main__':
     filename = 'names.txt'
-    data_reader(filename)
+
+    text1 = """
+    names: 1, 2, 3, 4, 5
+    whitelist: (1, 2), (3, 4), (4, 5)
+    blacklist: (1, 5), (3, 5)
+    """
+    print(correct_text(text1))
+
