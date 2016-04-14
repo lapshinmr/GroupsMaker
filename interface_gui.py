@@ -163,13 +163,8 @@ class University(Frame):
             names = self.dean.get_students_names()
             open(filename + '.txt', 'w', encoding='utf-8').write(', '.join(names))
 
-    @staticmethod
-    def split_names(names_string):
-        names = names_string.split(',')
-        return [name.strip() for name in names]
-
     def add(self):
-        stud_names = self.split_names(self.input_names.get(1.0, END))
+        stud_names = split_names(self.input_names.get(1.0, END))
         new_students = []
         for stud_name in stud_names:
             new_stud = Student(stud_name, self.dean, self.stcanv)

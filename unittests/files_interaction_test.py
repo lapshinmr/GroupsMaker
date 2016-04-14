@@ -60,5 +60,18 @@ class TestStringMethods(unittest.TestCase):
         for input, output in blacklist_case:
             self.assertEqual(get_blacklist(correct_text(input)), output)
 
+    def test_split(self):
+        split_case = [
+            ('', []),
+            ('1, 2, 3, 4', ['1', '2', '3', '4']),
+            ('1 2 3 4', ['1', '2', '3', '4']),
+            ('1; 2; 3; 4', ['1', '2', '3', '4']),
+            ('1 2, 3;         4', ['1', '2', '3', '4']),
+            ('misha, kate, ruslan, vika', ['misha', 'kate', 'ruslan', 'vika']),
+            ('misha_1, kate-38, ruslan, vika', ['misha_1', 'kate-38', 'ruslan', 'vika']),
+        ]
+        for input, output in split_case:
+            self.assertEqual(split_names(input), output)
+
 if __name__ == '__main__':
     unittest.main()

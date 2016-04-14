@@ -20,18 +20,22 @@ def correct_text(text):
 
 
 def get_names(text):
-    names = re.search('names: ([ ,_\w\d]*) whitelist', text)
+    names = re.search('names: ([ ,.;_\w\d]*) whitelist', text)
     return names.group(1)
 
 
 def get_whitelist(text):
-    whitelist = re.search('whitelist: ([ ,_\w\d()]*) blacklist', text)
+    whitelist = re.search('whitelist: ([ ,.;_\w\d()]*) blacklist', text)
     return whitelist.group(1)
 
 
 def get_blacklist(text):
-    blacklist = re.search('blacklist: ([ ,_\w\d()]*)', text)
+    blacklist = re.search('blacklist: ([ ,.;_\w\d()]*)', text)
     return blacklist.group(1)
+
+
+def split_names(names_string):
+    return re.findall('[-_\w\d]+', names_string)
 
 
 if __name__ == '__main__':
