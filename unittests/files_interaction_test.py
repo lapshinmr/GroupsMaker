@@ -22,6 +22,20 @@ whitelist: (1 2) (3 4) (4 5)
 blacklist: (1 5) (3 5)
 """
 
+text4 = """
+names: 1 2 3 4 5
+"""
+
+text5 = """
+names: 1 2 3 4 5
+blacklist: (1 5) (3 5)
+"""
+
+text6 = """
+names: 1 2 3 4 5
+whitelist: (1 2) (3 4) (4 5)
+"""
+
 
 class TestStringMethods(unittest.TestCase):
     def test_correct_text(self):
@@ -37,28 +51,28 @@ class TestStringMethods(unittest.TestCase):
         names_case = [
             (text1, '1, 2, 3, 4, 5'),
             (text2, '1, 2, 3, 4, 5'),
-            (text3, '1 2 3 4 5')
+            (text3, '1 2 3 4 5'),
+            (text4, '1 2 3 4 5')
         ]
         for input, output in names_case:
             self.assertEqual(get_names(correct_text(input)), output)
 
-    def test_get_whitelist(self):
-        whitelist_case = [
-            (text1, '(1, 2), (3, 4), (4, 5)'),
-            (text2, '(1, 2), (3, 4), (4, 5)'),
-            (text3, '(1 2) (3 4) (4 5)')
+    def test_get_exclist(self):
+        exclist_case = [
+            (text1, 'whitelist', [('1', '2'), ('3', '4'), ('4', '5')]),
+            (text2, 'whitelist', [('1', '2'), ('3', '4'), ('4', '5')]),
+            (text3, 'whitelist', [('1', '2'), ('3', '4'), ('4', '5')]),
+            (text4, 'whitelist', []),
+            (text5, 'whitelist', []),
+            (text6, 'whitelist', [('1', '2'), ('3', '4'), ('4', '5')]),
+            (text1, 'blacklist', [('1', '5'), ('3', '5')]),
+            (text2, 'blacklist', [('1', '5'), ('3', '5')]),
+            (text3, 'blacklist', [('1', '5'), ('3', '5')]),
+            (text4, 'blacklist', []),
+            (text5, 'blacklist', [('1', '5'), ('3', '5')]),
         ]
-        for input, output in whitelist_case:
-            self.assertEqual(get_whitelist(correct_text(input)), output)
-
-    def test_get_blacklist(self):
-        blacklist_case = [
-            (text1, '(1, 5), (3, 5)'),
-            (text2, '(1, 5), (3, 5)'),
-            (text3, '(1 5) (3 5)'),
-        ]
-        for input, output in blacklist_case:
-            self.assertEqual(get_blacklist(correct_text(input)), output)
+        for input, exclist, output in exclist_case:
+            self.assertEqual(get_exclist(correct_text(input), exclist), output)
 
     def test_split(self):
         split_case = [

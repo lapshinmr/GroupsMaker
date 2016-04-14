@@ -1,8 +1,8 @@
 import re
 
 
-def data_reader(filename):
-    text = open(filename).read()
+def read_names(filename):
+    text = open(filename, encoding='utf-8-sig').read()
     text = correct_text(text)
     return text
 
@@ -20,22 +20,28 @@ def correct_text(text):
 
 
 def get_names(text):
-    names = re.search('names: ([ ,.;_\w\d]*) whitelist', text)
-    return names.group(1)
-
-
-def get_whitelist(text):
-    whitelist = re.search('whitelist: ([ ,.;_\w\d()]*) blacklist', text)
-    return whitelist.group(1)
-
-
-def get_blacklist(text):
-    blacklist = re.search('blacklist: ([ ,.;_\w\d()]*)', text)
-    return blacklist.group(1)
+    names = re.search('names: ([ ,.;_\w\d]*)( [\w]+:|$)', text)
+    if names:
+        return names.group(1)
+    else:
+        return []
 
 
 def split_names(names_string):
     return re.findall('[-_\w\d]+', names_string)
+
+
+def get_exclist(text, exclist_name='whitelist'):
+    string = re.search(exclist_name + ': ([ ,.;()\w\d]*)( [\w]+:|$)', text)
+    if string:
+        string = string.group(1)
+    else:
+        return []
+    strings = re.findall('\((.+?)\)', string)
+    exclist = []
+    for string in strings:
+        exclist.append(tuple(split_names(string)))
+    return exclist
 
 
 if __name__ == '__main__':
@@ -46,5 +52,6 @@ if __name__ == '__main__':
     whitelist: (1, 2), (3, 4), (4, 5)
     blacklist: (1, 5), (3, 5)
     """
-    print(correct_text(text1))
+    string = '(1, 5), (3, 5)'
+    print(get_whitelist(correct_text(text1)))
 

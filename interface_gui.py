@@ -154,7 +154,11 @@ class University(Frame):
         filename = askopenfilename()
         if filename:
             self.input_names.delete(1.0, END)
-            self.input_names.insert(1.0, open(filename, encoding='utf-8-sig').read())
+            text = read_names(filename)
+            names = get_names(text)
+            whitelist = get_whitelist(text)
+            blacklist = get_blacklist(text)
+            self.input_names.insert(1.0, names)
 
     def save_names_as_text(self):
         filename = asksaveasfilename(filetypes=[('txt', '.txt')])
