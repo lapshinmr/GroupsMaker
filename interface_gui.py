@@ -10,6 +10,7 @@ from tkinter.messagebox import *
 from imglib import ImageHandler
 from PIL import Image, ImageTk
 from tkinter import ttk
+from files_interaction import *
 
 
 imgdir = 'pict'
