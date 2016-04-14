@@ -167,7 +167,13 @@ class University(Frame):
         if filename:
             filename = os.path.splitext(filename)[0]
             names = self.dean.get_students_names()
-            open(filename + '.txt', 'w', encoding='utf-8').write(', '.join(names))
+            whitelist = self.dean.get_whitelist()
+            blacklist = self.dean.get_blacklist()
+            with open(filename + '.txt', 'w', encoding='utf-8') as save_file:
+                save_file.write('names: %s\n' % ', '.join(names))
+                save_file.write(exclist_to_string(whitelist, self.size_group.get(), 'whitelist') + '\n')
+                save_file.write(exclist_to_string(blacklist, self.size_group.get(), 'blacklist'))
+
 
     def add(self):
         stud_names = split_names(self.input_names.get(1.0, END))
@@ -308,6 +314,12 @@ class Dean:
 
     def get_students_names(self):
         return [student.get_name() for student in self.students]
+
+    def get_whitelist(self):
+        return self.whitelist
+
+    def get_blacklist(self):
+        return self.blacklist
 
     def enroll_student(self, student):
         student.set_idx(len(self.students) + 1)
