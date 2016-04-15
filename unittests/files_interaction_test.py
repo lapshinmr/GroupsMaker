@@ -56,6 +56,7 @@ blacklist: (1 5) (3 5)
 whitelist: (1 2) (3 4) (4 5)
 """
 
+
 class TestStringMethods(unittest.TestCase):
     def test_correct_text(self):
         correct_case = [
@@ -126,6 +127,18 @@ class TestStringMethods(unittest.TestCase):
         ]
         for input, size, exclist, output in exclist_to_string_case:
             self.assertEqual(output, exclist_to_string(input, size, exclist))
+
+    def test_compare_names_with_exclists(self):
+        compare_case = [
+            ('', [], [], [[], []]),
+            ('1 2 3 4 5', [('1', '2'), ('2', '3'), ('3', '4')], [('1', '3'), ('5', '6'), ('3', '4')],
+             [[('1', '2'), ('2', '3'), ('3', '4')], [('1', '3'), ('3', '4')]]),
+            ('misha kate', [('misha', 'kate')], [('misha', 'dasha')],
+             [[('misha', 'kate')], []]),
+        ]
+        for input, whitelist, blacklist, output in compare_case:
+            self.assertEqual(output, compare_names_with_exclists(input, whitelist, blacklist))
+
 
 if __name__ == '__main__':
     unittest.main()

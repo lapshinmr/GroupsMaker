@@ -1,4 +1,5 @@
 import re
+from combs_math import *
 
 
 def read_names(filename):
@@ -51,6 +52,23 @@ def exclist_to_string(exclist, comb_size, exclist_name):
         output = [form % comb for comb in exclist]
         output_string = '%s: %s' % (exclist_name, ', '.join(output))
     return output_string
+
+
+def compare_names_with_exclists(names, *args):
+    output_args = []
+    for combs_list in args:
+        combs_to_remove = []
+        for comb in combs_list:
+            for item in comb:
+                if item not in names:
+                    combs_to_remove.append(comb)
+        for comb in combs_to_remove:
+            combs_list.remove(comb)
+        output_args.append(combs_list)
+    return output_args
+
+
+
 
 
 if __name__ == '__main__':

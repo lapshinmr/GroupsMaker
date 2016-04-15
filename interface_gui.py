@@ -158,6 +158,7 @@ class University(Frame):
             names = get_names(text)
             whitelist = get_exclist(text, 'whitelist')
             blacklist = get_exclist(text, 'blacklist')
+            whitelist, blacklist = compare_names_with_exclists(names, whitelist, blacklist)
             self.dean.set_exclist(whitelist, 'w')
             self.dean.set_exclist(blacklist, 'b')
             self.input_names.insert(1.0, names)
@@ -173,7 +174,6 @@ class University(Frame):
                 save_file.write('names: %s\n' % ', '.join(names))
                 save_file.write(exclist_to_string(whitelist, self.size_group.get(), 'whitelist') + '\n')
                 save_file.write(exclist_to_string(blacklist, self.size_group.get(), 'blacklist'))
-
 
     def add(self):
         stud_names = split_names(self.input_names.get(1.0, END))
@@ -360,6 +360,8 @@ class Dean:
     def expel_all_students(self):
         while self.students:
             self.expel_student(self.students[-1])
+        self.whitelist = []
+        self.blacklist = []
 
     def find_duplicates(self):
         dups = {}
