@@ -151,21 +151,24 @@ class TestStringMethods(unittest.TestCase):
             self.assertEqual(output, check_uniformity(input, size))
 
     def test_uniq_items_combs(self):
-        uniq_items_combs_case = [
+        package_case = [
             ([], [], 2, []),
             ([1, 2, 3], [(1, 2), (2, 3), (1, 3)], 2, [(1, 2, 3)]),
             ([1, 2, 3], [(1, 3), (2, 3), (1, 2)], 2, [(1, 3, 2)]),
             ([1, 2, 3, 4], [(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)], 2, [(1, 2), (3, 4)]),
+            ([1, 2, 3, 4], [(1, 4), (2, 3), (2, 4), (3, 4)], 2, [(1, 4), (2, 3)]),
+            ([1, 2, 3, 4], [(2, 3), (1, 4), (2, 4), (3, 4)], 2, [(2, 3), (1, 4)]),
         ]
-        for items, uniq_combs, comb_size, output in uniq_items_combs_case:
-            self.assertEqual(output, uniq_item_combs(items, uniq_combs, comb_size))
+        for items, uniq_combs, comb_size, output in package_case:
+            self.assertEqual(output, get_combs_list_without_item_repits(items, uniq_combs, comb_size))
 
-        uniq_items_combs_error_case = [
+        package_error_case = [
             ([1, 2, 3, 4], [(2, 3), (2, 4), (3, 4)], 2),
+            ([1, 2, 3, 4], [(3, 4), (2, 3), (1, 4), (2, 4)], 2)
         ]
-        for items, uniq_combs, combs_size in uniq_items_combs_error_case:
+        for items, uniq_combs, combs_size in package_error_case:
             with self.assertRaises(IndexError):
-                uniq_item_combs(items, uniq_combs, combs_size)
+                get_combs_list_without_item_repits(items, uniq_combs, combs_size)
 
 
 if __name__ == '__main__':

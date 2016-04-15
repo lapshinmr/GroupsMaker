@@ -104,7 +104,7 @@ def remove_combs_by_item(item, combs_list):
     return list(set(combs_list) - set(exclist))
 
 
-def uniq_item_combs(in_items, in_combs_list, comb_size):
+def get_combs_list_without_item_repits(in_items, in_combs_list, comb_size):
     items = in_items[:]
     combs_list = in_combs_list[:]
     output_combs = []
@@ -136,11 +136,11 @@ class TimetableGenerator:
         self.attempts = 0
         # self.limit_attempts = self.les_total * attempts_factor
 
-    def get_lessons(self):
+    def get_possible_packages(self):
         calendar = []
         while True:
             try:
-                lesson = self.get_uniq_combs()
+                lesson = get_uniq_combs()
             except IndexError:
                 break
             else:
