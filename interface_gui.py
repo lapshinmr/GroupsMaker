@@ -47,7 +47,7 @@ class University(Frame):
         top = Menu(self.parent)
         self.parent.config(menu=top)
         file = Menu(top, tearoff=False)
-        file.add_command(label='Load names', command=self.open_names_from_file,  underline=0)
+        file.add_command(label='Load names', command=self.load_names_from_file, underline=0)
         file.add_command(label='Save names', command=self.save_names_as_text,  underline=0)
         file.add_command(label='Save timetable', command=self.save_calendar_as_plain_text)
         file.add_command(label='Quit', command=self.quit, underline=1)
@@ -150,7 +150,7 @@ class University(Frame):
         self.paned_win.add(self.tt)
         self.ttcanv.pack(side=TOP, expand=YES, fill=BOTH)
 
-    def open_names_from_file(self):
+    def load_names_from_file(self):
         filename = askopenfilename()
         if filename:
             self.input_names.delete(1.0, END)

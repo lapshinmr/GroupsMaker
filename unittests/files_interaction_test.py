@@ -44,6 +44,18 @@ whietlist: (1 2) (3 4) (4 5)
 blakclist: (1 5) (3 5)
 """
 
+text9 = """
+names: 1 2 3 4 5
+(1 2) (3 4) (4 5)
+blakclist: (1 5) (3 5)
+"""
+
+text10 = """
+names: 1 2 3 4 5
+blacklist: (1 5) (3 5)
+whitelist: (1 2) (3 4) (4 5)
+"""
+
 class TestStringMethods(unittest.TestCase):
     def test_correct_text(self):
         correct_case = [
@@ -60,8 +72,10 @@ class TestStringMethods(unittest.TestCase):
             (text2, '1, 2, 3, 4, 5'),
             (text3, '1 2 3 4 5'),
             (text4, '1 2 3 4 5'),
-            (text7, []),
-            (text8, [])
+            (text7, ''),
+            (text8, ''),
+            (text9, '1 2 3 4 5'),
+            (text10, '1 2 3 4 5'),
         ]
         for input, output in names_case:
             self.assertEqual(get_names(correct_text(input)), output)
@@ -76,6 +90,7 @@ class TestStringMethods(unittest.TestCase):
             (text5, 'whitelist', []),
             (text7, 'whitelist', []),
             (text6, 'whitelist', [('1', '2'), ('3', '4'), ('4', '5')]),
+            (text10, 'whitelist', [('1', '2'), ('3', '4'), ('4', '5')]),
             (text1, 'blacklist', [('1', '5'), ('3', '5')]),
             (text2, 'blacklist', [('1', '5'), ('3', '5')]),
             (text3, 'blacklist', [('1', '5'), ('3', '5')]),
@@ -83,6 +98,7 @@ class TestStringMethods(unittest.TestCase):
             (text4, 'blacklist', []),
             (text5, 'blacklist', [('1', '5'), ('3', '5')]),
             (text7, 'blacklist', []),
+            (text10, 'blacklist', [('1', '5'), ('3', '5')]),
         ]
         for input, exclist, output in exclist_case:
             self.assertEqual(get_exclist(correct_text(input), exclist), output)

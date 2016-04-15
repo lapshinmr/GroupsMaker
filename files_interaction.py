@@ -20,11 +20,11 @@ def correct_text(text):
 
 
 def get_names(text):
-    names = re.search('names: ([ ,.;_\w\d]*)( [\w]+:|$)', text)
+    names = re.search('names: ([ ,.;_\w\d]*)( [\w]+:|$| \()', text)
     if names:
         return names.group(1)
     else:
-        return []
+        return ''
 
 
 def split_names(names_string):
