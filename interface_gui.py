@@ -321,6 +321,19 @@ class Dean:
     def get_blacklist(self):
         return self.blacklist
 
+    def remove_stud_from_exclists(self, stud_name):
+        combs_to_remove = []
+        for comb in self.whitelist + self.blacklist:
+            if stud_name in comb:
+                combs_to_remove.append(comb)
+        print(combs_to_remove)
+        print(self.whitelist)
+        for comb in combs_to_remove:
+            if comb in self.whitelist:
+                self.whitelist.remove(comb)
+            elif comb in self.blacklist:
+                self.blacklist.remove(comb)
+
     def enroll_student(self, student):
         student.set_idx(len(self.students) + 1)
         self.students.append(student)
@@ -352,6 +365,7 @@ class Dean:
 
     def expel_student(self, stud):
         stud.stud_fr.destroy()
+        self.remove_stud_from_exclists(stud.get_name())
         self.students.remove(stud)
         self.update_students_idx()
         self.move_students()
