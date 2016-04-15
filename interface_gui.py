@@ -153,11 +153,18 @@ class University(Frame):
     def load_names_from_file(self):
         filename = askopenfilename()
         if filename:
+            comb_size = self.size_group.get()
             self.input_names.delete(1.0, END)
             text = read_names(filename)
             names = get_names(text)
             whitelist = get_exclist(text, 'whitelist')
             blacklist = get_exclist(text, 'blacklist')
+            if not (check_uniformity(whitelist, comb_size) or check_uniformity(blacklist, comb_size)):
+                showwarning('Warning', warnings['uniall'])
+            elif not check_uniformity(whitelist, comb_size):
+                showwarning('Warning', warnings['uniwhite'])
+            elif not check_uniformity(blacklist, comb_size):
+                showwarning('Warning', warnings['uniblack'])
             whitelist, blacklist = compare_names_with_exclists(names, whitelist, blacklist)
             self.dean.set_exclist(whitelist, 'w')
             self.dean.set_exclist(blacklist, 'b')
@@ -326,8 +333,6 @@ class Dean:
         for comb in self.whitelist + self.blacklist:
             if stud_name in comb:
                 combs_to_remove.append(comb)
-        print(combs_to_remove)
-        print(self.whitelist)
         for comb in combs_to_remove:
             if comb in self.whitelist:
                 self.whitelist.remove(comb)
