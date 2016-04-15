@@ -90,6 +90,12 @@ def get_remaining_items(items, combs, comb_size):
     return sorted(list(set(unpack(remaining_combs))))
 
 
+def check_uniformity(combs_list, comb_size):
+    check_size = [len(combs) == comb_size for combs in combs_list]
+    return False if False in check_size else True
+
+
+
 class GroupsMaker:
     """
     les - lesson;

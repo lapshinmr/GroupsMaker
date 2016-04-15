@@ -137,6 +137,17 @@ class TestStringMethods(unittest.TestCase):
         for items, cur_combs, size, res in remaining_items_case:
             self.assertEqual(get_remaining_items(items, cur_combs, size), res)
 
+    def test_check_uniformity(self):
+        uniformity_case = [
+            ([], 1, True),
+            ([], 2, True),
+            ([('1', '2'), ('3', '4')], 2, True),
+            ([('1', '2'), ('3', '4')], 3, False),
+            ([('1', '2'), ('3', '4', '5')], 2, False),
+            ([('1', '2'), ('3', '4', '5')], 3, False),
+        ]
+        for input, size, output in uniformity_case:
+            self.assertEqual(check_uniformity(input, size), output)
 
 if __name__ == '__main__':
     unittest.main()
