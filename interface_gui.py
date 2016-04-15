@@ -1,6 +1,6 @@
 import os
 import math
-from combs_math import GroupsMaker
+from combs_math import TimetableGenerator
 from combs_editor import *
 from interface_functions import *
 from gm_exceptions import *
@@ -202,8 +202,8 @@ class University(Frame):
         duration = int(self.duration.get())
         size_group = int(self.size_group.get())
         students_names = self.dean.get_students_names()
-        group = GroupsMaker(students_names, duration, size_group=size_group, whitelist=self.dean.whitelist,
-                            blacklist=self.dean.blacklist, repetitions=self.repeat.get())
+        group = TimetableGenerator(students_names, duration, comb_size=size_group, whitelist=self.dean.whitelist,
+                                   blacklist=self.dean.blacklist, repetitions=self.repeat.get())
         try:
             self.timetable, self.parts = group.get_timetable()
         except NotEnoughStudents:
@@ -405,9 +405,9 @@ class Dean:
             else:
                 student.set_font_color('black')
 
-    def get_exclist(self, name, exclist='w'):
-        exclist = self.whitelist if exclist == 'w' else self.blacklist
-        st_exclist = [comb for comb in exclist if name in comb]
+    def get_exclist(self, name, exclist_name='w'):
+        exclist = self.whitelist if exclist_name == 'w' else self.blacklist
+        st_exclist = choose_combs_by_item(name, exclist)
         for comb in st_exclist:
             exclist.remove(comb)
         return st_exclist

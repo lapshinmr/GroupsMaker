@@ -148,7 +148,17 @@ class TestStringMethods(unittest.TestCase):
             ([('1', '2'), ('3', '4', '5')], 3, False),
         ]
         for input, size, output in uniformity_case:
-            self.assertEqual(check_uniformity(input, size), output)
+            self.assertEqual(output, check_uniformity(input, size))
+
+    def test_uniq_items_combs(self):
+        uniq_items_combs_case = [
+            ([], [], 2, []),
+            ([1, 2, 3], [(1, 2), (2, 3), (1, 3)], 2, [(1, 2, 3)]),
+            ([1, 2, 3], [(1, 3), (2, 3), (1, 2)], 2, [(1, 3, 2)]),
+            ([1, 2, 3, 4], [(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)], 2, [(1, 2), (3, 4)]),
+        ]
+        for items, uniq_combs, comb_size, output in uniq_items_combs_case:
+            self.assertEqual(output, uniq_item_combs(items, uniq_combs, comb_size))
 
 if __name__ == '__main__':
     unittest.main()

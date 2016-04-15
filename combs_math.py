@@ -20,12 +20,12 @@ def unpack(combs_list):
     return unpacked
 
 
-def pack(names, comb_size):
+def pack(items, comb_size):
     packed = []
     if comb_size < 1:
         return []
-    while names:
-        comb, names = names[:comb_size], names[comb_size:]
+    while items:
+        comb, items = items[:comb_size], items[comb_size:]
         packed.append(tuple(comb))
     return packed
 
@@ -95,70 +95,52 @@ def check_uniformity(combs_list, comb_size):
     return False if False in check_size else True
 
 
+def choose_combs_by_item(item, combs_list):
+    return [comb for comb in combs_list if item in comb]
 
-class GroupsMaker:
-    """
-    les - lesson;
-    st - student;
-    exclist - exclude list
-    """
-    def __init__(self, st_names, les_total, size_group=2, attempts_factor=10,
+
+def remove_combs_by_item(item, combs_list):
+    exclist = choose_combs_by_item(item, combs_list)
+    return list(set(combs_list) - set(exclist))
+
+
+def uniq_item_combs(in_items, in_combs_list, comb_size):
+    items = in_items[:]
+    combs_list = in_combs_list[:]
+    output_combs = []
+    remainder = len(items) % comb_size
+    while len(items) > remainder:
+        comb = combs_list.pop(0)
+        output_combs.append(comb)
+        for name in comb:
+            combs_list = remove_combs_by_item(name, combs_list)
+            items.remove(name)
+    for idx, item in enumerate(items):
+        output_combs[idx] += (item,)
+    return output_combs
+
+
+class TimetableGenerator:
+    def __init__(self, st_names, comb_size=2, attempts_factor=10,
                  whitelist=(), blacklist=(), repetitions=False):
         self.st_names = st_names
-        self.les_total = les_total
-        self.size_group = size_group
-        self.whitelist = sort_combs_list(whitelist)
-        self.blacklist = sort_combs_list(blacklist)
+        self.comb_size = comb_size
+        self.whitelist = sort_combs_in_list(whitelist)
+        self.blacklist = sort_combs_in_list(blacklist)
         self.repetitions = repetitions
-        self.uniq_combs = gen_sorted_combs(self.st_names, size_group, uniq=True)
+        self.uniq_combs = gen_sorted_combs(self.st_names, comb_size, uniq=True)
         self.uniq_combs = subtract_combs(self.uniq_combs, self.blacklist)
         self.uniq_combs_total = len(self.uniq_combs)
         self.st_total = len(self.st_names)
-        self.les_groups_total = self.st_total // self.size_group
-        self.first_ttpart_total = 0
-        self.middle_ttpart_total = 0
-        self.last_ttpart_total = 0
+        self.les_groups_total = self.st_total // self.comb_size
         self.attempts = 0
-        self.limit_attempts = self.les_total * attempts_factor
+        # self.limit_attempts = self.les_total * attempts_factor
 
-    def get_module(self):
-        return self.st_total - (self.st_total // self.size_group) * self.size_group
-
-    def get_lesson(self, combs):
-        """
-        Method choose combs for one lesson/day so combs has no repetitions of names.
-        Quantity of names may be add or even.
-        """
-        names = self.st_names[:]
-        unique_combs = combs[:]
-        lesson_combs = []
-        while len(names) > self.get_module():
-            random_comb = random.choice(unique_combs)
-            lesson_combs.append(random_comb)
-            combs_to_del = set()
-            # delete all combs with names that already chosen by getting random combination
-            for name in random_comb:
-                for comb in find_combs_by_item(name, unique_combs):
-                    if comb not in combs_to_del:
-                        combs_to_del.add(comb)
-                names.remove(name)
-            unique_combs = list(set(unique_combs) - combs_to_del)
-        # add remaining names to the random combs
-        else:
-            if len(names) > 0:
-                idxs = list(range(len(lesson_combs)))
-                random.shuffle(idxs)
-                random_idxs = idxs[:len(names)]
-                for name, idx in zip(names, random_idxs):
-                    lesson_combs[idx] += (name,)
-        return lesson_combs
-
-    def get_lessons(self, unique_combs):
-        all_combs = unique_combs[:]
+    def get_lessons(self):
         calendar = []
         while True:
             try:
-                lesson = self.get_lesson(all_combs)
+                lesson = self.get_uniq_combs()
             except IndexError:
                 break
             else:
