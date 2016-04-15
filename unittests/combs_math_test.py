@@ -160,6 +160,14 @@ class TestStringMethods(unittest.TestCase):
         for items, uniq_combs, comb_size, output in uniq_items_combs_case:
             self.assertEqual(output, uniq_item_combs(items, uniq_combs, comb_size))
 
+        uniq_items_combs_error_case = [
+            ([1, 2, 3, 4], [(2, 3), (2, 4), (3, 4)], 2),
+        ]
+        for items, uniq_combs, combs_size in uniq_items_combs_error_case:
+            with self.assertRaises(IndexError):
+                uniq_item_combs(items, uniq_combs, combs_size)
+
+
 if __name__ == '__main__':
     unittest.main()
 
