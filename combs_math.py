@@ -36,15 +36,15 @@ def molder(combs_list, comb_size=1):
     return packed
 
 
-def sort_comb(comb, dups=True):
+def sort_items_in_comb(comb, dups=True):
     comb = list(comb)
     if not dups:
         comb = list(set(comb))
     return tuple(sorted(comb))
 
 
-def sort_combs_in_list(combs_list, dups=True):
-    return [sort_comb(comb, dups) for comb in combs_list]
+def sort_items_in_all_combs(combs_list, dups=True):
+    return [sort_items_in_comb(comb, dups) for comb in combs_list]
 
 
 def remove_dup_combs(combs_list):
@@ -72,22 +72,16 @@ def gen_combs(items_list, comb_size=1, uniq=False):
 
 def gen_sorted_combs(items_list, comb_size, uniq=False):
     combs = gen_combs(items_list, comb_size, uniq)
-    return list(set(sort_combs_in_list(combs)))
+    return list(set(sort_items_in_all_combs(combs)))
 
 
-def get_used_items(items, combs, comb_size):
+def get_items_from_combs(items, combs, comb_size, used=True):
     possible_combs = gen_sorted_combs(items, comb_size, uniq=True)
-    sorted_combs = sort_combs_in_list(combs)
+    sorted_combs = sort_items_in_all_combs(combs)
     remaining_combs = set(possible_combs) - set(sorted_combs)
     remaining_items = set(unpack(remaining_combs))
-    return sorted(list(set(items) - remaining_items))
-
-
-def get_remaining_items(items, combs, comb_size):
-    possible_combs = gen_sorted_combs(items, comb_size, uniq=True)
-    sorted_combs = sort_combs_in_list(combs)
-    remaining_combs = set(possible_combs) - set(sorted_combs)
-    return sorted(list(set(unpack(remaining_combs))))
+    out_items = set(items) - remaining_items if used else remaining_items
+    return sorted(list(out_items))
 
 
 def check_uniformity(combs_list, comb_size):
@@ -122,8 +116,8 @@ class PacksGenerator:
     def __init__(self, st_names, comb_size=2, whitelist=(), blacklist=(), repetitions=False):
         self.st_names = st_names
         self.comb_size = comb_size
-        self.whitelist = sort_combs_in_list(whitelist)
-        self.blacklist = sort_combs_in_list(blacklist)
+        self.whitelist = sort_items_in_all_combs(whitelist)
+        self.blacklist = sort_items_in_all_combs(blacklist)
         self.repetitions = repetitions
         self.uniq_combs = gen_sorted_combs(self.st_names, comb_size, uniq=True)
         self.uniq_combs = subtract_combs(self.uniq_combs, self.blacklist)

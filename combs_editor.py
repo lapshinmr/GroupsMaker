@@ -48,7 +48,7 @@ class NamesBox(Frame):
 
     def update_combs(self):
         self.combs = molder(self.combs, self.comb_size)
-        self.combs = sort_combs_in_list(self.combs, dups=False)
+        self.combs = sort_items_in_all_combs(self.combs, dups=False)
         self.combs = remove_dup_combs(self.combs)
 
     def get_consumers_combs(self):
