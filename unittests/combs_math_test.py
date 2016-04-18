@@ -60,8 +60,8 @@ class TestCombsMath(unittest.TestCase):
             (('2', '1', '1'), True, ('1', '1', '2')),
             (('2', '1', '1'), False, ('1', '2'))
         ]
-        for in_list, dups_flag, out_list in sort_comb_case:
-            self.assertEqual(sort_comb(in_list, dups_flag), out_list)
+        for income, dups, out_tuple in sort_comb_case:
+            self.assertEqual(sort_comb(income, dups), out_tuple)
 
     def test_sort_combs_in_list(self):
         sort_combs_in_list_case = [
@@ -76,8 +76,8 @@ class TestCombsMath(unittest.TestCase):
             ([('1', '2'), ('4', '3'), ('5', )], True, [('1', '2'), ('3', '4'), ('5', )]),
             ([('1', '2'), ('4', '3'), ('5', )], False, [('1', '2'), ('3', '4'), ('5', )])
         ]
-        for in_combs_list, dups_flag, res in sort_combs_in_list_case:
-            self.assertEqual(sort_combs_in_list(value, dups_flag), res)
+        for in_combs_list, dups, out_combs_list in sort_combs_in_list_case:
+            self.assertEqual(sort_combs_in_list(in_combs_list, dups), out_combs_list)
 
     def test_remove_dups(self):
         dups_case = [
@@ -87,8 +87,8 @@ class TestCombsMath(unittest.TestCase):
             ([('1', '2'), ('1', '2'), ('3', )], [('1', '2'), ('3', )]),
             ([('1', '2'), ('1', '2'), ('3', '3')], [('1', '2'), ('3', '3')]),
         ]
-        for value, res in dups_case:
-            self.assertEqual(remove_dup_combs(value), res)
+        for in_combs_list, out_combs_list in dups_case:
+            self.assertEqual(remove_dup_combs(in_combs_list), out_combs_list)
 
     def test_gen_combs(self):
         combs_case = [
@@ -103,24 +103,34 @@ class TestCombsMath(unittest.TestCase):
             ((1, 2, 3), 3, False, 27),
             ((1, 2, 3), 3, True, 6)
         ]
-        for value, opt, uniq, res in combs_case:
-            self.assertEqual(len(gen_combs(value, opt, uniq)), res)
+        for items, comb_size, uniq, out_combs_total in combs_case:
+            self.assertEqual(len(gen_combs(items, comb_size, uniq)), out_combs_total)
 
     def test_gen_sorted_combs(self):
         gen_sorted_combs_case = [
-            ((), 1, 0),
-            ((1, 2), 1, 2),
-            ((1, 2), 2, 1),
-            ((1, 2, 3), 2, 3),
-            ((1, 2, 3), 3, 1),
-            ((1, 2, 3, 4), 2, 6),
+            ((), 1, False, 0),
+            ((), 1, True, 0),
+            ((1, 2), 1, False, 2),
+            ((1, 2), 1, True, 2),
+            ((1, 2), 2, False, 3),
+            ((1, 2), 2, True, 1),
+            ((1, 2, 3), 2, False, 6),
+            ((1, 2, 3), 2, True, 3),
+            ((1, 2, 3), 3, False, 10),
+            ((1, 2, 3), 3, True, 1),
+            ((1, 2, 3, 4), 2, False, 10),
+            ((1, 2, 3, 4), 2, True, 6),
         ]
-        for value, opt, res in gen_sorted_combs_case:
-            self.assertEqual(len(gen_sorted_combs(value, opt, True)), res)
+        count = 0
+        for items, comb_size, uniq, out_combs_total in gen_sorted_combs_case:
+            count += 1
+            self.assertEqual(len(gen_sorted_combs(items, comb_size, uniq)), out_combs_total,
+                             'CASE %s: %s, %s, %s' % (count, items, comb_size, uniq))
 
     def test_get_used_items(self):
         used_items_case = [
             ([], [], 2, []),
+            (['1', '2', '3', '4'], [('1', ), ('2', ), ('3', )], 2, ['1', '2', '3']),
             (['1', '2', '3', '4'], [('1', '2'), ('2', '3'), ('2', '4')], 2, ['2']),
             (['1', '2', '3', '4'], [('1', '2'), ('2', '3'), ('2', '4'), ('3', '4')], 2, ['2']),
             (['1', '2', '3', '4'], [('1', '2'), ('1', '3'), ('2', '3'), ('2', '4'), ('3', '4')], 2, ['2', '3']),
@@ -131,8 +141,8 @@ class TestCombsMath(unittest.TestCase):
             (['2', '3', '4', '5', '6'], [('2', '3'), ('2', '4'), ('5', '2'), ('2', '6'), ('5', '3'), ('6', '3')], 2, ['2']),
             (['1', '2', '3', '4', '5'], [('1',), ('2',)], 1, ['1', '2'])
         ]
-        for items, cur_combs, size, res in used_items_case:
-            self.assertEqual(get_used_items(items, cur_combs, size), res)
+        for items, combs_list, comb_size, out_list in used_items_case:
+            self.assertEqual(get_used_items(items, combs_list, comb_size), out_list)
 
     def test_get_remaining_items(self):
         remaining_items_case = [
