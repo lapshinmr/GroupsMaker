@@ -1,6 +1,6 @@
 import os
 import math
-from combs_math import TimetableGenerator
+from combs_math import PacksGenerator
 from combs_editor import *
 from interface_functions import *
 from gm_exceptions import *
@@ -202,8 +202,8 @@ class University(Frame):
         duration = int(self.duration.get())
         size_group = int(self.size_group.get())
         students_names = self.dean.get_students_names()
-        group = TimetableGenerator(students_names, duration, comb_size=size_group, whitelist=self.dean.whitelist,
-                                   blacklist=self.dean.blacklist, repetitions=self.repeat.get())
+        group = PacksGenerator(students_names, duration, comb_size=size_group, whitelist=self.dean.whitelist,
+                               blacklist=self.dean.blacklist, repetitions=self.repeat.get())
         try:
             self.timetable, self.parts = group.get_timetable()
         except NotEnoughStudents:

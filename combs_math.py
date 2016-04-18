@@ -72,7 +72,7 @@ def gen_combs(items_list, comb_size=1, uniq=False):
 
 def gen_sorted_combs(items_list, comb_size, uniq=False):
     combs = gen_combs(items_list, comb_size, uniq)
-    return set(sort_combs_in_list(combs))
+    return list(set(sort_combs_in_list(combs)))
 
 
 def get_used_items(items, combs, comb_size):
@@ -104,9 +104,7 @@ def remove_combs_by_item(item, combs_list):
     return list(set(combs_list) - set(exclist))
 
 
-def get_combs_list_without_item_repits(in_items, in_combs_list, comb_size):
-    items = in_items[:]
-    combs_list = in_combs_list[:]
+def get_pack(items, combs_list, comb_size):
     output_combs = []
     remainder = len(items) % comb_size
     while len(items) > remainder:
@@ -120,9 +118,8 @@ def get_combs_list_without_item_repits(in_items, in_combs_list, comb_size):
     return output_combs
 
 
-class TimetableGenerator:
-    def __init__(self, st_names, comb_size=2, attempts_factor=10,
-                 whitelist=(), blacklist=(), repetitions=False):
+class PacksGenerator:
+    def __init__(self, st_names, comb_size=2, whitelist=(), blacklist=(), repetitions=False):
         self.st_names = st_names
         self.comb_size = comb_size
         self.whitelist = sort_combs_in_list(whitelist)
@@ -136,17 +133,18 @@ class TimetableGenerator:
         self.attempts = 0
         # self.limit_attempts = self.les_total * attempts_factor
 
-    def get_possible_packages(self):
+    def get_packs(self, pack_total):
+        combs = self.uniq_combs[:]
         calendar = []
-        while True:
-            try:
-                lesson = get_uniq_combs()
-            except IndexError:
-                break
-            else:
-                all_combs = list(set(all_combs) - set(lesson))
-                calendar.append(lesson)
+        for attempt in range(pack_total):
+            names = self.st_names[:]
+            pack = get_pack(names, combs, self.comb_size)
+            combs = list(set(combs) - set(pack))
+            if pack:
+                calendar.append(pack)
         return calendar
+
+    """
 
     def get_part_without_whitelist(self):
         uniq_combs = subtract_combs(self.uniq_combs, self.whitelist)
@@ -175,6 +173,7 @@ class TimetableGenerator:
 
     def get_attempts(self):
         return self.attempts
+    """
 
 
 if __name__ == '__main__':

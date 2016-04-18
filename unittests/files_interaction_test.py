@@ -57,7 +57,7 @@ whitelist: (1 2) (3 4) (4 5)
 """
 
 
-class TestStringMethods(unittest.TestCase):
+class TestNamesExclists(unittest.TestCase):
     def test_correct_text(self):
         correct_case = [
             (text1, 'names: 1, 2, 3, 4, 5 whitelist: (1, 2), (3, 4), (4, 5) blacklist: (1, 5), (3, 5)'),
