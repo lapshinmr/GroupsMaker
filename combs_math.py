@@ -72,7 +72,7 @@ def gen_combs(items_list, comb_size=1, uniq=False):
 
 def gen_sorted_combs(items_list, comb_size, uniq=False):
     combs = gen_combs(items_list, comb_size, uniq)
-    return list(set(sort_items_in_all_combs(combs)))
+    return sorted(list(set(sort_items_in_all_combs(combs))))
 
 
 def get_items_from_combs(items, combs, comb_size, used=True):
@@ -98,47 +98,45 @@ def remove_combs_by_item(item, combs_list):
     return list(set(combs_list) - set(exclist))
 
 
-def get_pack(in_items, in_combs_list, comb_size):
-    items = in_items[:]
-    combs_list = in_combs_list[:]
-    output_combs = []
-    remainder = len(items) % comb_size
-    while len(items) > remainder:
-        comb = combs_list.pop(0)
-        output_combs.append(comb)
-        for name in comb:
-            combs_list = remove_combs_by_item(name, combs_list)
-            items.remove(name)
-    for comb in output_combs:
-        in_combs_list.remove(comb)
-    for idx, item in enumerate(items):
-        output_combs[idx] += (item,)
-    return output_combs, in_combs_list
-
-
-class PacksGenerator:
-    def __init__(self, st_names, comb_size=2, whitelist=(), blacklist=(), repetitions=False):
-        self.st_names = st_names
+class TimetableGenerator:
+    def __init__(self, names, comb_size=2, whitelist=(), blacklist=(), repetitions=False):
+        self.names = names
         self.comb_size = comb_size
+        if len(self.names) < comb_size:
+            raise NotEnoughStudents
         self.whitelist = sort_items_in_all_combs(whitelist)
         self.blacklist = sort_items_in_all_combs(blacklist)
         self.repetitions = repetitions
-        self.uniq_combs = gen_sorted_combs(self.st_names, comb_size, uniq=True)
+        self.uniq_combs = gen_sorted_combs(self.names, comb_size, uniq=True)
         self.uniq_combs = subtract_combs(self.uniq_combs, self.blacklist)
         self.uniq_combs_total = len(self.uniq_combs)
-        self.st_total = len(self.st_names)
+        self.st_total = len(self.names)
         self.les_groups_total = self.st_total // self.comb_size
         self.attempts = 0
         # self.limit_attempts = self.les_total * attempts_factor
 
-    def get_packs(self, pack_size):
+    def get_lesson(self, in_combs_list):
+        names = self.names[:]
+        combs_list = in_combs_list[:]
+        output_combs = []
+        remainder = len(names) % self.comb_size
+        while len(names) > remainder:
+            comb = combs_list.pop(0)
+            output_combs.append(comb)
+            for name in comb:
+                combs_list = remove_combs_by_item(name, combs_list)
+                names.remove(name)
+        for comb in output_combs:
+            in_combs_list.remove(comb)
+        for idx, item in enumerate(names):
+            output_combs[idx] += (item,)
+        return output_combs, in_combs_list
+
+    def get_lessons(self, pack_size):
         combs = self.uniq_combs[:]
         calendar = []
-        print(combs)
         for attempt in range(pack_size):
-            names = self.st_names[:]
-            pack, combs = get_pack(names, combs, self.comb_size)
-            print(combs)
+            pack, combs = self.get_lesson(combs)
             if pack:
                 calendar.append(pack)
         return calendar
@@ -176,4 +174,4 @@ class PacksGenerator:
 
 
 if __name__ == '__main__':
-    pass
+    print(get_combs_pack([1, 2], [(1, 2)], 3))
