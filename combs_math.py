@@ -99,9 +99,10 @@ def remove_combs_by_item(item, combs_list):
 
 
 class TimetableGenerator:
-    def __init__(self, names, comb_size=2, whitelist=(), blacklist=(), repetitions=False):
+    def __init__(self, names, comb_size=2, lessons_total=1, whitelist=(), blacklist=(), repetitions=False):
         self.names = names
         self.comb_size = comb_size
+        self.lessons_total = lessons_total
         if len(self.names) < comb_size:
             raise NotEnoughStudents
         self.whitelist = sort_items_in_all_combs(whitelist)
@@ -132,14 +133,26 @@ class TimetableGenerator:
             output_combs[idx] += (item,)
         return output_combs, in_combs_list
 
-    def get_lessons(self, in_combs_list, total):
+    def get_lessons(self, in_combs_list):
         combs = in_combs_list[:]
         calendar = []
-        for attempt in range(total):
-            pack, combs = self.get_lesson(combs)
-            if pack:
-                calendar.append(pack)
+        for attempt in range(self.lessons_total):
+            try:
+                lesson, combs = self.get_lesson(combs)
+            except IndexError:
+                return calendar
+            if lesson:
+                calendar.append(lesson)
         return calendar
+
+    def get_les_versions(self):
+        combs = self.uniq_combs[:]
+        versions = []
+        for dummy in range(1000):
+            random.shuffle(combs)
+            versions.append(self.get_lessons(combs))
+        return versions
+
 
     """
 
@@ -174,4 +187,13 @@ class TimetableGenerator:
 
 
 if __name__ == '__main__':
-    print(get_combs_pack([1, 2], [(1, 2)], 3))
+    tt = TimetableGenerator([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 2, 10)
+    count = {}
+    versions = tt.get_les_versions()
+    max_length = 0
+    for vers in versions:
+        key = len(vers)
+        count[key] = count.get(key, []) + vers
+        if key > max_length:
+            max_length = key
+    print(count[max_length])

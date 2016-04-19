@@ -209,8 +209,8 @@ class TestCombsMath(unittest.TestCase):
             with self.assertRaises(IndexError):
                 TimetableGenerator(items, comb_size).get_lesson(uniq_combs)
 
-    def test_get_packs(self):
-        packs_case = [
+    def test_get_lessons(self):
+        get_lessons_case = [
             ([1, 2], 1, 1, [[(1, ), (2, )]]),
             ([1, 2], 1, 2, [[(1, 2)]]),
             ([1, 2, 3], 1, 2, [[(1, 2, 3)]]),
@@ -222,20 +222,22 @@ class TestCombsMath(unittest.TestCase):
             ([1, 2, 3], 1, 3, [[(1, 2, 3)]]),
             ([1, 2, 3, 4], 1, 3, [[(1, 2, 3, 4)]]),
             ([1, 2, 3, 4], 2, 3, [[(1, 2, 3, 4)], [(1, 2, 4, 3)]]),
+            ([1, 2], 2, 2, [[(1, 2)]]),
+            ([1, 2, 3], 2, 3, [[(1, 2, 3)]]),
+            ([1, 2, 3], 3, 3, [[(1, 2, 3)]]),
         ]
-        for items, total, comb_size, output in packs_case:
-            tt = TimetableGenerator(items, comb_size)
-            self.assertEqual(tt.get_lessons(tt.uniq_combs, total), output)
+        for items, lessons_total, comb_size, output in get_lessons_case:
+            tt = TimetableGenerator(items, comb_size, lessons_total)
+            self.assertEqual(tt.get_lessons(tt.uniq_combs), output)
 
-        packs_error_case = [
-            ([1, 2], 2, 2),
-            ([1, 2, 3], 2, 3),
-            ([1, 2, 3], 3, 3),
+    def test_get_les_versions(self):
+        get_les_verdioins_case = [
+            ([1, 2], 2, 3, 100),
         ]
-        for items, total, comb_size in packs_error_case:
-            with self.assertRaises(IndexError):
-                tt = TimetableGenerator(items, comb_size)
-                tt.get_lessons(tt.uniq_combs, total)
+        for items, comb_size, lessons_total, output in get_les_verdioins_case:
+            tt = TimetableGenerator(items, comb_size, lessons_total)
+            self.assertEqual(len(tt.get_les_versions()), output)
+
 
 if __name__ == '__main__':
     unittest.main()
