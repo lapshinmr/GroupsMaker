@@ -170,20 +170,20 @@ class TestCombsMath(unittest.TestCase):
             ([('1', '2'), ('3', '4', '5')], 2, False),
             ([('1', '2'), ('3', '4', '5')], 3, False),
         ]
-        for input, size, output in uniformity_case:
-            self.assertEqual(output, check_uniformity(input, size))
+        for in_combs_list, comb_size, output in uniformity_case:
+            self.assertEqual(check_uniformity(in_combs_list, comb_size), output)
 
     def test_get_pack(self):
         pack_case = [
-            ([], [], 2, []),
-            ([1, 2, 3], [(1, 2), (2, 3), (1, 3)], 2, [(1, 2, 3)]),
-            ([1, 2, 3], [(1, 3), (2, 3), (1, 2)], 2, [(1, 3, 2)]),
-            ([1, 2, 3, 4], [(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)], 2, [(1, 2), (3, 4)]),
-            ([1, 2, 3, 4], [(1, 4), (2, 3), (2, 4), (3, 4)], 2, [(1, 4), (2, 3)]),
-            ([1, 2, 3, 4], [(2, 3), (1, 4), (2, 4), (3, 4)], 2, [(2, 3), (1, 4)]),
+            ([], [], 2, ([], [])),
+            ([1, 2, 3], [(1, 2), (2, 3), (1, 3)], 2, ([(1, 2, 3)], [(2, 3), (1, 3)])),
+            ([1, 2, 3], [(1, 3), (2, 3), (1, 2)], 2, ([(1, 3, 2)], [(2, 3), (1, 2)])),
+            ([1, 2, 3, 4], [(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)], 2, ([(1, 2), (3, 4)], [(1, 3), (1, 4), (2, 3), (2, 4)])),
+            ([1, 2, 3, 4], [(1, 4), (2, 3), (2, 4), (3, 4)], 2, ([(1, 4), (2, 3)], [(2, 4), (3, 4)])),
+            ([1, 2, 3, 4], [(2, 3), (1, 4), (2, 4), (3, 4)], 2, ([(2, 3), (1, 4)], [(2, 4), (3, 4)])),
         ]
         for items, uniq_combs, comb_size, output in pack_case:
-            self.assertEqual(output, get_pack(items, uniq_combs, comb_size))
+            self.assertEqual(get_pack(items, uniq_combs, comb_size), output)
 
         pack_error_case = [
             ([1, 2, 3, 4], [(2, 3), (2, 4), (3, 4)], 2),
@@ -195,11 +195,15 @@ class TestCombsMath(unittest.TestCase):
 
     def test_get_packs(self):
         packs_case = [
+            ([], 0, []),
+            ([], 1, []),
             ([], 2, []),
-            ([1, 2, 3], 2, [(1, 2, 3)]),
+            ([1, 2, 3, 4], 2, [[(1, 2), (3, 4)], [(1, 3), (2, 4)]]),
+            ([1, 2, 3], 2, [[(1, 2, 3)], [(1, 3, 2)]]),
+            ([1, 2, 3, 4], 3, [[(1, 2), (3, 4)], [(1, 3), (2, 4)], [(1, 4), (2, 3)]]),
         ]
         for items, pack_total, output in packs_case:
-            self.assertEqual(output, PacksGenerator(items).get_packs(pack_total))
+            self.assertEqual(PacksGenerator(items).get_packs(pack_total), output)
 
 if __name__ == '__main__':
     unittest.main()

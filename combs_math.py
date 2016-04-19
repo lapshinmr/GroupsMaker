@@ -98,7 +98,9 @@ def remove_combs_by_item(item, combs_list):
     return list(set(combs_list) - set(exclist))
 
 
-def get_pack(items, combs_list, comb_size):
+def get_pack(in_items, in_combs_list, comb_size):
+    items = in_items[:]
+    combs_list = in_combs_list[:]
     output_combs = []
     remainder = len(items) % comb_size
     while len(items) > remainder:
@@ -107,9 +109,11 @@ def get_pack(items, combs_list, comb_size):
         for name in comb:
             combs_list = remove_combs_by_item(name, combs_list)
             items.remove(name)
+    for comb in output_combs:
+        in_combs_list.remove(comb)
     for idx, item in enumerate(items):
         output_combs[idx] += (item,)
-    return output_combs
+    return output_combs, in_combs_list
 
 
 class PacksGenerator:
@@ -127,13 +131,14 @@ class PacksGenerator:
         self.attempts = 0
         # self.limit_attempts = self.les_total * attempts_factor
 
-    def get_packs(self, pack_total):
+    def get_packs(self, pack_size):
         combs = self.uniq_combs[:]
         calendar = []
-        for attempt in range(pack_total):
+        print(combs)
+        for attempt in range(pack_size):
             names = self.st_names[:]
-            pack = get_pack(names, combs, self.comb_size)
-            combs = list(set(combs) - set(pack))
+            pack, combs = get_pack(names, combs, self.comb_size)
+            print(combs)
             if pack:
                 calendar.append(pack)
         return calendar
