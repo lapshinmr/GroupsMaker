@@ -215,17 +215,19 @@ class TestCombsMath(unittest.TestCase):
             ([1, 2, 3, 4], 1, 3, [[(1, 2, 3, 4)]]),
             ([1, 2, 3, 4], 2, 3, [[(1, 2, 3, 4)], [(1, 2, 4, 3)]]),
         ]
-        for items, pack_total, comb_size, output in packs_case:
-            self.assertEqual(TimetableGenerator(items, comb_size=comb_size).get_packs(pack_total), output)
+        for items, total, comb_size, output in packs_case:
+            tt = TimetableGenerator(items, comb_size)
+            self.assertEqual(tt.get_lessons(tt.uniq_combs, total), output)
 
         packs_error_case = [
             ([1, 2], 2, 2),
             ([1, 2, 3], 2, 3),
             ([1, 2, 3], 3, 3),
         ]
-        for items, pack_total, comb_size in packs_error_case:
+        for items, total, comb_size in packs_error_case:
             with self.assertRaises(IndexError):
-                TimetableGenerator(items, comb_size=comb_size).get_packs(pack_total)
+                tt = TimetableGenerator(items, comb_size)
+                tt.get_lessons(tt.uniq_combs, total)
 
         packs_error_case = [
             ([], 0, 2),
@@ -236,9 +238,10 @@ class TestCombsMath(unittest.TestCase):
             ([], 2, 3),
             ([1, 2], 1, 3),
         ]
-        for items, pack_total, comb_size in packs_error_case:
+        for items, total, comb_size in packs_error_case:
             with self.assertRaises(NotEnoughStudents):
-                TimetableGenerator(items, comb_size=comb_size).get_packs(pack_total)
+                tt = TimetableGenerator(items, comb_size)
+                tt.get_lessons(tt.uniq_combs, total)
 
 if __name__ == '__main__':
     unittest.main()

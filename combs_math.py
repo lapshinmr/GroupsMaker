@@ -132,10 +132,10 @@ class TimetableGenerator:
             output_combs[idx] += (item,)
         return output_combs, in_combs_list
 
-    def get_lessons(self, pack_size):
-        combs = self.uniq_combs[:]
+    def get_lessons(self, in_combs_list, total):
+        combs = in_combs_list[:]
         calendar = []
-        for attempt in range(pack_size):
+        for attempt in range(total):
             pack, combs = self.get_lesson(combs)
             if pack:
                 calendar.append(pack)
