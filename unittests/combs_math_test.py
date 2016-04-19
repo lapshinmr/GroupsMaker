@@ -174,6 +174,21 @@ class TestCombsMath(unittest.TestCase):
         for in_combs_list, comb_size, output in uniformity_case:
             self.assertEqual(check_uniformity(in_combs_list, comb_size), output)
 
+    def test_init_tt(self):
+        init_error_case = [
+            ([], 2),
+            ([], 2),
+            ([], 2),
+            ([], 2),
+            ([], 3),
+            ([], 3),
+            ([], 3),
+            ([1, 2], 3),
+        ]
+        for items, comb_size in init_error_case:
+            with self.assertRaises(NotEnoughStudents):
+                TimetableGenerator(items, comb_size)
+
     def test_get_lesson(self):
         lesson_case = [
             ([1, 2, 3], [(1, 2), (2, 3), (1, 3)], 2, ([(1, 2, 3)], [(2, 3), (1, 3)])),
@@ -192,13 +207,6 @@ class TestCombsMath(unittest.TestCase):
         ]
         for items, uniq_combs, comb_size in lesson_error_case:
             with self.assertRaises(IndexError):
-                TimetableGenerator(items, comb_size).get_lesson(uniq_combs)
-
-        lesson_error_case = [
-            ([], [], 2),
-        ]
-        for items, uniq_combs, comb_size in lesson_error_case:
-            with self.assertRaises(NotEnoughStudents):
                 TimetableGenerator(items, comb_size).get_lesson(uniq_combs)
 
     def test_get_packs(self):
@@ -226,20 +234,6 @@ class TestCombsMath(unittest.TestCase):
         ]
         for items, total, comb_size in packs_error_case:
             with self.assertRaises(IndexError):
-                tt = TimetableGenerator(items, comb_size)
-                tt.get_lessons(tt.uniq_combs, total)
-
-        packs_error_case = [
-            ([], 0, 2),
-            ([], 1, 2),
-            ([], 2, 2),
-            ([], 0, 3),
-            ([], 1, 3),
-            ([], 2, 3),
-            ([1, 2], 1, 3),
-        ]
-        for items, total, comb_size in packs_error_case:
-            with self.assertRaises(NotEnoughStudents):
                 tt = TimetableGenerator(items, comb_size)
                 tt.get_lessons(tt.uniq_combs, total)
 
