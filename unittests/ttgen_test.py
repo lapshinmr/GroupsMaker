@@ -33,8 +33,8 @@ class TestTimetableGenerator(unittest.TestCase):
             with self.assertRaises(IndexError):
                 TimetableGenerator(items, comb_size).get_lesson(uniq_combs)
 
-    def test_get_lessons(self):
-        get_lessons_case = [
+    def test_get_course(self):
+        get_course_case = [
             ([1, 2], 1, 1, [[(1, ), (2, )]]),
             ([1, 2], 1, 2, [[(1, 2)]]),
             ([1, 2, 3], 1, 2, [[(1, 2, 3)]]),
@@ -50,25 +50,25 @@ class TestTimetableGenerator(unittest.TestCase):
             ([1, 2, 3], 2, 3, [[(1, 2, 3)]]),
             ([1, 2, 3], 3, 3, [[(1, 2, 3)]]),
         ]
-        for items, lessons_total, comb_size, output in get_lessons_case:
+        for items, lessons_total, comb_size, output in get_course_case:
             tt = TimetableGenerator(items, comb_size, lessons_total)
-            self.assertEqual(tt.get_lessons(tt.combs), output)
+            self.assertEqual(tt.get_course(tt.combs), output)
 
-    def test_get_les_versions(self):
-        get_les_verdioins_case = [
+    def test_get_course_versions(self):
+        get_course_versions_case = [
             ([1, 2], 2, 3, 1000),
         ]
-        for items, comb_size, lessons_total, output in get_les_verdioins_case:
+        for items, comb_size, lessons_total, output in get_course_versions_case:
             tt = TimetableGenerator(items, comb_size, lessons_total)
-            self.assertEqual(len(tt.get_les_versions([])), output)
+            self.assertEqual(len(tt.get_course_versions([])), output)
 
-    def test_version_length_counter(self):
-        version_length_counter_case = [
+    def test_get_courses_hist(self):
+        get_courses_hist_case = [
             ([[], [], []], {0: [[], [], []]}),
             ([[1, 2], [1, 2], [1], [1, 2, 3]], {1: [[1]], 2: [[1, 2], [1, 2]], 3: [[1, 2, 3]]})
         ]
-        for versions, count in version_length_counter_case:
-            self.assertEqual(TimetableGenerator.version_length_counter(versions), count)
+        for courses, hist in get_courses_hist_case:
+            self.assertEqual(TimetableGenerator.get_courses_hist(courses), hist)
 
     def test_choose_version(self):
         choose_version_case = [

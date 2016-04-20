@@ -34,7 +34,7 @@ class TimetableGenerator:
             output_combs[idx] += (item,)
         return output_combs, in_combs_list
 
-    def get_lessons(self, in_combs_list):
+    def get_course(self, in_combs_list):
         combs = in_combs_list[:]
         calendar = []
         for attempt in range(self.lessons_total):
@@ -46,20 +46,20 @@ class TimetableGenerator:
                 calendar.append(lesson)
         return calendar
 
-    def get_les_versions(self, in_combs_list):
+    def get_course_versions(self, in_combs_list):
         combs = in_combs_list[:]
-        versions = []
+        courses = []
         for dummy in range(1000):
             random.shuffle(combs)
-            versions.append(self.get_lessons(combs))
-        return versions
+            courses.append(self.get_course(combs))
+        return courses
 
     @staticmethod
-    def version_length_counter(versions):
-        version_length_count = {}
-        for vers in versions:
-            version_length_count[len(vers)] = version_length_count.get(len(vers), []) + [vers]
-        return version_length_count
+    def get_courses_hist(courses):
+        courses_hist = {}
+        for course in courses:
+            courses_hist[len(course)] = courses_hist.get(len(course), []) + [course]
+        return courses_hist
 
     @staticmethod
     def choose_version(versions_count, lessons_total, quantile=0.05):
@@ -77,8 +77,8 @@ class TimetableGenerator:
 
 if __name__ == '__main__':
     tt = TimetableGenerator([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 2, 10)
-    versions = tt.get_les_versions(tt.combs)
-    count = tt.version_length_counter(versions)
+    versions = tt.get_course_versions(tt.combs)
+    count = tt.get_courses_hist(versions)
     for idx, key in enumerate(sorted(count.keys())):
         print(idx + 1, len(count[key]))
     print(tt.choose_version(count, 11))
