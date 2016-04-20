@@ -6,6 +6,7 @@ class TestCombsMath(unittest.TestCase):
     def test_subtract_combs(self):
         pack_case = [
             ([], [], []),
+            ([], [(2, )], []),
             ([(1, ), (3, )], [(2, )], [(1, ), (3, )]),
             ([(1, ), (2, ), (3, )], [(2, )], [(1, ), (3, )])
         ]

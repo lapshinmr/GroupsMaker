@@ -13,10 +13,9 @@ class TimetableGenerator:
             raise NotEnoughStudents
         self.whitelist = sort_items_in_all_combs(whitelist, dups=False)
         self.blacklist = sort_items_in_all_combs(blacklist, dups=False)
-        self.uniq_combs = gen_sorted_combs(self.names, comb_size, uniq=True)
-        self.uniq_combs_outblack = subtract_combs(self.uniq_combs, self.blacklist)
-        self.uniq_combs_outblack = subtract_combs(self.uniq_combs, self.blacklist)
-        # self.limit_attempts = self.les_total * attempts_factor
+        self.combs = gen_sorted_combs(self.names, comb_size, uniq=True)
+        self.combs_wo_black = subtract_combs(self.combs, self.blacklist)
+        self.combs_wo_black_white = subtract_combs(self.combs_wo_black, self.whitelist)
 
     def get_lesson(self, in_combs_list):
         names = self.names[:]
@@ -55,6 +54,15 @@ class TimetableGenerator:
             versions.append(self.get_lessons(combs))
         return versions
 
+    def version_length_counter(self, versions):
+        version_length_count = {}
+        for vers in versions:
+            version_length_count[len(vers)] = version_length_count.get(len(vers), []) + [vers]
+        return version_length_count
+
+    def choose_version(self, versions, quantile=0.05):
+        pass
+
     """
     def get_timetable(self):
         timetable = []
@@ -76,18 +84,13 @@ class TimetableGenerator:
             if extra_ttlen:
                 timetable = timetable[:-extra_ttlen]
         return timetable, parts
-
-    def get_attempts(self):
-        return self.attempts
     """
 
 
 if __name__ == '__main__':
     tt = TimetableGenerator([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 2, 10)
     count = {}
-    versions = tt.get_les_versions()
-    for vers in versions:
-        key = len(vers)
-        count[key] = count.get(key, []) + [vers]
+    versions = tt.get_les_versions([])
     for idx, key in enumerate(sorted(count.keys())):
         print(idx + 1, len(count[key]))
+    print(count)

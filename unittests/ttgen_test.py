@@ -6,11 +6,6 @@ class TestTimetableGenerator(unittest.TestCase):
     def test_init_tt(self):
         init_error_case = [
             ([], 2),
-            ([], 2),
-            ([], 2),
-            ([], 2),
-            ([], 3),
-            ([], 3),
             ([], 3),
             ([1, 2], 3),
         ]
@@ -57,7 +52,7 @@ class TestTimetableGenerator(unittest.TestCase):
         ]
         for items, lessons_total, comb_size, output in get_lessons_case:
             tt = TimetableGenerator(items, comb_size, lessons_total)
-            self.assertEqual(tt.get_lessons(tt.uniq_combs), output)
+            self.assertEqual(tt.get_lessons(tt.combs), output)
 
     def test_get_les_versions(self):
         get_les_verdioins_case = [
@@ -65,7 +60,16 @@ class TestTimetableGenerator(unittest.TestCase):
         ]
         for items, comb_size, lessons_total, output in get_les_verdioins_case:
             tt = TimetableGenerator(items, comb_size, lessons_total)
-            self.assertEqual(len(tt.get_les_versions()), output)
+            self.assertEqual(len(tt.get_les_versions([])), output)
+
+    def test_version_length_counter(self):
+        version_length_counter_case = [
+            ([[], [], []], {0: [[], [], []]}),
+            ([[1, 2], [1, 2], [1], [1, 2, 3]], {1: [[1]], 2: [[1, 2], [1, 2]], 3: [[1, 2, 3]]})
+        ]
+        for versions, count in version_length_counter_case:
+            tt = TimetableGenerator([1, 2, 3])
+            self.assertEqual(tt.version_length_counter(versions), count)
 
 
 if __name__ == '__main__':
