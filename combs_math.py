@@ -42,6 +42,7 @@ def subtract_combs(minuend, subtrahend):
 
 
 def remove_dup_combs(combs_list):
+    """Save order in list"""
     unique_list = []
     while combs_list:
         comb, *combs_list = combs_list

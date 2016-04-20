@@ -68,8 +68,20 @@ class TestTimetableGenerator(unittest.TestCase):
             ([[1, 2], [1, 2], [1], [1, 2, 3]], {1: [[1]], 2: [[1, 2], [1, 2]], 3: [[1, 2, 3]]})
         ]
         for versions, count in version_length_counter_case:
-            tt = TimetableGenerator([1, 2, 3])
-            self.assertEqual(tt.version_length_counter(versions), count)
+            self.assertEqual(TimetableGenerator.version_length_counter(versions), count)
+
+    def test_choose_version(self):
+        choose_version_case = [
+            ({}, 0, []),
+            ({}, 1, []),
+            ({}, 2, []),
+            ({1: [[1]], 2: [[1, 2], [1, 2]], 3: [[1, 2, 3]]}, 0, []),
+            ({1: [[1]], 2: [[1, 2], [1, 2]], 3: [[1, 2, 3]]}, 2, [1, 2]),
+            ({1: [[1]], 2: [[1, 2], [1, 2]], 3: [[1, 2, 3]]}, 3, [1, 2, 3]),
+            ({1: [[1]], 2: [[1, 2], [1, 2]], 3: [[1, 2, 3]]}, 4, [])
+        ]
+        for key, lesson_total, version in choose_version_case:
+            self.assertEqual(TimetableGenerator.choose_version(key, lesson_total), version)
 
 
 if __name__ == '__main__':

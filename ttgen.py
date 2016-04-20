@@ -54,43 +54,31 @@ class TimetableGenerator:
             versions.append(self.get_lessons(combs))
         return versions
 
-    def version_length_counter(self, versions):
+    @staticmethod
+    def version_length_counter(versions):
         version_length_count = {}
         for vers in versions:
             version_length_count[len(vers)] = version_length_count.get(len(vers), []) + [vers]
         return version_length_count
 
-    def choose_version(self, versions, quantile=0.05):
-        pass
-
-    """
-    def get_timetable(self):
-        timetable = []
-        parts = []
-        timetable.extend(self.get_part_without_whitelist())
-        if not self.repetitions:
-            return timetable, parts
-        while len(timetable) < self.les_total:
-            next_tt_part = self.get_lessons(self.uniq_combs)
-            if next_tt_part:
-                parts.append(len(timetable))
-                timetable.extend(next_tt_part)
-            self.attempts += 1
-            if self.attempts > self.limit_attempts:
-                raise NotEnoughStudents
-        else:
-            cur_ttlen = len(timetable)
-            extra_ttlen = cur_ttlen - self.les_total
-            if extra_ttlen:
-                timetable = timetable[:-extra_ttlen]
-        return timetable, parts
-    """
+    @staticmethod
+    def choose_version(versions_count, lessons_total, quantile=0.05):
+        if lessons_total in versions_count:
+            return random.choice(versions_count[lessons_total])
+        elif lessons_total > max(versions_count.keys()):
+            versions = []
+            keys = sorted(versions_count.keys(), reverse=True)
+            while len(versions) < int(quantile * 1000):
+                key, *keys = keys
+                versions.extend(versions_count[key])
+            print("quantile's versions", len(versions))
+            return len(random.choice(versions))
 
 
 if __name__ == '__main__':
     tt = TimetableGenerator([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 2, 10)
-    count = {}
-    versions = tt.get_les_versions([])
+    versions = tt.get_les_versions(tt.combs)
+    count = tt.version_length_counter(versions)
     for idx, key in enumerate(sorted(count.keys())):
         print(idx + 1, len(count[key]))
-    print(count)
+    print(tt.choose_version(count, 11))
