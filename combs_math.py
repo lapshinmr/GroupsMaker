@@ -2,16 +2,6 @@ import random
 from gm_exceptions import *
 
 
-def subtract_combs(combs_list, exclist):
-    uniq_combs = combs_list[:]
-    for comb in exclist:
-        try:
-            uniq_combs.remove(comb)
-        except ValueError:
-            print('No such comb %s in unique combs' % str(comb))
-    return uniq_combs
-
-
 def unpack(combs_list):
     unpacked = []
     for comb in combs_list:
@@ -45,6 +35,12 @@ def sort_items_in_comb(comb, dups=True):
 
 def sort_items_in_all_combs(combs_list, dups=True):
     return [sort_items_in_comb(comb, dups) for comb in combs_list]
+
+
+def subtract_combs(minuend, subtrahend):
+    minued_sorted = sort_items_in_all_combs(minuend, dups=False)
+    subtrahend_sorted = sort_items_in_all_combs(subtrahend, dups=False)
+    return sorted(list(set(minued_sorted) - set(subtrahend_sorted)))
 
 
 def remove_dup_combs(combs_list):
@@ -102,18 +98,15 @@ class TimetableGenerator:
     def __init__(self, names, comb_size=2, lessons_total=1, whitelist=(), blacklist=(), repetitions=False):
         self.names = names
         self.comb_size = comb_size
+        self.repetitions = repetitions
         self.lessons_total = lessons_total
         if len(self.names) < comb_size:
             raise NotEnoughStudents
-        self.whitelist = sort_items_in_all_combs(whitelist)
-        self.blacklist = sort_items_in_all_combs(blacklist)
-        self.repetitions = repetitions
+        self.whitelist = sort_items_in_all_combs(whitelist, dups=False)
+        self.blacklist = sort_items_in_all_combs(blacklist, dups=False)
         self.uniq_combs = gen_sorted_combs(self.names, comb_size, uniq=True)
-        self.uniq_combs = subtract_combs(self.uniq_combs, self.blacklist)
-        self.uniq_combs_total = len(self.uniq_combs)
-        self.st_total = len(self.names)
-        self.les_groups_total = self.st_total // self.comb_size
-        self.attempts = 0
+        self.uniq_combs_outblack = subtract_combs(self.uniq_combs, self.blacklist)
+        self.uniq_combs_outblack = subtract_combs(self.uniq_combs, self.blacklist)
         # self.limit_attempts = self.les_total * attempts_factor
 
     def get_lesson(self, in_combs_list):
@@ -145,21 +138,15 @@ class TimetableGenerator:
                 calendar.append(lesson)
         return calendar
 
-    def get_les_versions(self):
-        combs = self.uniq_combs[:]
+    def get_les_versions(self, in_combs_list):
+        combs = in_combs_list[:]
         versions = []
         for dummy in range(1000):
             random.shuffle(combs)
             versions.append(self.get_lessons(combs))
         return versions
 
-
     """
-
-    def get_part_without_whitelist(self):
-        uniq_combs = subtract_combs(self.uniq_combs, self.whitelist)
-        return self.get_lessons(uniq_combs)
-
     def get_timetable(self):
         timetable = []
         parts = []
@@ -190,10 +177,8 @@ if __name__ == '__main__':
     tt = TimetableGenerator([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 2, 10)
     count = {}
     versions = tt.get_les_versions()
-    max_length = 0
     for vers in versions:
         key = len(vers)
-        count[key] = count.get(key, []) + vers
-        if key > max_length:
-            max_length = key
-    print(count[max_length])
+        count[key] = count.get(key, []) + [vers]
+    for idx, key in enumerate(sorted(count.keys())):
+        print(idx + 1, len(count[key]))

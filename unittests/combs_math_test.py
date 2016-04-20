@@ -4,6 +4,15 @@ from gm_exceptions import *
 
 
 class TestCombsMath(unittest.TestCase):
+    def test_subtract_combs(self):
+        pack_case = [
+            ([], [], []),
+            ([(1, ), (3, )], [(2, )], [(1, ), (3, )]),
+            ([(1, ), (2, ), (3, )], [(2, )], [(1, ), (3, )])
+        ]
+        for minuend, subtrahend, diff in pack_case:
+            self.assertEqual(subtract_combs(minuend, subtrahend), diff)
+
     def test_pack(self):
         pack_case = [
             ([], 0, []),
@@ -174,6 +183,8 @@ class TestCombsMath(unittest.TestCase):
         for in_combs_list, comb_size, output in uniformity_case:
             self.assertEqual(check_uniformity(in_combs_list, comb_size), output)
 
+
+class TestTimetableGenerator(unittest.TestCase):
     def test_init_tt(self):
         init_error_case = [
             ([], 2),
@@ -232,7 +243,7 @@ class TestCombsMath(unittest.TestCase):
 
     def test_get_les_versions(self):
         get_les_verdioins_case = [
-            ([1, 2], 2, 3, 100),
+            ([1, 2], 2, 3, 1000),
         ]
         for items, comb_size, lessons_total, output in get_les_verdioins_case:
             tt = TimetableGenerator(items, comb_size, lessons_total)
