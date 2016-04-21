@@ -204,14 +204,28 @@ class TestCombsMath(unittest.TestCase):
         get_hist_part_case = [
             ({}, (None, None), {}),
             ({}, (1, 2), {}),
-            ({1: [[1]], 2: [[1, 2], [1, 2]], 3: [[1, 2, 3]]}, (1, 2), {1: [[1]]}),
-            ({1: [[1]], 2: [[1, 2], [1, 2]], 3: [[1, 2, 3]]}, (None, 3), {1: [[1]], 2: [[1, 2], [1, 2]]}),
-            ({1: [[1]], 2: [[1, 2], [1, 2]], 3: [[1, 2, 3]]}, (-10, 10), {1: [[1]], 2: [[1, 2], [1, 2]], 3: [[1, 2, 3]]}),
+            ({1: 3, 2: 5, 3: 4}, (1, 2), {1: 3}),
+            ({1: 3, 2: 5, 3: 4}, (None, 3), {1: 3, 2: 5}),
+            ({1: 3, 2: 5, 3: 4}, (-10, 10), {1: 3, 2: 5, 3: 4}),
+            ({-5: 3, 2: 5, 3: 4}, (-10, 10), {-5: 3, 2: 5, 3: 4}),
         ]
         count = 0
         for hist, bds, hist_part in get_hist_part_case:
             count += 1
             self.assertEqual(get_hist_part(hist, *bds), hist_part, 'CASE %s' % count)
+
+    """
+    def test_get_hist_quantile(self):
+        get_hist_quantile_case = [
+            ({}, 0.05, 'right', {}),
+            ({}, 0, 'right', {}),
+            ({1: 3, 2: 5, 3: 4}, 0.05, 'right', {3: 4}),
+        ]
+        count = 0
+        for hist, quantile, side, hist_part in get_hist_quantile_case:
+            count += 1
+            self.assertEqual(get_hist_quantile(hist, quantile, side), hist_part, 'CASE %s' % count)
+    """
 
 
 if __name__ == '__main__':

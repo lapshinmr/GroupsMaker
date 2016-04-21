@@ -104,18 +104,23 @@ def get_hist(sequence, axis_x=lambda x: x, axis_y=lambda x: x):
     return hist
 
 
-def get_hist_part(hist, a=None, b=None):
+def get_hist_part(hist, left=None, right=None):
     hist_part = {}
     if hist:
-        min_a, *middle, max_b = sorted(hist)
-        if not a:
-            a = min_a
-        if not b:
-            b = max_b
+        min_left, *middle, max_right = sorted(hist.keys())
+        if not left:
+            left = min_left
+        if not right:
+            right = max_right
     for key in hist.keys():
-        if a <= key < b:
+        if left <= key < right:
             hist_part[key] = hist[key]
     return hist_part
+
+
+def get_hist_quantile(hist, quantile=0, side='right'):
+    pass
+
 
 
 if __name__ == '__main__':
