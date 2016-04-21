@@ -200,6 +200,19 @@ class TestCombsMath(unittest.TestCase):
             count += 1
             self.assertEqual(get_hist(sequence, axis_x, axis_y), hist, 'CASE %s' % count)
 
+    def test_get_hist_part(self):
+        get_hist_part_case = [
+            ({}, (None, None), {}),
+            ({}, (1, 2), {}),
+            ({1: [[1]], 2: [[1, 2], [1, 2]], 3: [[1, 2, 3]]}, (1, 2), {1: [[1]]}),
+            ({1: [[1]], 2: [[1, 2], [1, 2]], 3: [[1, 2, 3]]}, (None, 3), {1: [[1]], 2: [[1, 2], [1, 2]]}),
+            ({1: [[1]], 2: [[1, 2], [1, 2]], 3: [[1, 2, 3]]}, (-10, 10), {1: [[1]], 2: [[1, 2], [1, 2]], 3: [[1, 2, 3]]}),
+        ]
+        count = 0
+        for hist, bds, hist_part in get_hist_part_case:
+            count += 1
+            self.assertEqual(get_hist_part(hist, *bds), hist_part, 'CASE %s' % count)
+
 
 if __name__ == '__main__':
     unittest.main()

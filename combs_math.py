@@ -104,5 +104,19 @@ def get_hist(sequence, axis_x=lambda x: x, axis_y=lambda x: x):
     return hist
 
 
+def get_hist_part(hist, a=None, b=None):
+    hist_part = {}
+    if hist:
+        min_a, *middle, max_b = sorted(hist)
+        if not a:
+            a = min_a
+        if not b:
+            b = max_b
+    for key in hist.keys():
+        if a <= key < b:
+            hist_part[key] = hist[key]
+    return hist_part
+
+
 if __name__ == '__main__':
     pass

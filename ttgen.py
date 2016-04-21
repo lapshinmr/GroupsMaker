@@ -56,18 +56,23 @@ class TimetableGenerator:
             courses.append(self.get_course(combs))
         return courses
 
-    @staticmethod
-    def choose_version(versions_count, lessons_total, quantile=0.05):
-        if lessons_total in versions_count:
-            return random.choice(versions_count[lessons_total])
-        elif lessons_total > max(versions_count.keys()):
-            versions = []
-            keys = sorted(versions_count.keys(), reverse=True)
-            while len(versions) < int(quantile * self.versions_total):
-                key, *keys = keys
-                versions.extend(versions_count[key])
-            print("quantile's versions", len(versions))
-            return len(random.choice(versions))
+    def choose_course(self, courses, req_lessons_count, quantile=0.05):
+        course = []
+        chosen_courses = []
+        if req_lessons_count in courses:
+            chosen_courses = courses[req_lessons_count]
+        elif courses and req_lessons_count > max(courses.keys()):
+            course_lengths = sorted(courses.keys(), reverse=True)
+            courses_total = sum([len(value) for value in courses.values()])
+            chosen_courses = []
+            while True:
+                length, *course_lengths = course_lengths
+                chosen_courses.extend(courses[length])
+                if len(chosen_courses) > int(quantile * courses_total):
+                    break
+        if chosen_courses:
+            course = random.choice(chosen_courses)
+        return course
 
 
 if __name__ == '__main__':
