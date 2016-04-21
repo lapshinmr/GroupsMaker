@@ -93,5 +93,15 @@ def remove_combs_by_item(item, combs_list):
     return list(set(combs_list) - set(exclist))
 
 
+def get_hist(sequence, axis_x, axis_y):
+    hist = {}
+    for item in sequence:
+        key = axis_x(item)
+        hist[key] = hist.get(key, []) + [item]
+    for key, value in hist.items():
+        hist[key] = axis_y(value)
+    return hist
+
+
 if __name__ == '__main__':
     pass

@@ -183,6 +183,21 @@ class TestCombsMath(unittest.TestCase):
         for in_combs_list, comb_size, output in uniformity_case:
             self.assertEqual(check_uniformity(in_combs_list, comb_size), output)
 
+    def test_get_hist(self):
+        dummy = lambda x: x
+        get_hist_case = [
+            ((), dummy, dummy, {}),
+            ([[], [], []], len, dummy, {0: [[], [], []]}),
+            (([], [], []), len, dummy, {0: [[], [], []]}),
+            ((1, 2, 3, 3, 2), dummy, dummy, {1: [1], 2: [2, 2], 3: [3, 3]}),
+            ((1, 2, 3, 3, 2), dummy, len, {1: 1, 2: 2, 3: 2}),
+            ([[1, 2], [1, 2], [1], [1, 2, 3]], len, dummy, {1: [[1]], 2: [[1, 2], [1, 2]], 3: [[1, 2, 3]]})
+        ]
+        count = 0
+        for sequence, axis_x, axis_y, hist in get_hist_case:
+            count += 1
+            self.assertEqual(get_hist(sequence, axis_x, axis_y), hist, 'CASE %s' % count)
+
 
 if __name__ == '__main__':
     unittest.main()

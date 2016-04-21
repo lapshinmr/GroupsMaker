@@ -4,6 +4,8 @@ from gm_exceptions import *
 
 
 class TimetableGenerator:
+    versions_total = 1000
+
     def __init__(self, names, comb_size=2, lessons_total=1, whitelist=(), blacklist=(), repetitions=False):
         self.names = names
         self.comb_size = comb_size
@@ -49,17 +51,10 @@ class TimetableGenerator:
     def get_course_versions(self, in_combs_list):
         combs = in_combs_list[:]
         courses = []
-        for dummy in range(1000):
+        for dummy in range(self.versions_total):
             random.shuffle(combs)
             courses.append(self.get_course(combs))
         return courses
-
-    @staticmethod
-    def get_courses_hist(courses):
-        courses_hist = {}
-        for course in courses:
-            courses_hist[len(course)] = courses_hist.get(len(course), []) + [course]
-        return courses_hist
 
     @staticmethod
     def choose_version(versions_count, lessons_total, quantile=0.05):
@@ -68,7 +63,7 @@ class TimetableGenerator:
         elif lessons_total > max(versions_count.keys()):
             versions = []
             keys = sorted(versions_count.keys(), reverse=True)
-            while len(versions) < int(quantile * 1000):
+            while len(versions) < int(quantile * self.versions_total):
                 key, *keys = keys
                 versions.extend(versions_count[key])
             print("quantile's versions", len(versions))

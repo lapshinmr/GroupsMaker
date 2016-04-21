@@ -62,14 +62,6 @@ class TestTimetableGenerator(unittest.TestCase):
             tt = TimetableGenerator(items, comb_size, lessons_total)
             self.assertEqual(len(tt.get_course_versions([])), output)
 
-    def test_get_courses_hist(self):
-        get_courses_hist_case = [
-            ([[], [], []], {0: [[], [], []]}),
-            ([[1, 2], [1, 2], [1], [1, 2, 3]], {1: [[1]], 2: [[1, 2], [1, 2]], 3: [[1, 2, 3]]})
-        ]
-        for courses, hist in get_courses_hist_case:
-            self.assertEqual(TimetableGenerator.get_courses_hist(courses), hist)
-
     def test_choose_version(self):
         choose_version_case = [
             ({}, 0, []),
