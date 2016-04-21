@@ -41,14 +41,14 @@ def subtract_combs(minuend, subtrahend):
     return sorted(list(set(minued_sorted) - set(subtrahend_sorted)))
 
 
-def remove_dup_combs(combs_list):
+def remove_dups(sequence):
     """Save order in list"""
     unique_list = []
-    while combs_list:
-        comb, *combs_list = combs_list
-        while comb in combs_list:
-            combs_list.remove(comb)
-        unique_list.append(comb)
+    while sequence:
+        item, *sequence = sequence
+        while item in sequence:
+            sequence.remove(item)
+        unique_list.append(item)
     return unique_list
 
 

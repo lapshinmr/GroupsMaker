@@ -43,10 +43,10 @@ class TimetableGenerator:
             try:
                 lesson, combs = self.get_lesson(combs)
             except IndexError:
-                return calendar
+                break
             if lesson:
                 calendar.append(lesson)
-        return calendar
+        return sorted(calendar)
 
     def get_course_versions(self, in_combs_list):
         combs = in_combs_list[:]
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     tt = TimetableGenerator([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 2, 10)
     versions = tt.get_course_versions(tt.combs)
     count = get_hist(versions, len)
-    count_sorted = get_hist(versions, len)
+    count_not_dups = get_hist(versions, len, remove_dups)
     for idx, key in enumerate(sorted(count.keys())):
-        print(idx + 1, len(count[key]), len(count_sorted[key]))
-    #print(tt.choose_version(count, 11))
+        print(idx + 1, len(count[key]), len(count_not_dups[key]))
+    # print(tt.choose_version(count, 11))

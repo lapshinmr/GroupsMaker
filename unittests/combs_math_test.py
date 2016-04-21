@@ -90,15 +90,16 @@ class TestCombsMath(unittest.TestCase):
             self.assertEqual(sort_items_in_all_combs(in_combs_list, dups), out_combs_list)
 
     def test_remove_dups(self):
-        dups_case = [
+        remove_dups_case = [
             ([], []),
             ([('1', ), ('2', ), ('1', ), ('3', )], [('1', ), ('2', ), ('3', )]),
             ([('1', ), ('2', ), ('1', ), ('3', ), ('1', )], [('1', ), ('2', ), ('3', )]),
             ([('1', '2'), ('1', '2'), ('3', )], [('1', '2'), ('3', )]),
             ([('1', '2'), ('1', '2'), ('3', '3')], [('1', '2'), ('3', '3')]),
+            ([['1', '2'], ['1', '2'], ['3', '3']], [['1', '2'], ['3', '3']]),
         ]
-        for in_combs_list, out_combs_list in dups_case:
-            self.assertEqual(remove_dup_combs(in_combs_list), out_combs_list)
+        for sequence, out_sequence in remove_dups_case:
+            self.assertEqual(remove_dups(sequence), out_sequence)
 
     def test_gen_combs(self):
         combs_case = [

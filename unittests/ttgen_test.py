@@ -54,6 +54,13 @@ class TestTimetableGenerator(unittest.TestCase):
             tt = TimetableGenerator(items, comb_size, lessons_total)
             self.assertEqual(tt.get_course(tt.combs), output)
 
+        get_course_not_sorted_case = [
+            ([1, 2, 3, 4], 3, 2, [[(1, 4), (2, 3)], [(1, 2), (3, 4)], [(1, 3), (2, 4)]]),
+        ]
+        for items, lessons_total, comb_size, output in get_course_not_sorted_case:
+            tt = TimetableGenerator(items, comb_size, lessons_total)
+            self.assertNotEqual(tt.get_course(tt.combs), output)
+
     def test_get_course_versions(self):
         get_course_versions_case = [
             ([1, 2], 2, 3, 1000),
