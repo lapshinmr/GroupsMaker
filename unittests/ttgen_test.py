@@ -4,6 +4,20 @@ from ttgen import *
 
 class TestTimetableGenerator(unittest.TestCase):
     def test_init_tt(self):
+        init_wo_black_case = [
+            ([1, 2, 3, 4], 2, [(1, 2), (1, 3)], [(1, 4), (2, 3), (2, 4), (3, 4)]),
+        ]
+        for items, comb_size, black, wo_black in init_wo_black_case:
+            tt = TimetableGenerator(items, comb_size, blacklist=black)
+            self.assertEqual(tt.combs_wo_black, wo_black)
+
+        init_wo_black_white_case = [
+            ([1, 2, 3, 4], 2, [(2, 3)], [(1, 2), (1, 3)], [(1, 4), (2, 4), (3, 4)]),
+        ]
+        for items, comb_size, white, black, wo_black_white in init_wo_black_white_case:
+            tt = TimetableGenerator(items, comb_size, whitelist=white, blacklist=black)
+            self.assertEqual(tt.combs_wo_black_white, wo_black_white)
+
         init_error_case = [
             ([], 2),
             ([], 3),
@@ -84,6 +98,16 @@ class TestTimetableGenerator(unittest.TestCase):
             count += 1
             tt = TimetableGenerator([1, 2, 3, 4])
             self.assertEqual(tt.choose_course(key, lesson_total), version, 'CASE %s' % count)
+
+    def test_generate(self):
+        generate_case = [
+            ([1, 2, 3, 4], 2, 3, [[(1, 2), (3, 4)], [(1, 3), (2, 4)], [(1, 4), (2, 3)]]),
+        ]
+        count = 0
+        for items, size, duration, course in generate_case:
+            count += 1
+            tt = TimetableGenerator(items, size, duration)
+            self.assertEqual(tt.generate(), course, 'CASE %s' % count)
 
 
 if __name__ == '__main__':

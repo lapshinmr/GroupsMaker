@@ -74,6 +74,11 @@ class TimetableGenerator:
             course = random.choice(chosen_courses)
         return course
 
+    def generate(self):
+        courses = self.get_course_versions(self.combs)
+        hist = get_hist(courses, len)
+        return self.choose_course(hist, self.lessons_total)
+
 
 if __name__ == '__main__':
     tt = TimetableGenerator([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 2, 10)
