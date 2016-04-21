@@ -75,9 +75,19 @@ class TimetableGenerator:
         return course
 
     def generate(self):
-        courses = self.get_course_versions(self.combs)
+        req_lessons_count = self.lessons_total
+        courses = self.get_course_versions(self.combs_wo_black_white)
         hist = get_hist(courses, len)
-        return self.choose_course(hist, self.lessons_total)
+        timetable = self.choose_course(hist, self.lessons_total)
+        req_lessons_count -= len(timetable)
+        while req_lessons_count > 0:
+            print(req_lessons_count)
+            courses = self.get_course_versions(self.combs_wo_black)
+            course = self.choose_course(get_hist(courses, len), req_lessons_count)
+            cur_length = len(course)
+            timetable.extend(course)
+            req_lessons_count -= cur_length
+        return timetable
 
 
 if __name__ == '__main__':

@@ -83,12 +83,13 @@ class TestTimetableGenerator(unittest.TestCase):
             tt = TimetableGenerator(items, comb_size, lessons_total)
             self.assertEqual(len(tt.get_course_versions([])), output)
 
-    def test_choose_version(self):
+    def test_choose_course(self):
         choose_courses_case = [
             ({}, 0, []),
             ({}, 1, []),
             ({}, 2, []),
             ({1: [[1]], 2: [[1, 2], [1, 2]], 3: [[1, 2, 3]]}, 0, []),
+            ({1: [[1]], 2: [[1, 2], [1, 2]], 3: [[1, 2, 3]]}, 1, []),
             ({1: [[1]], 2: [[1, 2], [1, 2]], 3: [[1, 2, 3]]}, 2, [1, 2]),
             ({1: [[1]], 2: [[1, 2], [1, 2]], 3: [[1, 2, 3]]}, 3, [1, 2, 3]),
             ({1: [[1]], 2: [[1, 2], [1, 2]], 3: [[1, 2, 3]]}, 4, [1, 2, 3])
@@ -101,14 +102,27 @@ class TestTimetableGenerator(unittest.TestCase):
 
     def test_generate(self):
         generate_case = [
+            ([1, 2, 3, 4], 2, 0, []),
             ([1, 2, 3, 4], 2, 3, [[(1, 2), (3, 4)], [(1, 3), (2, 4)], [(1, 4), (2, 3)]]),
+            ([1, 2, 3, 4], 2, 4, [[(1, 2), (3, 4)], [(1, 3), (2, 4)], [(1, 4), (2, 3)]]),
         ]
-        count = 0
         for items, size, duration, course in generate_case:
-            count += 1
             tt = TimetableGenerator(items, size, duration)
-            self.assertEqual(tt.generate(), course, 'CASE %s' % count)
+            self.assertEqual(tt.generate(), course)
 
+        generate_wo_exclists_case = [
+            ([1, 2, 3, 4], 2, 3, [(1, 2)], [(1, 3)], [[(1, 4), (2, 3)]]),
+        ]
+        for items, size, duration, white, black, course in generate_wo_exclists_case:
+            tt = TimetableGenerator(items, size, duration, whitelist=white, blacklist=black)
+            self.assertEqual(tt.generate(), course)
+
+        generate_tt_case = [
+            ([1, 2, 3, 4], 2, 3, [(1, 2)], [(1, 3)], 3),
+        ]
+        for items, size, duration, white, black, course_length in generate_tt_case:
+            tt = TimetableGenerator(items, size, duration, whitelist=white, blacklist=black)
+            self.assertEqual(len(tt.generate()), course_length)
 
 if __name__ == '__main__':
     unittest.main()
