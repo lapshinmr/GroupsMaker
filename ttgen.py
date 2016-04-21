@@ -34,7 +34,7 @@ class TimetableGenerator:
             in_combs_list.remove(comb)
         for idx, item in enumerate(names):
             output_combs[idx] += (item,)
-        return output_combs, in_combs_list
+        return sorted(output_combs), in_combs_list
 
     def get_course(self, in_combs_list):
         combs = in_combs_list[:]
@@ -73,7 +73,8 @@ class TimetableGenerator:
 if __name__ == '__main__':
     tt = TimetableGenerator([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 2, 10)
     versions = tt.get_course_versions(tt.combs)
-    count = tt.get_courses_hist(versions)
+    count = get_hist(versions, len)
+    count_sorted = get_hist(versions, len)
     for idx, key in enumerate(sorted(count.keys())):
-        print(idx + 1, len(count[key]))
-    print(tt.choose_version(count, 11))
+        print(idx + 1, len(count[key]), len(count_sorted[key]))
+    #print(tt.choose_version(count, 11))
